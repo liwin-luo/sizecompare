@@ -18,7 +18,6 @@ import {
   DIMENSION_LABELS,
   objectDimension,
   objectName,
-  objectSourceLine,
   objectValueMm,
   type ComparisonObject,
   type DimensionType,
@@ -97,10 +96,21 @@ export function buildAnswerSentence(
   const bigV = objectValueMm(big);
   const smallV = objectValueMm(small);
   const ratio = bigV / smallV;
-  const mixed =
-    new Set(sorted.map((o) => objectDimension(o))).size > 1;
-  const word = mixed ? 'larger than the measured size of' : DIMENSION_WORD[objectDimension(big)];
-  return `The ${objectName(big)} (${formatValue(bigV, system)}) is about ${ratio >= 1.05 ? `${ratio.toFixed(ratio < 10 ? 1 : 0)}× ` : ''}${word} the ${objectName(small)} (${formatValue(smallV, system)}).`;
+  const mixed = new Set(sorted.map((o) => objectDimension(o))).size > 1;
+
+  const bigName = objectName(big);
+  const smallName = objectName(small);
+  const bigLabel = `${bigName} (${formatValue(bigV, system)})`;
+  const smallLabel = `${smallName} (${formatValue(smallV, system)})`;
+
+  if (ratio < 1.05) {
+    return `${bigLabel} is about the same measured size as ${smallLabel}.`;
+  }
+  const ratioText = `${ratio.toFixed(ratio < 10 ? 1 : 0)}×`;
+  if (mixed) {
+    return `${bigLabel} is about ${ratioText} the measured size of ${smallLabel}.`;
+  }
+  return `${bigLabel} is about ${ratioText} ${DIMENSION_WORD[objectDimension(big)]} than ${smallLabel}.`;
 }
 
 interface CanvasProps {
@@ -256,8 +266,13 @@ function ObjectGroup({
 }: ObjectGroupProps) {
   const name = objectName(obj);
   const valueText = formatValue(visual.valueMm, unitSystem);
-  const source = objectSourceLine(obj);
   const { nameSize, valueSize, sourceSize } = fontSizes;
+
+  // Canvas keeps the citation to the source name only — full provenance
+  // lines (context + range) live in the print sheet and library details,
+  // where they don't collide between neighbouring objects.
+  const source =
+    obj.kind === 'library' ? obj.record.source_name : 'Custom measurement';
 
   const centerX = placed.x + placed.w / 2;
   const labelY = layout.baselineY + (nameSize + 14);
@@ -345,7 +360,7 @@ function ObjectGroup({
           fontSize={sourceSize}
           fill="#6b7280"
         >
-          {source.length > 56 ? `${source.slice(0, 55)}…` : source}
+          {source.length > 28 ? `${source.slice(0, 27)}…` : source}
         </text>
       )}
     </g>
