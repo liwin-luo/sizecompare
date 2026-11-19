@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../site.config';
+---
+
+<BaseLayout
+  title="SizeCompare"
+  description={SITE.description}
+  path="/"
+  bareTitle
+>
+  <section class="section">
+    <div class="container">
+      <h1>{SITE.tagline}</h1>
+      <p class="lede">
+        Placeholder homepage — the comparison tool and full content land in the
+        next build phases.
+      </p>
+      <p><a class="btn btn-primary" href="/tools/size-comparison-maker/">Open the Size Comparison Maker</a></p>
+    </div>
+  </section>
+</BaseLayout>
