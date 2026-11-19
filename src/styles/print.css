@@ -1,0 +1,93 @@
+/**
+ * Print stylesheet — turning a comparison into an A4/US Letter
+ * worksheet. The browser's "Save as PDF" in the print dialog produces
+ * the PDF deliverable, so no PDF library ships to the client.
+ *
+ * Strategy: hide the entire app, show only #print-sheet contents.
+ * Page size follows the user's paper choice (A4 or Letter both work —
+ * the layout is single-column with safe margins).
+ */
+
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  /* hide the whole app chrome and tool UI */
+  body * {
+    visibility: hidden;
+  }
+
+  .print-sheet {
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+  }
+
+  .print-sheet,
+  .print-sheet * {
+    visibility: visible;
+  }
+
+  .print-sheet .print-title {
+    font-size: 20pt;
+    margin: 0 0 6pt;
+    letter-spacing: -0.02em;
+  }
+
+  .print-sheet .print-prompt {
+    font-size: 13pt;
+    color: #0a5850;
+    font-weight: 600;
+    margin: 0 0 14pt;
+  }
+
+  .print-sheet table.print-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+    margin-top: 14pt;
+  }
+
+  .print-sheet .print-table th,
+  .print-sheet .print-table td {
+    border: 0.6pt solid #cfcabb;
+    padding: 5pt 7pt;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .print-sheet .print-table th {
+    background: #f2f0ea;
+    font-weight: 700;
+  }
+
+  .print-sheet .print-answer {
+    margin-top: 14pt;
+    font-size: 11pt;
+    border: 1pt dashed #0e6f63;
+    border-radius: 6pt;
+    padding: 8pt 10pt;
+    color: #0a5850;
+  }
+
+  .print-sheet .print-foot {
+    margin-top: 18pt;
+    font-size: 8.5pt;
+    color: #6b7280;
+    border-top: 0.6pt solid #e5e2d8;
+    padding-top: 6pt;
+  }
+
+  /* keep colors for the SVG shapes — teachers print colored figures */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
