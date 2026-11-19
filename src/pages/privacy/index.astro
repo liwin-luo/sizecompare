@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const title = 'Privacy Policy';
+const description =
+  'SizeCompare privacy policy: no accounts, no uploads, no student data. Comparisons are created and stored in your own browser.';
+const path = '/privacy/';
+---
+
+<BaseLayout title={title} description={description} path={path}>
+  <section class="section">
+    <div class="container narrow">
+      <h1>Privacy policy</h1>
+      <p class="lede">Last updated: 2026-11-19</p>
+
+      <h2>The short version</h2>
+      <p>
+        SizeCompare has no accounts, no file uploads, and no student data. The
+        comparisons you create are computed in your browser and saved in your
+        browser's local storage. They are never sent to our servers, because there
+        are no servers.
+      </p>
+
+      <h2>What stays on your device</h2>
+      <ul>
+        <li>Your comparison projects (objects, title, question, settings).</li>
+        <li>Exported PNG images and printouts.</li>
+      </ul>
+      <p>
+        Clearing your browser data for this site deletes your saved comparisons.
+      </p>
+
+      <h2>What we measure (anonymously)</h2>
+      <p>
+        We use aggregate analytics events — such as "a comparison was generated" or
+        "a PNG was exported" — to understand whether the tool is useful. These events
+        contain no names, no measurements you typed, and no personal identifiers.
+        If analytics is not enabled, nothing at all is collected.
+      </p>
+
+      <h2>Children and students</h2>
+      <p>
+        This site is operated by teachers and parents for creating classroom
+        materials. We do not ask for, collect, or store any information from
+        students, and the site offers no accounts, comments, chat, or uploads for
+        anyone.
+      </p>
+
+      <h2>Cookies</h2>
+      <p>
+        The site itself sets no tracking cookies. Analytics, if enabled, may set the
+        standard anonymized measurement cookies described above; your browser can
+        block them without affecting the tool.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        If this policy changes materially, the date above updates and the change is
+        summarized here.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions about privacy or data: see the <a href="/about/">About page</a> for
+        contact details.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .narrow { max-width: 720px; }
+</style>

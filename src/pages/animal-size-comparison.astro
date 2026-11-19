@@ -1,0 +1,126 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ComparisonTool from '../components/tool/ComparisonTool';
+import { OBJECT_LIBRARY } from '../data/library';
+import { formatMm, autoMetricUnit, formatImperialHeight } from '../lib/units';
+import { DIMENSION_LABELS } from '../lib/objects';
+import '../styles/tool.css';
+import '../styles/print.css';
+
+const title = 'Animal Size Comparison — True-Scale Charts for Teaching';
+const description =
+  'Compare real animal sizes at true scale: elephant vs. mouse, giraffe vs. child, blue whale vs. all of them. Sourced measurements with ranges, printable for the classroom.';
+const path = '/animal-size-comparison/';
+
+const animals = OBJECT_LIBRARY.filter((r) => r.category === 'animal');
+---
+
+<BaseLayout title={title} description={description} path={path}>
+  <section class="section">
+    <div class="container">
+      <h1>Animal size comparison</h1>
+      <p class="lede">
+        How tall is an elephant, really? How does a mouse look beside one? The tool
+        below starts with a classic — change the animals, add a child or adult for
+        reference, then present or print. Every measurement is sourced, with ranges
+        where nature varies.
+      </p>
+    </div>
+  </section>
+
+  <div class="container" style="padding-bottom: 40px">
+    <ComparisonTool client:visible />
+  </div>
+
+  <section class="section strip">
+    <div class="container">
+      <h2>Animal measurements in this library</h2>
+      <p class="muted small" style="margin-top: -10px">
+        Representative adult values; ranges reflect natural variation. Measurement
+        context (shoulder height, body length) is stated — never mix them silently.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Animal</th>
+              <th>Dimension</th>
+              <th>Representative</th>
+              <th>Typical range</th>
+              <th>Imperial</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              animals.map((a) => (
+                <tr>
+                  <td>{a.name}</td>
+                  <td>{DIMENSION_LABELS[a.dimension_type].toLowerCase()}</td>
+                  <td>{formatMm(a.value_mm, autoMetricUnit(a.value_mm))}</td>
+                  <td>
+                    {a.min_mm != null && a.max_mm != null
+                      ? `${formatMm(a.min_mm, autoMetricUnit(a.min_mm))} – ${formatMm(
+                          a.max_mm,
+                          autoMetricUnit(a.max_mm),
+                        )}`
+                      : '—'}
+                  </td>
+                  <td>{formatImperialHeight(a.value_mm)}</td>
+                  <td>
+                    <a href={a.source_url} rel="nofollow noopener" target="_blank">
+                      {a.source_name}
+                    </a>
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="muted small">
+        Dinosaur and extinct-animal comparisons are on the roadmap — prehistoric sizes
+        are fossil estimates, so they need their own careful presentation with
+        estimate ranges.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .strip {
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+  }
+  .table-wrap {
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.92rem;
+    min-width: 640px;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  th {
+    background: var(--surface-2);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  tr:last-child td { border-bottom: none; }
+  td:nth-child(3),
+  td:nth-child(4),
+  td:nth-child(5) {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+</style>

@@ -1,0 +1,92 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { OBJECT_LIBRARY } from '../../data/library';
+
+const title = 'About SizeCompare & Our Data Sources';
+const description =
+  'Who makes SizeCompare, how our measurements are sourced and checked, and how original artwork keeps the comparisons honest.';
+const path = '/about/';
+
+const sources = [...new Set(OBJECT_LIBRARY.map((r) => r.source_name))];
+---
+
+<BaseLayout title={title} description={description} path={path}>
+  <section class="section">
+    <div class="container narrow">
+      <h1>About SizeCompare</h1>
+      <p class="lede">
+        SizeCompare is a teacher-first tool for building true-to-scale size
+        comparisons — because most size pictures on the internet quietly resize
+        objects to fit a layout, and students deserve to see real proportions.
+      </p>
+
+      <h2>What makes a comparison trustworthy</h2>
+      <ul>
+        <li>
+          <strong>One scale for everything.</strong> All objects on a canvas share
+          the same pixels-per-millimetre and a shared ground line. Nothing is
+          stretched to fit.
+        </li>
+        <li>
+          <strong>Named dimensions.</strong> Height, length, width, or diameter is
+          labelled on every object, and mixed dimensions are flagged rather than
+          hidden.
+        </li>
+        <li>
+          <strong>Sourced numbers with ranges.</strong> Every built-in object cites
+          its source, states the measurement context, and shows a typical range
+          where nature varies.
+        </li>
+        <li>
+          <strong>Honesty at the extremes.</strong> When the smallest object becomes
+          nearly invisible at true scale, we tell you instead of enlarging it.
+        </li>
+      </ul>
+
+      <h2>How we source measurements</h2>
+      <p>
+        Priority order: official standards (ISO paper and card sizes, NBA ball
+        specifications, ITF tennis ball rules), then reputable reference
+        organizations for animals and people (National Geographic, university animal
+        databases, AKC breed standards, CDC growth charts). Each record carries a
+        <em>checked-at</em> date and is re-audited periodically.
+      </p>
+      <p>Sources currently cited in the built-in library:</p>
+      <ul class="source-list">
+        {sources.map((s) => <li>{s}</li>)}
+      </ul>
+
+      <h2>Artwork and licensing</h2>
+      <p>
+        All silhouettes are original geometric artwork drawn for this project
+        (released as CC0) — no traced or copied illustrations. Exported PNGs and
+        printouts may be used freely in your own classroom materials.
+      </p>
+
+      <h2>Who operates it</h2>
+      <p>
+        SizeCompare is an independent education-tools project. It has no investor
+        or platform behind it, and it never touches student data — everything you
+        create stays in your browser.
+      </p>
+
+      <h2>Contact &amp; feedback</h2>
+      <p>
+        Teachers: if a measurement looks wrong or a source is outdated, that is
+        exactly the feedback we want. Contact: <code>hello@sizecompare.org</code>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .narrow { max-width: 720px; }
+  .source-list { columns: 2; }
+  @media (max-width: 640px) { .source-list { columns: 1; } }
+  code {
+    background: var(--surface-2);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: var(--font-mono);
+  }
+</style>

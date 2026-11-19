@@ -1,22 +1,203 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE } from '../site.config';
+import ComparisonTool from '../components/tool/ComparisonTool';
+import '../styles/tool.css';
+import '../styles/print.css';
+
+const faqs = [
+  {
+    q: 'What is a true-to-scale size comparison?',
+    a: 'Every object is drawn with the same pixels-per-millimetre on one shared ground line, so a 3.2 m elephant really towers over a 9 cm mouse. Images are never stretched or resized to fit the layout — unlike most size pictures found online.',
+  },
+  {
+    q: 'Is SizeCompare free? Do teachers need an account?',
+    a: 'It is free and needs no account. Comparisons are created in your browser and saved on your own device — nothing is uploaded, and no student information is ever collected.',
+  },
+  {
+    q: 'Where do the measurements come from?',
+    a: 'Official standards where they exist (ISO paper and card sizes, NBA ball specs, ITF tennis balls) and reputable references for animals. Every object shows its source, measurement context, and uncertainty range right on the canvas.',
+  },
+  {
+    q: 'Can I print the comparisons for my class?',
+    a: 'Yes. Any comparison prints as a clean A4 or US Letter worksheet with a source table, and the classroom question and answer line are optional. You can also download a PNG for slides.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE.name,
+    url: SITE.origin,
+    description: SITE.description,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
 ---
 
-<BaseLayout
-  title="SizeCompare"
-  description={SITE.description}
-  path="/"
-  bareTitle
->
+<BaseLayout title={SITE.name} description={SITE.description} path="/" bareTitle>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <!-- Hero: try a comparison immediately -->
+  <section class="hero">
+    <div class="container">
+      <h1>Turn measurements into visuals kids can&nbsp;understand</h1>
+      <p class="lede">
+        Create accurate, classroom-ready size comparisons from real objects, animals,
+        and your own measurements — then present them full-screen or print them as
+        worksheets. Free, no sign-up.
+      </p>
+      <p class="hero-actions">
+        <a class="btn btn-primary btn-lg" href="#try-it">Try a comparison ↓</a>
+        <a class="btn btn-ghost btn-lg" href="/guides/how-to-teach-big-and-small/"
+          >How to teach it</a
+        >
+      </p>
+    </div>
+  </section>
+
+  <div id="try-it" class="container tool-home">
+    <ComparisonTool client:idle />
+  </div>
+
+  <!-- Three steps -->
+  <section class="section strip">
+    <div class="container">
+      <div class="grid-3">
+        <div class="card">
+          <h3>1 · Choose objects</h3>
+          <p>
+            Classroom items, everyday objects, animals — or type in any measurement
+            from your own ruler, in metric or imperial.
+          </p>
+        </div>
+        <div class="card">
+          <h3>2 · Compare to scale</h3>
+          <p>
+            All objects share one true scale with dimension lines, sources, and a
+            shared ground line. Nothing is stretched to fit.
+          </p>
+        </div>
+        <div class="card">
+          <h3>3 · Teach or print</h3>
+          <p>
+            Present full-screen with your question and a reveal-answer button, export
+            a PNG, or print an A4/Letter worksheet.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Popular comparisons -->
   <section class="section">
     <div class="container">
-      <h1>{SITE.tagline}</h1>
-      <p class="lede">
-        Placeholder homepage — the comparison tool and full content land in the
-        next build phases.
+      <h2>Popular comparisons</h2>
+      <div class="grid-3">
+        <a class="card link-card" href="/animal-size-comparison/">
+          <h3>Animal sizes</h3>
+          <p>Elephant vs. mouse, giraffe vs. child, blue whale vs. everything.</p>
+        </a>
+        <a class="card link-card" href="/size-comparison-for-kids/">
+          <h3>Teaching size to kids</h3>
+          <p>Age-by-age tasks for big/small, long/short, tall/short — K through 5.</p>
+        </a>
+        <a class="card link-card" href="/tools/size-comparison-maker/">
+          <h3>Compare anything</h3>
+          <p>Enter your own measurements and compare objects from your classroom.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- How scale works -->
+  <section class="section strip">
+    <div class="container narrow">
+      <h2>How the scale works</h2>
+      <p>
+        Each object is labelled with the <strong>dimension</strong> that was measured —
+        height, length, width, or diameter — and objects that measure different things
+        (like an elephant's shoulder height and a whale's body length) are flagged so
+        you can discuss it with your class instead of being misled by it.
       </p>
-      <p><a class="btn btn-primary" href="/tools/size-comparison-maker/">Open the Size Comparison Maker</a></p>
+      <p>
+        When the difference is enormous, the small object honestly stays tiny and the
+        canvas says so. That honesty is the whole point: students should trust what
+        they see.
+      </p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section">
+    <div class="container narrow">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((f) => (
+        <details>
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .hero {
+    padding-block: 64px 40px;
+    text-align: center;
+  }
+  .hero h1 {
+    max-width: 21ch;
+    margin-inline: auto;
+  }
+  .hero .lede {
+    margin-inline: auto;
+    max-width: 56ch;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 26px;
+  }
+  .tool-home {
+    padding-bottom: 24px;
+  }
+  .strip {
+    background: var(--surface);
+    border-block: 1px solid var(--line);
+  }
+  .narrow {
+    max-width: 760px;
+  }
+  .link-card {
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+  }
+  .link-card:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-lift);
+  }
+  .link-card h3 { color: var(--primary); }
+  details {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    background: var(--surface);
+  }
+  summary { font-weight: 600; cursor: pointer; }
+  details p { margin: 8px 0 0; color: var(--ink-soft); }
+</style>

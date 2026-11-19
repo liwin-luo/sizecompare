@@ -1,0 +1,171 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const title = "How to Teach Big and Small — A Practical Teacher's Guide";
+const description =
+  'A step-by-step guide to teaching size comparison in K–5: vocabulary, classroom routines, true-scale visuals, common misconceptions, and how to check understanding.';
+const path = '/guides/how-to-teach-big-and-small/';
+---
+
+<BaseLayout title={title} description={description} path={path}>
+  <article class="section">
+    <div class="container narrow">
+      <h1>How to teach big and small (and long, short, tall, wide)</h1>
+      <p class="lede">
+        Size comparison looks trivial to adults, but for young students it is real
+        mathematics: identifying an attribute, measuring it, and describing the
+        difference. This guide walks through a routine that works from kindergarten
+        to grade 5.
+      </p>
+
+      <nav class="toc" aria-label="On this page">
+        <ol>
+          <li><a href="#foundations">Build the foundation: name the attribute</a></li>
+          <li><a href="#direct">Direct comparison before numbers</a></li>
+          <li><a href="#measure">From comparison to measurement</a></li>
+          <li><a href="#visuals">Use true-scale visuals</a></li>
+          <li><a href="#misconceptions">Misconceptions and how to handle them</a></li>
+          <li><a href="#check">Quick ways to check understanding</a></li>
+        </ol>
+      </nav>
+
+      <h2 id="foundations">1 · Build the foundation: name the attribute</h2>
+      <p>
+        "Bigger" is ambiguous. A snake is longer than an elephant; the elephant is
+        taller and heavier. Start every activity by naming the attribute:
+        <em>length</em>, <em>height</em>, or <em>width</em>. In kindergarten terms:
+        "We are comparing how <strong>tall</strong> these two animals are."
+      </p>
+      <p>
+        Vocabulary to introduce in order: <em>big / small</em> →
+        <em>long / short</em> → <em>tall / short</em> → <em>wide / narrow</em> →
+        <em>longer than / shorter than / tallest / shortest</em> →
+        <em>about the same</em>.
+      </p>
+
+      <h2 id="direct">2 · Direct comparison before numbers</h2>
+      <p>
+        Before any ruler appears, students should physically compare: line up two
+        pencils on a common edge, stand two students back to back. The shared
+        starting line is the key idea — it is exactly what a true-scale drawing does
+        with its ground line.
+      </p>
+      <p>
+        Classroom routine: hold up two objects, ask "which is longer, and how do you
+        know?" Accept answers that <em>align</em> the objects ("put them side by side
+        starting at the same edge") rather than answers that just name the winner.
+      </p>
+
+      <h2 id="measure">3 · From comparison to measurement</h2>
+      <p>
+        Grades 1–2: measure with non-standard units (cubes, paper clips), then
+        standard units. The jump to make explicit: <em>the number is the attribute</em>.
+        "The pencil is 19 cm long" describes one attribute, not the whole pencil.
+      </p>
+      <p>
+        Grades 3–5: compare in two unit systems, convert, and discuss which unit is
+        sensible for which object (millimetres for an eraser, metres for a giraffe,
+        kilometres for nothing in this library). Estimate first — then check against
+        the true-scale picture.
+      </p>
+
+      <h2 id="visuals">4 · Use true-scale visuals</h2>
+      <p>
+        Most size pictures online resize each image to fit a layout, which quietly
+        teaches wrong proportions. When you show a comparison, make sure:
+      </p>
+      <ul>
+        <li>All objects share <strong>one scale</strong> and one ground line.</li>
+        <li>
+          Each object is labelled with the <strong>dimension</strong> measured and
+          its value.
+        </li>
+        <li>
+          Sources and ranges are visible — "a typical adult is about 1.7 m; people
+          vary."
+        </li>
+      </ul>
+      <p>
+        The <a href="/tools/size-comparison-maker/">size comparison maker</a> does all
+        three automatically, and its presentation mode hides everything but the
+        picture and your question.
+      </p>
+
+      <h2 id="misconceptions">5 · Misconceptions and how to handle them</h2>
+      <ul>
+        <li>
+          <strong>"It looks bigger in the picture, so it's bigger."</strong> Compare a
+          resized photo with a true-scale drawing of the same pair. Let students find
+          the difference — this sticks.
+        </li>
+        <li>
+          <strong>Comparing length with height.</strong> A whale's length vs. a
+          giraffe's height is a legitimate lesson, but it must be labelled. Mixed
+          dimensions should be discussed, never hidden.
+        </li>
+        <li>
+          <strong>Endpoint confusion.</strong> Young students compare from different
+          starting lines. Always align on a shared edge before comparing.
+        </li>
+        <li>
+          <strong>"Measurement is exact."</strong> Animals vary, children vary. Show
+          ranges early — it builds statistical thinking, not confusion.
+        </li>
+      </ul>
+
+      <h2 id="check">6 · Quick ways to check understanding</h2>
+      <ul>
+        <li>
+          <strong>Reverse the question:</strong> "The mouse is shorter than the
+          elephant. Tell me the same thing starting with the elephant."
+        </li>
+        <li>
+          <strong>How many?</strong> "How many mice tall is the elephant — about?"
+          Ratio reasoning with no formula.
+        </li>
+        <li>
+          <strong>Order three objects</strong> from shortest to tallest, then justify
+          the middle placement.
+        </li>
+        <li>
+          <strong>Spot the lie:</strong> show a false-scale picture and ask what's
+          wrong with it.
+        </li>
+      </ul>
+
+      <div class="guide-cta">
+        <h2>Put it into practice</h2>
+        <p>
+          Build a comparison in under a minute, present it, print it, and move on
+          with your lesson.
+        </p>
+        <p>
+          <a class="btn btn-primary" href="/tools/size-comparison-maker/"
+            >Open the size comparison maker</a
+          >
+        </p>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .narrow { max-width: 720px; }
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 24px;
+    margin-bottom: 36px;
+  }
+  .toc ol { margin: 0; padding-left: 20px; }
+  .toc li { margin: 4px 0; }
+  .guide-cta {
+    margin-top: 44px;
+    background: var(--primary-soft);
+    border: 1px solid #bcd9d4;
+    border-radius: var(--radius);
+    padding: 24px 28px;
+  }
+  h2 { scroll-margin-top: 84px; }
+</style>
