@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE } from '../site.config';
 import CompareStudio from '../components/tool/ComparisonTool';
 import { PAIRS, pairSlug } from '../data/pairs';
-import { LIBRARY_BY_ID } from '../data/library';
+import { LIBRARY_BY_ID, OBJECT_LIBRARY } from '../data/library';
 import '../styles/tool.css';
 import '../styles/print.css';
 
@@ -27,13 +27,17 @@ const faqs = [
 ];
 
 const popular = PAIRS.slice(0, 6);
+const counts = OBJECT_LIBRARY.reduce<Record<string, number>>((acc, r) => {
+  acc[r.category] = (acc[r.category] ?? 0) + 1;
+  return acc;
+}, {});
 const categories = [
-  { label: 'Animals', count: 16, blurb: 'Elephants, whales, T. rex, penguins — heights, lengths and weights.' },
-  { label: 'Space', count: 5, blurb: 'Sun, Earth, Moon, Jupiter, Mars — diameters and volumes from NASA.' },
-  { label: 'Buildings', count: 4, blurb: 'Eiffel Tower, Burj Khalifa, Statue of Liberty, Everest.' },
-  { label: 'Vehicles', count: 4, blurb: 'Bikes, cars, pickups, school buses — lengths and weights.' },
-  { label: 'Everyday', count: 15, blurb: 'Phones, laptops, balls, cans, paper — things you can hold.' },
-  { label: 'Food', count: 6, blurb: 'Bananas, eggs, watermelons — measure your lunch.' },
+  { label: 'Animals', count: counts.animal ?? 0, blurb: 'Elephants, whales, T. rex, penguins — heights, lengths and weights.' },
+  { label: 'Space', count: counts.space ?? 0, blurb: 'Sun, Earth, Moon, Jupiter, Mars — diameters and volumes from NASA.' },
+  { label: 'Buildings', count: counts.building ?? 0, blurb: 'Eiffel Tower, Burj Khalifa, Statue of Liberty, Everest.' },
+  { label: 'Vehicles', count: counts.vehicle ?? 0, blurb: 'Bikes, cars, pickups, school buses — lengths and weights.' },
+  { label: 'Everyday', count: counts.everyday ?? 0, blurb: 'Phones, TVs, balls, beds, tools — things you can hold.' },
+  { label: 'Food', count: counts.food ?? 0, blurb: 'Bananas, eggs, watermelons — measure your lunch.' },
 ];
 ---
 

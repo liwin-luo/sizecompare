@@ -41,3 +41,24 @@
 - Fluent 图标的内容边界框经浏览器栅格化实测（scripts/emoji-tools/fluent-bbox.json），裁剪框已烧进每个 SVG 的根 viewBox——渲染全幅贴合真比例框与地线；SVG 内部 defs ID 已按对象前缀化（跨图标 10k+ ID 冲突规避）；About 页保留 MIT 署名（非强制，善意保留）
 - 每条属性必须：context 明确（什么口径）+ source + checked_at；估算/范围必须 uncertainty_note
 - 体积只收录可辩护对象（球体/标准容器/天体），不编造不规则物体积
+
+---
+
+## 2026-11-20 扩容批次（139 个新对象，库总量 191）
+
+| 批次 | 数量 | 来源体系 | 置信度 |
+|---|---|---|---|
+| 狗品种 | 24 | AKC 品种标准（肩高/体重区间中值） | ⏳ 标准值，下次对 AKC 单品种页复核 |
+| 猫品种 | 10 | CFA 品种档案（体重）+ 代表性体长 | ⏳ 体长非注册标准，已标注 |
+| 电视 | 7 | 由标称对角线 + 16:9 面板比推导宽/高 | 📖 推导明确，含公式说明 |
+| 床垫 | 6 | 美标床垫尺寸 | 📖 标准值 |
+| 球类 | 9 | FIFA/NFL/FIVB/MLB/WPA/ITTF/USBC/NHL/World Rugby 官方规格 | ⏳ 规格区间中值，待对官方文档复核 |
+| 食物 | 29 | USDA FoodData Central（典型中等零售份） | ⏳ 范围已标注 |
+| 动物补充 | 22 | NatGeo / Britannica / BAS / SD Zoo | ⏳ 范围已标注 |
+| 载具补充 | 11 | Boeing/Robinson/NASA 官方或典型区间 | ⏳ 区间已标注（消防车/救护车等近似） |
+| 乐器 | 6 | Yamaha 等厂商典型规格 | ⏳ |
+| 天体 | 1 | NASA Saturn Fact Sheet | ✅ |
+| 日常 | 15 | IEC 60086（AA）/ ANSI A19 / 厂商典型 | ⏳ 区间已标注 |
+
+- 视觉素材：新对象全部走 Fluent Emoji（MIT）；品种类共用通用 dog/cat 图标（同画布靠名称区分）
+- 下轮审计重点：AKC 单品种页数值、球类官方规格 PDF、食物 USDA 条目锚定

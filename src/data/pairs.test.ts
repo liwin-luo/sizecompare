@@ -25,8 +25,8 @@ describe('curated pairs integrity', () => {
     expect(families).toContain('volume');
   });
 
-  it('ships a meaningful batch (~30 curated pairs, not N²)', () => {
-    expect(PAIRS.length).toBeGreaterThanOrEqual(25);
-    expect(PAIRS.length).toBeLessThanOrEqual(40);
+  it('ships a meaningful curated batch (~120 pairs, not N²)', () => {
+    expect(PAIRS.length).toBeGreaterThanOrEqual(80);
+    expect(PAIRS.length).toBeLessThanOrEqual(150);
   });
 });
