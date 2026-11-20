@@ -4,11 +4,11 @@
  * Each object carries a `measurements` map: every attribute it has is an
  * independent Measurement with its own provenance (context, source,
  * checked date, uncertainty). Base units per family: linear → mm,
- * weight → g, volume → ml. Custom objects carry a single user-entered
- * attribute and make no provenance claims.
+ * weight → g, volume → ml, area → mm². Custom objects carry a single
+ * user-entered attribute and make no provenance claims.
  */
 
-import { MIN_G, MIN_ML, MIN_MM } from './units';
+import { MIN_AREA_MM2, MIN_G, MIN_ML, MIN_MM } from './units';
 import { ALL_ATTRS, ATTRIBUTE_FAMILY, type AttributeKey } from './attributes';
 
 export type MeasureAxis = 'vertical' | 'horizontal' | 'both';
@@ -20,6 +20,7 @@ export type Category =
   | 'space'
   | 'building'
   | 'vehicle'
+  | 'place'
   | 'reference';
 
 export interface Measurement {
@@ -74,7 +75,7 @@ export interface CustomObject {
   id: string;
   name: string;
   attr: AttributeKey;
-  /** Base-unit value (mm for linear, g for weight, ml for volume). */
+  /** Base-unit value (mm for linear, g for weight, ml for volume, mm² for area). */
   value: number;
   color: string;
 }
@@ -142,7 +143,14 @@ export function validateAttrValue(attr: AttributeKey, base: number): AttrValidat
   const family = ATTRIBUTE_FAMILY[attr];
   if (!Number.isFinite(base)) return { ok: false, error: 'Enter a number.' };
   if (base <= 0) return { ok: false, error: 'Value must be greater than zero.' };
-  const min = family === 'weight' ? MIN_G : family === 'volume' ? MIN_ML : MIN_MM;
+  const min =
+    family === 'weight'
+      ? MIN_G
+      : family === 'volume'
+        ? MIN_ML
+        : family === 'area'
+          ? MIN_AREA_MM2
+          : MIN_MM;
   if (base < min) return { ok: false, error: 'That value is too small to draw.' };
   return { ok: true };
 }

@@ -116,6 +116,51 @@ export interface ScaleHealth {
   extreme: boolean;
 }
 
+/**
+ * Quiz reveal layout — interpolate between an "all equal" arrangement
+ * (the question state: true proportions deliberately hidden) and the true
+ * `computeLayout` result (the answer). The equal reference is the
+ * geometric mean of the measured values, so during the reveal one object
+ * typically grows while the other shrinks. At progress 1 the output is
+ * identical to computeLayout; during the blend each object has its own
+ * transient scale, which is the point of the animation.
+ */
+export function computeRevealLayout(
+  items: LayoutItem[],
+  box: Box,
+  progress: number,
+  padding = 24,
+  gap = 24,
+): Layout {
+  const truth = computeLayout(items, box, padding, gap);
+  if (progress >= 1) return truth;
+
+  const t = Math.min(Math.max(progress, 0), 1);
+  const mean = Math.exp(items.reduce((s, i) => s + Math.log(i.valueMm), 0) / items.length);
+  const equal = computeLayout(
+    items.map((i) => ({ ...i, valueMm: mean })),
+    box,
+    padding,
+    gap,
+  );
+
+  const lerp = (a: number, b: number) => a + (b - a) * t;
+  return {
+    scale: truth.scale,
+    baselineY: truth.baselineY,
+    items: truth.items.map((trueItem, index) => {
+      const eq = equal.items[index];
+      return {
+        index,
+        x: lerp(eq.x, trueItem.x),
+        y: lerp(eq.y, trueItem.y),
+        w: lerp(eq.w, trueItem.w),
+        h: lerp(eq.h, trueItem.h),
+      };
+    }),
+  };
+}
+
 /** Assess readability of a comparison at a given scale (never alters it). */
 export function assessScale(valuesMm: number[], scale: number): ScaleHealth {
   const clean = valuesMm.filter((v) => Number.isFinite(v) && v > 0);

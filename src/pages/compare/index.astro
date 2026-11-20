@@ -6,13 +6,14 @@ import { ATTRIBUTE_FAMILY, type AttributeKey } from '../../lib/attributes';
 
 const title = 'Browse Comparisons — Animals, Space, Buildings & More';
 const description =
-  'Curated true-scale comparisons: elephant vs giraffe, Sun vs Earth, Burj Khalifa vs Eiffel Tower, car vs bicycle — heights, weights and volumes, all sourced.';
+  'Curated true-scale comparisons: elephant vs giraffe, Sun vs Earth, Burj Khalifa vs Eiffel Tower, China vs USA — heights, weights, volumes and country areas, all sourced.';
 const path = '/compare/';
 
 const groups: { label: string; attrs: AttributeKey[] }[] = [
   { label: 'Heights & lengths', attrs: ['height', 'length', 'width', 'diameter'] },
   { label: 'Weights', attrs: ['weight'] },
   { label: 'Volumes', attrs: ['volume'] },
+  { label: 'Areas', attrs: ['area'] },
 ];
 
 const grouped = groups
@@ -130,4 +131,5 @@ const grouped = groups
   .badge-linear { background: #e3f0ee; color: #0a5850; }
   .badge-weight { background: #fdf1e3; color: #7c3f06; }
   .badge-volume { background: #ece8f8; color: #4c3591; }
+  .badge-area { background: #e6f4e6; color: #1e6b2e; }
 </style>

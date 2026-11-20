@@ -10,7 +10,13 @@
  */
 
 import { useMemo } from 'react';
-import { computeLayout, assessScale, type Layout, type PlacedItem } from '../../lib/scale';
+import {
+  computeLayout,
+  computeRevealLayout,
+  assessScale,
+  type Layout,
+  type PlacedItem,
+} from '../../lib/scale';
 import {
   objectName,
   objectValue,
@@ -130,6 +136,13 @@ interface CanvasProps {
   /** Show measurement source names under objects. */
   showSources?: boolean;
   svgId?: string;
+  /**
+   * Quiz reveal progress 0→1. Below 1 the objects are drawn blended from
+   * an equal-size arrangement (question state — true proportions and
+   * values hidden) toward the true layout; 1 (default) is the normal
+   * canvas. Easing is applied by the caller.
+   */
+  reveal?: number;
 }
 
 export function ScaleCanvas({
@@ -140,11 +153,14 @@ export function ScaleCanvas({
   large = false,
   showSources = true,
   svgId,
+  reveal = 1,
 }: CanvasProps) {
   const nameSize = large ? 30 : 16;
   const valueSize = large ? 26 : 14;
   const sourceSize = large ? 17 : 11;
   const labelZone = large ? 130 : 66;
+
+  const hidden = reveal < 1;
 
   const { layout, health } = useMemo<{
     layout: Layout | null;
@@ -160,13 +176,15 @@ export function ScaleCanvas({
       aspect: (v as NonNullable<typeof v>).aspect,
       axis: (v as NonNullable<typeof v>).axis,
     }));
-    const l = computeLayout(items, box, large ? 60 : 34, large ? 80 : 34);
+    const l = hidden
+      ? computeRevealLayout(items, box, reveal, large ? 60 : 34, large ? 80 : 34)
+      : computeLayout(items, box, large ? 60 : 34, large ? 80 : 34);
     return {
       layout: l,
       health: assessScale(items.map((i) => i.valueMm), l.scale),
       missing: false,
     };
-  }, [objects, attr, box, large]);
+  }, [objects, attr, box, large, reveal]);
 
   if (!layout) {
     return (
@@ -202,7 +220,11 @@ export function ScaleCanvas({
       viewBox={`0 0 ${box.width} ${totalH}`}
       width="100%"
       role="img"
-      aria-label={`${ATTRIBUTE_LABELS[attr]} comparison chart: ${objects.map((o) => objectName(o)).join(', ')} at one true scale`}
+      aria-label={
+        hidden
+          ? `${ATTRIBUTE_LABELS[attr]} quiz chart: ${objects.map((o) => objectName(o)).join(', ')} drawn equal-sized with values hidden`
+          : `${ATTRIBUTE_LABELS[attr]} comparison chart: ${objects.map((o) => objectName(o)).join(', ')} at one true scale`
+      }
     >
       <rect x="0" y="0" width={box.width} height={totalH} fill="#ffffff" rx="8" />
 
@@ -245,6 +267,7 @@ export function ScaleCanvas({
             unitSystem={unitSystem}
             fontSizes={{ nameSize, valueSize, sourceSize }}
             showSource={showSources}
+            hideMeasured={hidden}
           />
         );
       })}
@@ -258,9 +281,11 @@ export function ScaleCanvas({
         fontSize={large ? 18 : 11}
         fill="#6b7280"
       >
-        {health?.extreme
-          ? 'True scale — the smallest object really is this tiny relative to the largest'
-          : 'All objects drawn to one true scale'}
+        {hidden
+          ? 'Equal sizes — the true scale is revealed after you answer'
+          : health?.extreme
+            ? 'True scale — the smallest object really is this tiny relative to the largest'
+            : 'All objects drawn to one true scale'}
       </text>
     </svg>
   );
@@ -276,6 +301,8 @@ interface ObjectGroupProps {
   unitSystem: UnitSystem;
   fontSizes: { nameSize: number; valueSize: number; sourceSize: number };
   showSource: boolean;
+  /** Quiz question state: hide values and dimension lines until the reveal. */
+  hideMeasured?: boolean;
 }
 
 function ObjectGroup({
@@ -288,9 +315,10 @@ function ObjectGroup({
   unitSystem,
   fontSizes,
   showSource,
+  hideMeasured = false,
 }: ObjectGroupProps) {
   const name = objectName(obj);
-  const valueText = formatAttrValue(attr, visual.valueMm, unitSystem);
+  const valueText = hideMeasured ? '?' : formatAttrValue(attr, visual.valueMm, unitSystem);
   const { nameSize, valueSize, sourceSize } = fontSizes;
 
   // Canvas keeps the citation to the source name only — full provenance
@@ -305,8 +333,7 @@ function ObjectGroup({
 
   // Dimension line along the measured axis with end ticks.
   const tick = 6;
-  const dimLine =
-    visual.axis === 'vertical' || visual.axis === 'both' ? (
+  const dimLine = hideMeasured ? null : visual.axis === 'vertical' || visual.axis === 'both' ? (
       <g stroke="#334155" strokeWidth="1.5">
         <line x1={Math.max(placed.x - 8, 2)} y1={placed.y} x2={Math.max(placed.x - 8, 2)} y2={layout.baselineY} />
         <line x1={Math.max(placed.x - 8, 2) - tick} y1={placed.y} x2={Math.max(placed.x - 8, 2) + tick} y2={placed.y} />

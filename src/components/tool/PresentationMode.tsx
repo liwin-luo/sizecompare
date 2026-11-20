@@ -14,6 +14,7 @@ import { ATTRIBUTE_FAMILY } from '../../lib/attributes';
 import { ScaleCanvas, buildAnswerSentence } from './ScaleCanvas';
 import { WeightBars } from './WeightBars';
 import { VolumeSpheres } from './VolumeSpheres';
+import { AreaSquares } from './AreaSquares';
 
 export function PresentationMode({
   title,
@@ -87,6 +88,15 @@ export function PresentationMode({
             <VolumeSpheres
               objects={objects}
               attr={attr as 'volume'}
+              box={box}
+              unitSystem={unitSystem}
+              large
+              showSources={false}
+            />
+          ) : family === 'area' ? (
+            <AreaSquares
+              objects={objects}
+              attr={attr as 'area'}
               box={box}
               unitSystem={unitSystem}
               large

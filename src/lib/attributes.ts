@@ -1,16 +1,20 @@
 /**
  * Attribute system — what can be compared about an object.
  *
- * Three families with different honest visualizations:
+ * Four families with different honest visualizations:
  *   linear → true-scale side-by-side (ScaleCanvas)
  *   weight → proportional horizontal bars  (WeightBars)
  *   volume → spheres with radius ∝ ∛V      (VolumeSpheres)
+ *   area   → squares with side ∝ √A        (AreaSquares)
  */
 
 import {
+  autoAreaUnit,
   autoMassUnit,
   autoMetricUnit,
   autoVolumeUnit,
+  formatAreaMm2,
+  formatImperialArea,
   formatImperialHeight,
   formatImperialVolume,
   formatImperialWeight,
@@ -21,9 +25,9 @@ import {
 } from './units';
 
 export type LinearAttr = 'height' | 'length' | 'width' | 'diameter';
-export type AttributeKey = LinearAttr | 'weight' | 'volume';
+export type AttributeKey = LinearAttr | 'weight' | 'volume' | 'area';
 
-export type AttributeFamily = 'linear' | 'weight' | 'volume';
+export type AttributeFamily = 'linear' | 'weight' | 'volume' | 'area';
 
 export const LINEAR_ATTRS: LinearAttr[] = ['height', 'length', 'width', 'diameter'];
 
@@ -35,6 +39,7 @@ export const ALL_ATTRS: AttributeKey[] = [
   'diameter',
   'weight',
   'volume',
+  'area',
 ];
 
 export const ATTRIBUTE_FAMILY: Record<AttributeKey, AttributeFamily> = {
@@ -44,6 +49,7 @@ export const ATTRIBUTE_FAMILY: Record<AttributeKey, AttributeFamily> = {
   diameter: 'linear',
   weight: 'weight',
   volume: 'volume',
+  area: 'area',
 };
 
 export const ATTRIBUTE_LABELS: Record<AttributeKey, string> = {
@@ -53,6 +59,7 @@ export const ATTRIBUTE_LABELS: Record<AttributeKey, string> = {
   diameter: 'Diameter',
   weight: 'Weight',
   volume: 'Volume',
+  area: 'Area',
 };
 
 /** Comparison word for answer sentences ("is about 2× … than"). */
@@ -63,6 +70,7 @@ const COMPARATIVE_WORD: Record<AttributeKey, string> = {
   diameter: 'wider',
   weight: 'heavier',
   volume: 'larger',
+  area: 'larger',
 };
 
 export function attrFamily(attr: AttributeKey): AttributeFamily {
@@ -70,12 +78,14 @@ export function attrFamily(attr: AttributeKey): AttributeFamily {
 }
 
 /** Internal base unit for an attribute family. */
-export function attrBaseUnit(attr: AttributeKey): 'mm' | 'g' | 'ml' {
+export function attrBaseUnit(attr: AttributeKey): 'mm' | 'g' | 'ml' | 'mm²' {
   switch (attrFamily(attr)) {
     case 'weight':
       return 'g';
     case 'volume':
       return 'ml';
+    case 'area':
+      return 'mm²';
     default:
       return 'mm';
   }
@@ -106,6 +116,10 @@ export function formatAttrValue(attr: AttributeKey, baseValue: number, system: U
       return system === 'metric'
         ? formatVolMl(baseValue, autoVolumeUnit(baseValue))
         : formatImperialVolume(baseValue);
+    case 'area':
+      return system === 'metric'
+        ? formatAreaMm2(baseValue, autoAreaUnit(baseValue))
+        : formatImperialArea(baseValue);
     default:
       return system === 'metric'
         ? formatMm(baseValue, autoMetricUnit(baseValue))
@@ -117,6 +131,7 @@ export function formatAttrValue(attr: AttributeKey, baseValue: number, system: U
 export function ratioPhrase(attr: AttributeKey, ratio: number): string {
   if (ratio < 1.05) return 'about the same size as';
   if (attr === 'volume') return `about ${niceRatio(ratio)}× the volume of`;
+  if (attr === 'area') return `about ${niceRatio(ratio)}× the area of`;
   return `about ${niceRatio(ratio)}× ${COMPARATIVE_WORD[attr]} than`;
 }
 

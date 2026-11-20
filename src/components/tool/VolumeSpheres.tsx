@@ -22,6 +22,7 @@ export function VolumeSpheres({
   large = false,
   showSources = true,
   svgId,
+  reveal = 1,
 }: {
   objects: ComparisonObject[];
   attr: 'volume';
@@ -30,6 +31,8 @@ export function VolumeSpheres({
   large?: boolean;
   showSources?: boolean;
   svgId?: string;
+  /** Quiz reveal progress 0→1: below 1 radii blend from equal, values hidden. */
+  reveal?: number;
 }) {
   const values = objects.map((o) => objectValue(o, attr) ?? 0);
 
@@ -66,13 +69,26 @@ export function VolumeSpheres({
 
   const { items, baselineY, extreme } = layout.layout;
 
+  const hidden = reveal < 1;
+  // Quiz blend: every radius interpolates from the geometric-mean radius
+  // (equal spheres, truth hidden) toward its true ∝∛V radius.
+  const t = Math.min(Math.max(reveal, 0), 1);
+  const meanRoot = Math.cbrt(
+    Math.exp(values.reduce((s, v) => s + Math.log(v), 0) / values.length),
+  );
+  const equalR = meanRoot * layout.layout.scale;
+
   return (
     <svg
       id={svgId}
       viewBox={`0 0 ${box.width} ${totalH}`}
       width="100%"
       role="img"
-      aria-label={`Volume comparison: ${objects.map((o) => objectName(o)).join(', ')}`}
+      aria-label={
+        hidden
+          ? `Volume quiz chart: ${objects.map((o) => objectName(o)).join(', ')} with equal spheres and values hidden`
+          : `Volume comparison: ${objects.map((o) => objectName(o)).join(', ')}`
+      }
     >
       <rect width={box.width} height={totalH} fill="#ffffff" rx="8" />
       <text x="16" y="26" fontFamily={FONT} fontSize={large ? 24 : 14} fontWeight="600" fill="#0e6f63">
@@ -94,7 +110,9 @@ export function VolumeSpheres({
         const obj = objects[item.index];
         const color = OBJ_PALETTE[item.index % OBJ_PALETTE.length];
         const value = values[item.index];
-        const valueText = formatAttrValue(attr, value, unitSystem);
+        const r = hidden ? equalR + (item.r - equalR) * t : item.r;
+        const cy = baselineY - r;
+        const valueText = hidden ? '?' : formatAttrValue(attr, value, unitSystem);
         const source = objectSourceLine(obj, attr);
         const nameY = baselineY + nameSize + 10;
         const valueY = nameY + valueSize + 8;
@@ -102,16 +120,16 @@ export function VolumeSpheres({
           <g key={obj.record.id}>
             <circle
               cx={item.cx}
-              cy={item.cy}
-              r={item.r}
+              cy={cy}
+              r={r}
               fill={color}
               opacity="0.92"
             />
             {/* highlight arc suggests 3-D form without dishonest shading */}
             <circle
-              cx={item.cx - item.r * 0.25}
-              cy={item.cy - item.r * 0.3}
-              r={item.r * 0.55}
+              cx={item.cx - r * 0.25}
+              cy={cy - r * 0.3}
+              r={r * 0.55}
               fill="#ffffff"
               opacity="0.14"
             />
@@ -160,7 +178,9 @@ export function VolumeSpheres({
         fontSize={captionSize}
         fill="#6b7280"
       >
-        Sphere radius ∝ ∛volume — a 2× radius holds 8× the volume
+        {hidden
+          ? 'Equal spheres — true sizes revealed after you answer'
+          : 'Sphere radius ∝ ∛volume — a 2× radius holds 8× the volume'}
       </text>
       {extreme && (
         <text

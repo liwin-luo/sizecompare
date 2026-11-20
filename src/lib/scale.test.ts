@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { ScaleError, assessScale, computeLayout, EXTREME_RATIO } from './scale';
+import {
+  ScaleError,
+  assessScale,
+  computeLayout,
+  computeRevealLayout,
+  EXTREME_RATIO,
+} from './scale';
 
 const BOX = { width: 1000, height: 600 };
 
@@ -140,5 +146,54 @@ describe('extreme-scale honesty (warn, never inflate)', () => {
     const mouse = layout.items[0];
     // The mouse stays exactly value × scale, however tiny that is.
     expect(mouse.h).toBeCloseTo(90 * layout.scale, 9);
+  });
+});
+
+describe('computeRevealLayout (quiz reveal blend)', () => {
+  const ITEMS = [
+    { valueMm: 3200, aspect: 0.5, axis: 'vertical' as const },
+    { valueMm: 90, aspect: 1.8, axis: 'vertical' as const },
+  ];
+
+  it('returns exactly computeLayout at (and beyond) progress 1', () => {
+    expect(computeRevealLayout(ITEMS, BOX, 1)).toEqual(computeLayout(ITEMS, BOX));
+    expect(computeRevealLayout(ITEMS, BOX, 2)).toEqual(computeLayout(ITEMS, BOX));
+  });
+
+  it('draws equal measured axes at progress 0', () => {
+    const layout = computeRevealLayout(ITEMS, BOX, 0);
+    const [a, b] = layout.items;
+    expect(a.h).toBeCloseTo(b.h, 6); // both vertical axis → equal heights
+    expect(a.h).toBeGreaterThan(0);
+  });
+
+  it('keeps the shared baseline and stays inside the box at every step', () => {
+    for (const p of [0, 0.25, 0.5, 0.75, 1]) {
+      const layout = computeRevealLayout(ITEMS, BOX, p);
+      expect(layout.baselineY).toBe(BOX.height - 24);
+      for (const item of layout.items) {
+        expect(item.y).toBeGreaterThanOrEqual(0);
+        expect(item.y + item.h).toBeCloseTo(layout.baselineY, 6);
+        expect(item.w).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('preserves each silhouette aspect ratio mid-blend', () => {
+    const layout = computeRevealLayout(ITEMS, BOX, 0.37);
+    for (const [i, item] of layout.items.entries()) {
+      expect(item.w / item.h).toBeCloseTo(ITEMS[i].aspect, 6);
+    }
+  });
+
+  it('moves monotonically from equal sizes toward the true sizes', () => {
+    const zero = computeRevealLayout(ITEMS, BOX, 0);
+    const mid = computeRevealLayout(ITEMS, BOX, 0.5);
+    const one = computeRevealLayout(ITEMS, BOX, 1);
+    // the big object only grows, the small one only shrinks
+    expect(zero.items[0].h).toBeLessThan(mid.items[0].h);
+    expect(mid.items[0].h).toBeLessThan(one.items[0].h);
+    expect(zero.items[1].h).toBeGreaterThan(mid.items[1].h);
+    expect(mid.items[1].h).toBeGreaterThan(one.items[1].h);
   });
 });

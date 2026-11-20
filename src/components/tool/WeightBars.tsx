@@ -21,6 +21,7 @@ export function WeightBars({
   large = false,
   showSources = true,
   svgId,
+  reveal = 1,
 }: {
   objects: ComparisonObject[];
   attr: 'weight';
@@ -29,6 +30,8 @@ export function WeightBars({
   large?: boolean;
   showSources?: boolean;
   svgId?: string;
+  /** Quiz reveal progress 0→1: below 1 bars blend from equal length, values hidden. */
+  reveal?: number;
 }) {
   const values = objects.map((o) => objectValue(o, attr) ?? 0);
 
@@ -68,13 +71,25 @@ export function WeightBars({
 
   const { rows, extreme } = layout.layout;
 
+  const hidden = reveal < 1;
+  // Quiz blend: every bar interpolates from the geometric-mean length
+  // (equal bars, truth hidden) toward its true proportional length.
+  const t = Math.min(Math.max(reveal, 0), 1);
+  const pxPerUnit = layout.layout.maxBarW / layout.layout.maxValue;
+  const meanUnit = Math.exp(values.reduce((s, v) => s + Math.log(v), 0) / values.length);
+  const equalW = meanUnit * pxPerUnit;
+
   return (
     <svg
       id={svgId}
       viewBox={`0 0 ${box.width} ${totalH}`}
       width="100%"
       role="img"
-      aria-label={`Weight comparison: ${objects.map((o) => objectName(o)).join(', ')}`}
+      aria-label={
+        hidden
+          ? `Weight quiz chart: ${objects.map((o) => objectName(o)).join(', ')} with equal bars and values hidden`
+          : `Weight comparison: ${objects.map((o) => objectName(o)).join(', ')}`
+      }
     >
       <rect width={box.width} height={totalH} fill="#ffffff" rx="8" />
       <text x="16" y="26" fontFamily={FONT} fontSize={large ? 24 : 14} fontWeight="600" fill="#0e6f63">
@@ -85,7 +100,8 @@ export function WeightBars({
         const obj = objects[row.index];
         const color = OBJ_PALETTE[row.index % OBJ_PALETTE.length];
         const value = values[row.index];
-        const valueText = formatAttrValue(attr, value, unitSystem);
+        const barW = hidden ? equalW + (row.barW - equalW) * t : row.barW;
+        const valueText = hidden ? '?' : formatAttrValue(attr, value, unitSystem);
         // Caption: source name + a *formatted* range when one exists.
         const m = obj.kind === 'library' ? obj.record.measurements[attr] : null;
         const source = m
@@ -106,19 +122,19 @@ export function WeightBars({
             <rect
               x={row.barX}
               y={row.barY}
-              width={row.barW}
+              width={barW}
               height={row.barH}
               rx={6}
               fill={color}
             />
             <text
-              x={row.valueInside ? row.barX + row.barW - 10 : row.valueX}
+              x={hidden ? row.barX + barW + 10 : row.valueInside ? row.barX + row.barW - 10 : row.valueX}
               y={row.barY + row.barH / 2 + valueSize / 2.6}
-              textAnchor={row.valueInside ? 'end' : 'start'}
+              textAnchor={hidden ? 'start' : row.valueInside ? 'end' : 'start'}
               fontFamily={FONT}
               fontSize={valueSize}
               fontWeight="700"
-              fill={row.valueInside ? '#ffffff' : color}
+              fill={hidden ? color : row.valueInside ? '#ffffff' : color}
             >
               {valueText}
             </text>
@@ -145,9 +161,11 @@ export function WeightBars({
         fontSize={captionSize}
         fill="#6b7280"
       >
-        {extreme
-          ? 'Bar lengths are truly proportional — the short bar really is that light'
-          : 'Bar lengths proportional to real weight'}
+        {hidden
+          ? 'Equal bars — true lengths revealed after you answer'
+          : extreme
+            ? 'Bar lengths are truly proportional — the short bar really is that light'
+            : 'Bar lengths proportional to real weight'}
       </text>
     </svg>
   );

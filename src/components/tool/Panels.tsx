@@ -15,12 +15,15 @@ import {
 } from '../../lib/attributes';
 import { validateName, type CustomObject, type ObjectV2 } from '../../lib/objects';
 import {
+  parseArea,
   parseMass,
   parseMeasurement,
   parseVolume,
+  AREA_LABELS,
   MASS_LABELS,
   UNIT_LABELS,
   VOLUME_LABELS,
+  type AreaUnit,
   type MassUnit,
   type Unit,
   type UnitSystem,
@@ -77,7 +80,16 @@ export function SelectedObjects({
 
 /* ── library picker ── */
 
-const CATEGORIES = ['animal', 'everyday', 'food', 'space', 'building', 'vehicle', 'reference'];
+const CATEGORIES = [
+  'animal',
+  'everyday',
+  'food',
+  'space',
+  'building',
+  'vehicle',
+  'place',
+  'reference',
+];
 
 export function ObjectPicker({
   selectedIds,
@@ -158,11 +170,13 @@ function MiniSilhouette({ record }: { record: ObjectV2 }) {
 const LINEAR_UNITS: Unit[] = ['mm', 'cm', 'm', 'in', 'ft'];
 const MASS_UNITS: MassUnit[] = ['g', 'kg', 't', 'oz', 'lb'];
 const VOLUME_UNITS: VolumeUnit[] = ['ml', 'l', 'floz', 'gal'];
+const AREA_UNITS: AreaUnit[] = ['m²', 'km²', 'sq ft', 'sq mi'];
 
 function unitsFor(attr: AttributeKey): { values: string[]; labels: Record<string, string> } {
   const family = ATTRIBUTE_FAMILY[attr];
   if (family === 'weight') return { values: MASS_UNITS, labels: MASS_LABELS };
   if (family === 'volume') return { values: VOLUME_UNITS, labels: VOLUME_LABELS };
+  if (family === 'area') return { values: AREA_UNITS, labels: AREA_LABELS };
   return { values: LINEAR_UNITS, labels: UNIT_LABELS };
 }
 
@@ -202,6 +216,10 @@ export function CustomObjectForm({
       const res = parseVolume(value, unit as VolumeUnit);
       if (!res.ok) { setError(res.error ?? 'Check the volume.'); return; }
       base = res.ml ?? null;
+    } else if (family === 'area') {
+      const res = parseArea(value, unit as AreaUnit);
+      if (!res.ok) { setError(res.error ?? 'Check the area.'); return; }
+      base = res.mm2 ?? null;
     } else {
       const res = parseMeasurement(value, unit as Unit);
       if (!res.ok) { setError(res.error ?? 'Check the measurement.'); return; }

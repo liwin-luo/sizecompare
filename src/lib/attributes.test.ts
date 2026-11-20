@@ -12,10 +12,11 @@ describe('attribute families', () => {
   it('maps every attribute to exactly one family', () => {
     for (const attr of ALL_ATTRS) {
       expect(ATTRIBUTE_FAMILY[attr]).toBeDefined();
-      expect(['linear', 'weight', 'volume']).toContain(ATTRIBUTE_FAMILY[attr]);
+      expect(['linear', 'weight', 'volume', 'area']).toContain(ATTRIBUTE_FAMILY[attr]);
     }
     expect(ATTRIBUTE_FAMILY.weight).toBe('weight');
     expect(ATTRIBUTE_FAMILY.volume).toBe('volume');
+    expect(ATTRIBUTE_FAMILY.area).toBe('area');
     expect(ATTRIBUTE_FAMILY.height).toBe('linear');
   });
 
@@ -24,6 +25,7 @@ describe('attribute families', () => {
     expect(attrBaseUnit('width')).toBe('mm');
     expect(attrBaseUnit('weight')).toBe('g');
     expect(attrBaseUnit('volume')).toBe('ml');
+    expect(attrBaseUnit('area')).toBe('mm²');
   });
 });
 
@@ -75,6 +77,17 @@ describe('formatAttrValue', () => {
     // astronomic values switch to scientific notation
     expect(formatAttrValue('volume', 1.958e30, 'metric')).toBe('1.96e+24 m³');
   });
+
+  it('formats area values per unit system', () => {
+    // China ≈ 9,596,960 km² → km² with separators
+    expect(formatAttrValue('area', 9.59696e18, 'metric')).toBe('9,596,960 km²');
+    expect(formatAttrValue('area', 9.59696e18, 'imperial')).toBe('3,705,407 sq mi');
+    // Vatican ≈ 0.49 km² stays km² with decimals
+    expect(formatAttrValue('area', 4.9e11, 'metric')).toBe('0.49 km²');
+    // room-scale area renders in m²
+    expect(formatAttrValue('area', 7.14e9, 'metric')).toBe('7,140 m²');
+    expect(formatAttrValue('area', 2.4e6, 'imperial')).toBe('25.8 sq ft');
+  });
 });
 
 describe('ratioPhrase', () => {
@@ -89,8 +102,9 @@ describe('ratioPhrase', () => {
     expect(ratioPhrase('diameter', 3.5)).toBe('about 3.5× wider than');
   });
 
-  it('uses heavier for weight and volume-of for volume', () => {
+  it('uses heavier for weight, volume-of for volume, area-of for area', () => {
     expect(ratioPhrase('weight', 66)).toBe('about 66× heavier than');
     expect(ratioPhrase('volume', 3)).toBe('about 3.0× the volume of');
+    expect(ratioPhrase('area', 2.2)).toBe('about 2.2× the area of');
   });
 });

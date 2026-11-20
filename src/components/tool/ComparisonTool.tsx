@@ -30,6 +30,7 @@ import type { UnitSystem } from '../../lib/units';
 import { ScaleCanvas, buildAnswerSentence, formatValue, objectVisual, MAX_OBJECTS } from './ScaleCanvas';
 import { WeightBars } from './WeightBars';
 import { VolumeSpheres } from './VolumeSpheres';
+import { AreaSquares } from './AreaSquares';
 import {
   CustomObjectForm,
   EditorPanel,
@@ -209,6 +210,15 @@ export default function CompareStudio({
           text: 'These weights differ enormously — the short bar is honestly that light. Bars stay truly proportional.',
         });
       }
+    } else if (family === 'area') {
+      const values = objects.map((o) => objectValue(o, attr) ?? 0);
+      const ratio = Math.max(...values) / Math.min(...values);
+      if (Math.sqrt(ratio) > 10) {
+        list.push({
+          tone: 'warn',
+          text: 'These areas differ enormously — the small square is honestly that tiny (side scales with the square root of area).',
+        });
+      }
     } else {
       const values = objects.map((o) => objectValue(o, attr) ?? 0);
       const ratio = Math.max(...values) / Math.min(...values);
@@ -360,6 +370,14 @@ export default function CompareStudio({
             <VolumeSpheres
               objects={objects}
               attr={attr as 'volume'}
+              box={box}
+              unitSystem={state.unitSystem}
+              svgId="compare-canvas-svg"
+            />
+          ) : family === 'area' ? (
+            <AreaSquares
+              objects={objects}
+              attr={attr as 'area'}
               box={box}
               unitSystem={state.unitSystem}
               svgId="compare-canvas-svg"
@@ -519,6 +537,13 @@ export default function CompareStudio({
                 objects={objects}
                 attr={attr as 'volume'}
                 box={{ width: 740, height: 380 }}
+                unitSystem={state.unitSystem}
+              />
+            ) : family === 'area' ? (
+              <AreaSquares
+                objects={objects}
+                attr={attr as 'area'}
+                box={{ width: 740, height: 420 }}
                 unitSystem={state.unitSystem}
               />
             ) : (

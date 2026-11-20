@@ -34,7 +34,13 @@ const answerLine =
   ratio < 1.05
     ? 'They are about the same measured size.'
     : `${biggerName} is about ${ratio.toFixed(ratio < 10 ? 1 : 0)}× ${
-        attr === 'volume' ? 'the volume of' : attr === 'weight' ? 'heavier than' : 'the size of'
+        attr === 'volume'
+          ? 'the volume of'
+          : attr === 'area'
+            ? 'the area of'
+            : attr === 'weight'
+              ? 'heavier than'
+              : 'the size of'
       } ${smallerName}.`;
 
 const title = `${recA.name} vs ${recB.name} ${pair.title}`;

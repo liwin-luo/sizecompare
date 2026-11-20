@@ -108,6 +108,77 @@ export function weightBarLayout(
   };
 }
 
+/* ── area squares ── */
+
+export interface SquareItem {
+  index: number;
+  /** Top-left of the square. */
+  x: number;
+  y: number;
+  side: number;
+}
+
+export interface SquareLayout {
+  items: SquareItem[];
+  baselineY: number;
+  /** px per (base-unit area)^½ — identical for every square. */
+  scale: number;
+  ratio: number;
+  extreme: boolean;
+}
+
+export const MIN_SQUARE_PX = 6;
+
+/**
+ * Squares side by side on one ground line, side ∝ √area at a single
+ * shared scale factor — the 2-D analogue of the sphere engine. The
+ * caption must state the rule: the drawn SIDE is the honest projection
+ * of an area; on-screen square area is proportional to the real area.
+ */
+export function areaSquareLayout(
+  values: number[],
+  box: Box,
+  padding = 40,
+  gap = 28,
+): SquareLayout {
+  if (values.length === 0) throw new ChartError('At least one positive value is required.');
+  // Validate the RAW input — silently dropping bad values would mislead.
+  if (values.some((v) => !Number.isFinite(v) || v <= 0)) {
+    throw new ChartError('All areas must be positive numbers.');
+  }
+
+  const roots = values.map((v) => Math.sqrt(v));
+  const maxRoot = Math.max(...roots);
+
+  const availH = box.height - padding * 2;
+  const kH = availH / maxRoot;
+  const totalRootW = roots.reduce((sum, r) => sum + r, 0);
+  const availW = Math.max(box.width - padding * 2 - gap * (values.length - 1), 1);
+  const k = Math.min(kH, availW / totalRootW);
+
+  const baselineY = box.height - padding;
+  const usedW = roots.reduce((sum, r) => sum + r * k, 0) + gap * (values.length - 1);
+  let x = padding + Math.max((box.width - padding * 2 - usedW) / 2, 0);
+
+  const items: SquareItem[] = roots.map((root, index) => {
+    const side = root * k;
+    const item = { index, x, y: baselineY - side, side };
+    x += side + gap;
+    return item;
+  });
+
+  const ratio = Math.max(...values) / Math.min(...values);
+  const smallest = Math.min(...items.map((i) => i.side));
+  return {
+    items,
+    baselineY,
+    scale: k,
+    ratio,
+    // side ratio √ratio beyond ~120 makes the small square unreadable
+    extreme: ratio > 14_400 || smallest < MIN_SQUARE_PX,
+  };
+}
+
 /* ── volume spheres ── */
 
 export interface SphereItem {
