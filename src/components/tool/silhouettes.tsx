@@ -754,4 +754,14 @@ export const SILHOUETTES: Record<string, Silhouette> = {
       </>
     ),
   },
+  /* ── places (area family; the chart draws true √A squares) ── */
+  placesquare: {
+    viewBox: '0 0 100 100',
+    render: (c) => (
+      <>
+        <rect x="4" y="4" width="92" height="92" rx="6" fill={c} />
+        <rect x="14" y="14" width="72" height="72" rx="3" fill={shade(c)} />
+      </>
+    ),
+  },
 };

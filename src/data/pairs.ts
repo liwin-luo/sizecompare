@@ -1025,7 +1025,126 @@ export const PAIRS: Pair[] = [
     title: "\u2014 Bulb vs chair",
     blurb: "A standard A19 bulb stands about one-eighth of a dining chair\u2019s height.",
     question: "About how many bulbs tall is the chair?",
-  }
+  },
+
+  /* places — country areas, CIA World Factbook total (wave P) */
+  {
+    a: 'china',
+    b: 'united-states',
+    attr: 'area',
+    title: '— which country is bigger?',
+    blurb:
+      'The classic geography bar argument: China and the United States are within about 2.5% of each other by total area — the ranking depends on what you count.',
+    question: 'Which is bigger by total area: China or the United States?',
+  },
+  {
+    a: 'canada',
+    b: 'united-states',
+    attr: 'area',
+    title: '— the neighbour showdown',
+    blurb:
+      'Canada edges the United States by roughly 151,000 km² of land and water — about three and a half Netherlands\u2019 worth of extra area.',
+    question: 'How much bigger is Canada than the United States?',
+  },
+  {
+    a: 'russia',
+    b: 'china',
+    attr: 'area',
+    title: '— the two largest neighbours on Earth',
+    blurb:
+      'Russia is nearly 1.8× China\u2019s total area — no other country on Earth comes within half of Russia.',
+    question: 'How many Chinas fit inside Russia?',
+  },
+  {
+    a: 'brazil',
+    b: 'australia',
+    attr: 'area',
+    title: '— southern-hemisphere heavyweights',
+    blurb:
+      'Brazil is about 1.1× Australia — closer than most people guess, and both are dwarfed by Russia.',
+    question: 'Which is bigger: Brazil or Australia?',
+  },
+  {
+    a: 'china',
+    b: 'india',
+    attr: 'area',
+    title: '— population giants, area mismatch',
+    blurb:
+      'India has 1.4 billion people in roughly one-third of China\u2019s area — see the two drawn honestly side by side.',
+    question: 'How many Indias fit inside China by area?',
+  },
+  {
+    a: 'france',
+    b: 'ukraine',
+    attr: 'area',
+    title: '— Europe\u2019s two biggest countries',
+    blurb:
+      'Counting its overseas departments, France is about 1.07× Ukraine — but Ukraine remains the largest country lying entirely within Europe.',
+    question: 'Which is bigger by total area: Ukraine or France?',
+  },
+  {
+    a: 'egypt',
+    b: 'turkey',
+    attr: 'area',
+    title: '— the Mediterranean match',
+    blurb:
+      'Egypt is about 1.28× Turkey — bigger than most maps suggest, because both get visually shrunk by projection.',
+    question: 'Which is bigger by area: Egypt or Turkey?',
+  },
+  {
+    a: 'mexico',
+    b: 'indonesia',
+    attr: 'area',
+    title: '— the archipelago question',
+    blurb:
+      'Mexico beats the 17,000-island archipelago of Indonesia by area — about 1.03×, nearly a tie.',
+    question: 'Which is bigger: Mexico or Indonesia?',
+  },
+  {
+    a: 'mongolia',
+    b: 'france',
+    attr: 'area',
+    title: '— empty vs dense',
+    blurb:
+      'Mongolia, the least densely populated country, is about 2.4× France — the most-visited country on Earth.',
+    question: 'How many Frances fit inside Mongolia?',
+  },
+  {
+    a: 'netherlands',
+    b: 'belgium',
+    attr: 'area',
+    title: '— the Low Countries, compared',
+    blurb:
+      'The Netherlands is about 1.37× Belgium — the two Low Countries most maps draw nearly the same size.',
+    question: 'Which is bigger: the Netherlands or Belgium?',
+  },
+  {
+    a: 'united-states',
+    b: 'india',
+    attr: 'area',
+    title: '— the subcontinent test',
+    blurb:
+      'The United States is almost exactly 3× India by total area — a ratio most people get dramatically wrong.',
+    question: 'How many Indias fit inside the United States?',
+  },
+  {
+    a: 'australia',
+    b: 'india',
+    attr: 'area',
+    title: '— island vs subcontinent',
+    blurb:
+      'Australia is about 2.35× India — the island continent swallows the subcontinent with room to spare.',
+    question: 'Which is bigger: Australia or India?',
+  },
+  {
+    a: 'spain',
+    b: 'sweden',
+    attr: 'area',
+    title: '— the reversal quiz',
+    blurb:
+      'Sweden looks huge on Mercator maps, but Spain is actually the bigger country by total area — about 1.12×.',
+    question: 'Which is bigger: Sweden or Spain?',
+  },
 ];
 
 export function pairSlug(pair: Pair): string {
