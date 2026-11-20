@@ -10,7 +10,10 @@ type EventName =
   | 'comparison_generated'
   | 'export_png'
   | 'print_started'
-  | 'presentation_started';
+  | 'presentation_started'
+  | 'quiz_start'
+  | 'quiz_answer'
+  | 'quiz_round_end';
 
 declare global {
   interface Window {

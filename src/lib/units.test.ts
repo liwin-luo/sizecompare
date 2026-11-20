@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
+  autoAreaUnit,
   autoMassUnit,
   autoVolumeUnit,
   convert,
   FACTORS_G,
   FACTORS_ML,
+  FACTORS_MM2,
+  formatAreaMm2,
+  formatImperialArea,
   formatImperialHeight,
   formatImperialVolume,
   formatImperialWeight,
@@ -14,6 +18,8 @@ import {
   fromG,
   fromMl,
   fromMm,
+  fromMm2,
+  parseArea,
   parseFeetInches,
   parseMass,
   parseMeasurement,
@@ -21,6 +27,7 @@ import {
   toG,
   toMl,
   toMm,
+  toMm2,
 } from './units';
 
 describe('exact conversion factors', () => {
@@ -170,5 +177,42 @@ describe('volume conversion', () => {
     expect(parseVolume('x', 'ml').ok).toBe(false);
     expect(parseVolume('500', 'ml')).toEqual({ ok: true, ml: 500 });
     expect(parseVolume('0.05', 'ml').ok).toBe(false);
+  });
+});
+
+describe('area conversion', () => {
+  it('uses exact definitions for imperial area', () => {
+    expect(FACTORS_MM2['sq ft']).toBeCloseTo(92903.04, 6); // (304.8 mm)²
+    expect(FACTORS_MM2['sq mi'] / FACTORS_MM2['km²']).toBeCloseTo(2.589988110336, 9);
+    expect(toMm2(2, 'km²')).toBe(2e12);
+    expect(fromMm2(2e12, 'km²')).toBe(2);
+  });
+
+  it('picks comfortable metric units by magnitude', () => {
+    expect(autoAreaUnit(50)).toBe('mm²');
+    expect(autoAreaUnit(5000)).toBe('cm²');
+    expect(autoAreaUnit(7.14e9)).toBe('m²');
+    expect(autoAreaUnit(4.9e11)).toBe('km²'); // Vatican City stays in km²
+    expect(autoAreaUnit(9.59696e18)).toBe('km²');
+  });
+
+  it('formats areas with thousands separators', () => {
+    expect(formatAreaMm2(9.59696e18, 'km²')).toBe('9,596,960 km²');
+    expect(formatAreaMm2(4.4e11, 'km²')).toBe('0.44 km²');
+    expect(formatAreaMm2(7.14e9, 'm²')).toBe('7,140 m²');
+    expect(formatAreaMm2(2.4e6, 'sq ft')).toBe('25.8 sq ft');
+  });
+
+  it('formats imperial areas across ranges', () => {
+    expect(formatImperialArea(9.59696e18)).toBe('3,705,407 sq mi');
+    expect(formatImperialArea(2.4e6)).toBe('25.8 sq ft');
+  });
+
+  it('validates area input bounds', () => {
+    expect(parseArea('', 'm²').ok).toBe(false);
+    expect(parseArea('-1', 'km²').ok).toBe(false);
+    expect(parseArea('x', 'm²').ok).toBe(false);
+    expect(parseArea('9,600,000', 'km²')).toEqual({ ok: true, mm2: 9.6e18 });
+    expect(parseArea('0.5', 'm²').ok).toBe(false); // below MIN_AREA_MM2 (1 m²)
   });
 });

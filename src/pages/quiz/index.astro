@@ -1,0 +1,129 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import QuizGame from '../../components/quiz/QuizGame';
+import '../../styles/quiz.css';
+
+const title = 'Size Quiz — Which Is Bigger? Test Your Size Intuition';
+const description =
+  'A free 10-question size quiz: animals, planets, countries and everyday things drawn at equal size — guess which is bigger, then watch the canvas morph to the true, sourced proportions.';
+const path = '/quiz/';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'SizeCompare — Size Quiz',
+  url: `https://sizecompare.org${path}`,
+  applicationCategory: 'EducationalApplication',
+  operatingSystem: 'Web browser',
+  description,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+};
+---
+
+<BaseLayout title={title} description={description} path={path}>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <section class="section" style="padding-bottom: 24px">
+    <div class="container">
+      <h1>Size Quiz: Which is bigger?</h1>
+      <p class="lede">
+        Two things appear on the canvas at <strong>equal size</strong> — the true
+        proportions are hidden. Pick the one you think is bigger, then watch the
+        canvas morph to the real, sourced scale. Ten questions, from
+        <em>easy</em> (obvious blowouts) to <em>hard</em> (near ties).
+      </p>
+    </div>
+  </section>
+
+  <div class="container" style="padding-bottom: 48px">
+    <QuizGame client:idle />
+  </div>
+
+  <section class="section" style="background: var(--surface); border-top: 1px solid var(--line)">
+    <div class="container">
+      <div class="grid-3">
+        <div class="card">
+          <h3>1 · Equal sizes, hidden truth</h3>
+          <p>
+            The question state draws both objects identically sized with values
+            replaced by a question mark — no accidental hints from the artwork.
+          </p>
+        </div>
+        <div class="card">
+          <h3>2 · The reveal animation</h3>
+          <p>
+            Your answer triggers the morph: both objects animate to their true
+            proportions on a shared ground line — the same honest engine the
+            <a href="/studio/"> Compare Studio</a> uses.
+          </p>
+        </div>
+        <div class="card">
+          <h3>3 · Sourced answers</h3>
+          <p>
+            Every value behind a question comes from the library — NASA fact
+            sheets, breed standards, ISO specs, CIA World Factbook areas — with
+            sources on each comparison page.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width: 780px">
+      <h2>Frequently asked questions</h2>
+      <div class="faq">
+        <details>
+          <summary>What kinds of comparisons come up?</summary>
+          <p>
+            Heights, lengths, weights, volumes and areas from the 260-object
+            library — animals, planets, foods, vehicles, everyday objects and
+            the total areas of 67 countries. Only pairs that share a measured
+            attribute can appear, and near-ties (under 1.2×) are excluded so
+            questions stay winnable by judgment, not luck.
+          </p>
+        </details>
+        <details>
+          <summary>What makes a question easy, medium or hard?</summary>
+          <p>
+            Pure math: the ratio between the two values. Differences of 3× or
+            more are easy, 1.6–3× are medium, and 1.2–1.6× are hard. Each round
+            ramps up: three easy, four medium, three hard.
+          </p>
+        </details>
+        <details>
+          <summary>Is the reveal drawn honestly?</summary>
+          <p>
+            Yes. The end state of every animation is the exact true-scale layout
+            used across the site — one shared scale factor, no truncation, no
+            inflating the small thing to look nicer. During the animation the
+            objects are deliberately blended from equal sizes; the moment it
+            settles, the drawing is the honest one.
+          </p>
+        </details>
+        <details>
+          <summary>Do I need an account?</summary>
+          <p>
+            No. Your best score is kept in your own browser, nothing is
+            uploaded, and sharing uses your device's native share sheet.
+          </p>
+        </details>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .faq details {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    background: var(--surface);
+  }
+  .faq summary {
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .faq p { margin-bottom: 0; margin-top: 8px; color: var(--ink-soft); }
+</style>
