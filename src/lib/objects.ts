@@ -51,16 +51,14 @@ export interface ObjectV2 {
   axis: MeasureAxis;
   /** Attribute shown as the picker's default label. */
   primaryAttr: AttributeKey;
-  /** Flat-emoji SVG asset (Twemoji), served from /objects/ — omit for original artwork. */
-  image?: string;
   /**
-   * Content bounding box [left, top, width, height] as fractions of the
-   * 36×36 emoji canvas, measured at asset-integration time. Cropping to
-   * this box puts the drawn content exactly inside the true-scale box
-   * (bottom edge = ground line), with no letterboxing and no distortion.
+   * Emoji-style SVG asset (Microsoft Fluent Emoji), served from /objects/.
+   * The content crop is burned into the file's own viewBox — measured by
+   * rasterization at asset-integration time — so a full-bleed <image>
+   * lands exactly in the true-scale rect. Omit for original artwork.
    */
-  image_box?: [number, number, number, number];
-  image_license: 'original-CC0' | 'twemoji-CC-BY-4.0';
+  image?: string;
+  image_license: 'original-CC0' | 'fluent-emoji-MIT';
   attribution: string;
 }
 

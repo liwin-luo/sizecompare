@@ -60,7 +60,6 @@ export function objectVisual(
   axis: 'vertical' | 'horizontal' | 'both';
   silhouette: string | null;
   image?: string;
-  imageBox?: [number, number, number, number];
 } | null {
   const value = objectValue(obj, attr);
   if (value === null) return null;
@@ -71,7 +70,6 @@ export function objectVisual(
       axis: obj.record.axis,
       silhouette: obj.record.silhouette,
       image: obj.record.image,
-      imageBox: obj.record.image_box,
     };
   }
   return {
@@ -316,19 +314,19 @@ function ObjectGroup({
 
   return (
     <g>
-      {visual.image && visual.imageBox ? (
-        // Flat-emoji asset, cropped to its measured content box so the
-        // artwork exactly fills the true-scale rect (bottom = ground line).
-        <svg
+      {visual.image ? (
+        // Emoji-style asset with the content crop already burned into its
+        // root viewBox — a plain full-bleed image lands exactly in the
+        // true-scale rect (bottom = ground line), undistorted.
+        <image
+          href={visual.image}
+          xlinkHref={visual.image}
           x={placed.x}
           y={placed.y}
           width={placed.w}
           height={placed.h}
-          viewBox={`${visual.imageBox[0] * 36} ${visual.imageBox[1] * 36} ${visual.imageBox[2] * 36} ${visual.imageBox[3] * 36}`}
           preserveAspectRatio="none"
-        >
-          <image href={visual.image} xlinkHref={visual.image} width="36" height="36" />
-        </svg>
+        />
       ) : silhouette ? (
         <svg
           x={placed.x}
