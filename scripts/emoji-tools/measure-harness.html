@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>emoji bbox measurement</title></head>
+<body>
+<pre id="out">measuring…</pre>
+<script>
+  // Twemoji canvases are 36×36. We rasterize each SVG at 256×256 and scan
+  // the alpha channel for the content bounding box, reported as fractions.
+  const IDS = ["pencil","ruler","book","door","apple","basketball","tennisball","a4paper","creditcard","sodacan","mouse","cat","dog","elephant","giraffe","bluewhale","rabbit","shark","penguin","lion","pig","cow","horse","trex","polarbear","smartphone","laptop","guitar","banana","egg","watermelon","pineapple","orange","bottle","adult","sun","earth","moon","eiffel","liberty","everest","bicycle","car","bus","pickup"];
+  const SIZE = 256;
+
+  async function measure(id) {
+    const img = new Image();
+    await new Promise((res, rej) => {
+      img.onload = res; img.onerror = () => rej(new Error(id + " load fail"));
+      img.src = "/objects/" + id + ".svg";
+    });
+    const c = document.createElement("canvas");
+    c.width = SIZE; c.height = SIZE;
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0, SIZE, SIZE);
+    const data = ctx.getImageData(0, 0, SIZE, SIZE).data;
+    let minX = SIZE, minY = SIZE, maxX = -1, maxY = -1;
+    for (let y = 0; y < SIZE; y++) {
+      for (let x = 0; x < SIZE; x++) {
+        if (data[(y * SIZE + x) * 4 + 3] > 8) {
+          if (x < minX) minX = x;
+          if (y < minY) minY = y;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (maxX < 0) throw new Error(id + " empty");
+    // fractions of the canvas, with a 1px safety inset inward
+    const pad = 1;
+    const l = Math.max((minX + pad) / SIZE, 0);
+    const t = Math.max((minY + pad) / SIZE, 0);
+    const w = Math.min((maxX - minX - pad * 2) / SIZE, 1 - l);
+    const h = Math.min((maxY - minY - pad * 2) / SIZE, 1 - t);
+    return [Math.round(l * 1000) / 1000, Math.round(t * 1000) / 1000, Math.round(w * 1000) / 1000, Math.round(h * 1000) / 1000];
+  }
+
+  (async () => {
+    const out = {};
+    for (const id of IDS) {
+      try { out[id] = await measure(id); }
+      catch (e) { out[id] = null; console.error(String(e)); }
+    }
+    document.getElementById("out").textContent =
+      "RESULT_JSON:" + JSON.stringify(out);
+  })();
+</script>
+</body>
+</html>

@@ -37,6 +37,7 @@
 5. Cow 重量找 USDA 奶牛统计页
 
 ## 规则
-- 所有剪影为自绘几何 SVG（CC0），无第三方素材
+- 视觉素材：45 个对象使用 Twemoji SVG（CC BY 4.0，© Twitter and contributors，未修改，经 fastly.jsdelivr CDN 获取，来源 jdecked/twemoji@15.1.0）；7 个无对应 emoji 的对象（eraser/desk/child/jupiter/mars/burj/ostrich）保留自绘几何 SVG（CC0）
+- Twemoji 的内容边界框经浏览器栅格化实测（scripts/emoji-tools/emoji-bbox.json），渲染时按框裁剪，保证贴合真比例框与地线；About 页已按 CC BY 4.0 要求署名
 - 每条属性必须：context 明确（什么口径）+ source + checked_at；估算/范围必须 uncertainty_note
 - 体积只收录可辩护对象（球体/标准容器/天体），不编造不规则物体积

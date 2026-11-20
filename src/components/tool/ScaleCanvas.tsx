@@ -59,6 +59,8 @@ export function objectVisual(
   aspect: number;
   axis: 'vertical' | 'horizontal' | 'both';
   silhouette: string | null;
+  image?: string;
+  imageBox?: [number, number, number, number];
 } | null {
   const value = objectValue(obj, attr);
   if (value === null) return null;
@@ -68,6 +70,8 @@ export function objectVisual(
       aspect: obj.record.aspect,
       axis: obj.record.axis,
       silhouette: obj.record.silhouette,
+      image: obj.record.image,
+      imageBox: obj.record.image_box,
     };
   }
   return {
@@ -312,7 +316,20 @@ function ObjectGroup({
 
   return (
     <g>
-      {silhouette ? (
+      {visual.image && visual.imageBox ? (
+        // Flat-emoji asset, cropped to its measured content box so the
+        // artwork exactly fills the true-scale rect (bottom = ground line).
+        <svg
+          x={placed.x}
+          y={placed.y}
+          width={placed.w}
+          height={placed.h}
+          viewBox={`${visual.imageBox[0] * 36} ${visual.imageBox[1] * 36} ${visual.imageBox[2] * 36} ${visual.imageBox[3] * 36}`}
+          preserveAspectRatio="none"
+        >
+          <image href={visual.image} xlinkHref={visual.image} width="36" height="36" />
+        </svg>
+      ) : silhouette ? (
         <svg
           x={placed.x}
           y={placed.y}

@@ -136,9 +136,23 @@ export function ObjectPicker({
 }
 
 function MiniSilhouette({ record }: { record: ObjectV2 }) {
-  const sil = SILHOUETTES[record.silhouette];
   const h = 34;
   const w = Math.min(64, Math.max(10, h * record.aspect));
+  if (record.image && record.image_box) {
+    const [l, t, bw, bh] = record.image_box;
+    return (
+      <svg
+        width={w}
+        height={h}
+        viewBox={`${l * 36} ${t * 36} ${bw * 36} ${bh * 36}`}
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <image href={record.image} xlinkHref={record.image} width="36" height="36" />
+      </svg>
+    );
+  }
+  const sil = SILHOUETTES[record.silhouette];
   return (
     <svg width={w} height={h} viewBox={sil.viewBox} preserveAspectRatio="none" aria-hidden="true">
       {sil.render('#475569')}
