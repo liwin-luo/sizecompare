@@ -1,0 +1,203 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CompareStudio from '../../components/tool/ComparisonTool';
+import { PAIRS, pairSlug, pairBySlug, type Pair } from '../../data/pairs';
+import { LIBRARY_BY_ID } from '../../data/library';
+import { ATTRIBUTE_LABELS, formatAttrValue } from '../../lib/attributes';
+import type { AttributeKey } from '../../lib/attributes';
+import { objectSourceLine, type ComparisonObject } from '../../lib/objects';
+import '../../styles/tool.css';
+import '../../styles/print.css';
+
+export function getStaticPaths() {
+  return PAIRS.map((pair) => ({ params: { slug: pairSlug(pair) } }));
+}
+
+const { slug } = Astro.params;
+const pair = pairBySlug(slug ?? '') as Pair;
+if (!pair) return Astro.redirect('/compare/');
+
+const objects = [pair.a, pair.b].map(
+  (id) => ({ kind: 'library' as const, record: LIBRARY_BY_ID[id] }),
+);
+const [recA, recB] = objects.map((o) => o.record);
+const attr = pair.attr as AttributeKey;
+
+const mA = recA.measurements[attr]!;
+const mB = recB.measurements[attr]!;
+const valueA = formatAttrValue(attr, mA.value, 'metric');
+const valueB = formatAttrValue(attr, mB.value, 'metric');
+const ratio = Math.max(mA.value, mB.value) / Math.min(mA.value, mB.value);
+const biggerName = mA.value >= mB.value ? recA.name : recB.name;
+const smallerName = mA.value >= mB.value ? recB.name : recA.name;
+const answerLine =
+  ratio < 1.05
+    ? 'They are about the same measured size.'
+    : `${biggerName} is about ${ratio.toFixed(ratio < 10 ? 1 : 0)}× ${
+        attr === 'volume' ? 'the volume of' : attr === 'weight' ? 'heavier than' : 'the size of'
+      } ${smallerName}.`;
+
+const title = `${recA.name} vs ${recB.name} ${pair.title}`;
+const description = `${recA.name} and ${recB.name} compared by ${ATTRIBUTE_LABELS[attr].toLowerCase()} at true scale: ${valueA} vs ${valueB}, with sources, an interactive chart, and the real ratio.`;
+const path = `/compare/${slug}/`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://sizecompare.org/' },
+    { '@type': 'ListItem', position: 2, name: 'Compare', item: 'https://sizecompare.org/compare/' },
+    { '@type': 'ListItem', position: 3, name: `${recA.name} vs ${recB.name}` },
+  ],
+};
+
+const siblings = PAIRS.filter((p) => p !== pair && (p.attr === attr)).slice(0, 5);
+const others = PAIRS.filter((p) => p !== pair && p.attr !== attr).slice(0, 5);
+---
+
+<BaseLayout title={title} description={description} path={path}>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <section class="section" style="padding-bottom: 20px">
+    <div class="container">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a> / <a href="/compare/">Compare</a> / <span>{recA.name} vs {recB.name}</span>
+      </nav>
+      <h1>{recA.name} vs {recB.name} {pair.title.replace('— ', '')}</h1>
+      <p class="lede">{pair.blurb}</p>
+      <p class="answer-lead">
+        <strong>{ATTRIBUTE_LABELS[attr]}:</strong> {valueA} vs {valueB} — {answerLine}
+      </p>
+    </div>
+  </section>
+
+  <div class="container" style="padding-bottom: 40px">
+    <CompareStudio
+      client:visible
+      preloadIds={[pair.a, pair.b]}
+      preloadTitle={`${recA.name} vs ${recB.name}`}
+      preloadPrompt={pair.question}
+    />
+  </div>
+
+  <section class="section strip">
+    <div class="container">
+      <h2>The numbers, with sources</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Object</th>
+              <th>{ATTRIBUTE_LABELS[attr]} (metric)</th>
+              <th>{ATTRIBUTE_LABELS[attr]} (imperial)</th>
+              <th>Typical range</th>
+              <th>Measurement context</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              [recA, recB].map((rec) => {
+                const m = rec.measurements[attr]!;
+                const src = objectSourceLine(
+                  { kind: 'library', record: rec } as ComparisonObject,
+                  attr,
+                );
+                return (
+                  <tr>
+                    <td>{rec.name}</td>
+                    <td>{formatAttrValue(attr, m.value, 'metric')}</td>
+                    <td>{formatAttrValue(attr, m.value, 'imperial')}</td>
+                    <td>
+                      {m.min != null && m.max != null
+                        ? `${formatAttrValue(attr, m.min, 'metric')} – ${formatAttrValue(attr, m.max, 'metric')}`
+                        : '—'}
+                    </td>
+                    <td>{m.context}</td>
+                    <td>
+                      <a href={m.source_url} rel="nofollow noopener" target="_blank">
+                        {src?.split(' · ')[0] ?? m.source_name}
+                      </a>
+                      {m.uncertainty_note && <p class="unc">{m.uncertainty_note}</p>}
+                    </td>
+                  </tr>
+                );
+              })
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="muted small">
+        Values are representative figures; ranges make natural variation explicit.
+        Everything is drawn to one true scale in the chart above — nothing is stretched.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>More comparisons</h2>
+      <div class="more-grid">
+        <div>
+          <h3>Same attribute</h3>
+          <ul>
+            {
+              siblings.map((p) => (
+                <li>
+                  <a href={`/compare/${pairSlug(p)}/`}>
+                    {LIBRARY_BY_ID[p.a].name} vs {LIBRARY_BY_ID[p.b].name}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+        <div>
+          <h3>Other attributes</h3>
+          <ul>
+            {
+              others.map((p) => (
+                <li>
+                  <a href={`/compare/${pairSlug(p)}/`}>
+                    {LIBRARY_BY_ID[p.a].name} vs {LIBRARY_BY_ID[p.b].name}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+        <div>
+          <h3>Make your own</h3>
+          <p>
+            Any two or three things, any attribute —
+            <a href="/studio/"> open the Compare Studio</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .crumbs { font-size: 0.88rem; color: var(--ink-faint); margin-bottom: 14px; }
+  .crumbs span { color: var(--ink-soft); }
+  .answer-lead {
+    background: var(--primary-soft);
+    border: 1px solid #bcd9d4;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    color: #0a5850;
+    font-size: 1.02rem;
+    max-width: 760px;
+  }
+  .strip { background: var(--surface); border-block: 1px solid var(--line); }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; min-width: 720px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--surface-2); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  .unc { margin: 4px 0 0; color: var(--ink-faint); font-size: 0.82em; }
+  .more-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; }
+  .more-grid ul { list-style: none; margin: 0; padding: 0; }
+  .more-grid li { margin-bottom: 8px; }
+</style>

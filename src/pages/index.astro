@@ -1,138 +1,123 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE } from '../site.config';
-import ComparisonTool from '../components/tool/ComparisonTool';
+import CompareStudio from '../components/tool/ComparisonTool';
+import { PAIRS, pairSlug } from '../data/pairs';
+import { LIBRARY_BY_ID } from '../data/library';
 import '../styles/tool.css';
 import '../styles/print.css';
 
 const faqs = [
   {
-    q: 'What is a true-to-scale size comparison?',
-    a: 'Every object is drawn with the same pixels-per-millimetre on one shared ground line, so a 3.2 m elephant really towers over a 9 cm mouse. Images are never stretched or resized to fit the layout — unlike most size pictures found online.',
+    q: 'What does "true scale" mean here?',
+    a: 'Every object in a comparison is drawn with the same scale factor — a 3.2 m elephant really towers over a 26 m whale by exactly the same ratio as in real life. Images are never resized or stretched to fit the layout.',
   },
   {
-    q: 'Is SizeCompare free? Do teachers need an account?',
-    a: 'It is free and needs no account. Comparisons are created in your browser and saved on your own device — nothing is uploaded, and no student information is ever collected.',
+    q: 'Is SizeCompare free? Do I need an account?',
+    a: 'It is free and needs no account. Comparisons are created in your browser and saved on your own device — nothing is uploaded.',
   },
   {
     q: 'Where do the measurements come from?',
-    a: 'Official standards where they exist (ISO paper and card sizes, NBA ball specs, ITF tennis balls) and reputable references for animals. Every object shows its source, measurement context, and uncertainty range right on the canvas.',
+    a: 'Official standards where they exist (ISO paper and card sizes, NASA planetary fact sheets, NBA ball specs) and reputable references for animals, buildings and vehicles. Every object shows its source, measurement context, and uncertainty range.',
   },
   {
-    q: 'Can I print the comparisons for my class?',
-    a: 'Yes. Any comparison prints as a clean A4 or US Letter worksheet with a source table, and the classroom question and answer line are optional. You can also download a PNG for slides.',
+    q: 'Why does the small object look SO small sometimes?',
+    a: 'Because it really is that small. A house mouse is about 1/40th of an elephant\'s height and 1/300,000th of its weight — honest scale looks extreme, and we show a warning instead of secretly enlarging anything.',
   },
 ];
 
-const jsonLd = [
-  {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: SITE.name,
-    url: SITE.origin,
-    description: SITE.description,
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqs.map((f) => ({
-      '@type': 'Question',
-      name: f.q,
-      acceptedAnswer: { '@type': 'Answer', text: f.a },
-    })),
-  },
+const popular = PAIRS.slice(0, 6);
+const categories = [
+  { label: 'Animals', count: 16, blurb: 'Elephants, whales, T. rex, penguins — heights, lengths and weights.' },
+  { label: 'Space', count: 5, blurb: 'Sun, Earth, Moon, Jupiter, Mars — diameters and volumes from NASA.' },
+  { label: 'Buildings', count: 4, blurb: 'Eiffel Tower, Burj Khalifa, Statue of Liberty, Everest.' },
+  { label: 'Vehicles', count: 4, blurb: 'Bikes, cars, pickups, school buses — lengths and weights.' },
+  { label: 'Everyday', count: 15, blurb: 'Phones, laptops, balls, cans, paper — things you can hold.' },
+  { label: 'Food', count: 6, blurb: 'Bananas, eggs, watermelons — measure your lunch.' },
 ];
 ---
 
 <BaseLayout title={SITE.name} description={SITE.description} path="/" bareTitle>
-  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify([{ '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: SITE.origin, description: SITE.description }, { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }])} />
 
-  <!-- Hero: try a comparison immediately -->
+  <!-- Hero -->
   <section class="hero">
     <div class="container">
-      <h1>Turn measurements into visuals kids can&nbsp;understand</h1>
+      <h1>Compare anything — height, weight, volume</h1>
       <p class="lede">
-        Create accurate, classroom-ready size comparisons from real objects, animals,
-        and your own measurements — then present them full-screen or print them as
-        worksheets. Free, no sign-up.
+        Search {LIBRARY_BY_ID ? Object.keys(LIBRARY_BY_ID).length : 50}+ measured objects, compare
+        them at their <strong>true scale</strong>, and see where every number comes from.
+        Free, no sign-up.
       </p>
       <p class="hero-actions">
-        <a class="btn btn-primary btn-lg" href="#try-it">Try a comparison ↓</a>
-        <a class="btn btn-ghost btn-lg" href="/guides/how-to-teach-big-and-small/"
-          >How to teach it</a
-        >
+        <a class="btn btn-primary btn-lg" href="#studio">Start comparing ↓</a>
+        <a class="btn btn-ghost btn-lg" href="/compare/">Browse curated comparisons</a>
       </p>
     </div>
   </section>
 
-  <div id="try-it" class="container tool-home">
-    <ComparisonTool client:idle />
+  <!-- Studio -->
+  <div id="studio" class="container studio-home">
+    <CompareStudio client:idle />
   </div>
 
-  <!-- Three steps -->
+  <!-- Popular pairs -->
   <section class="section strip">
     <div class="container">
-      <div class="grid-3">
-        <div class="card">
-          <h3>1 · Choose objects</h3>
-          <p>
-            Classroom items, everyday objects, animals — or type in any measurement
-            from your own ruler, in metric or imperial.
-          </p>
-        </div>
-        <div class="card">
-          <h3>2 · Compare to scale</h3>
-          <p>
-            All objects share one true scale with dimension lines, sources, and a
-            shared ground line. Nothing is stretched to fit.
-          </p>
-        </div>
-        <div class="card">
-          <h3>3 · Teach or print</h3>
-          <p>
-            Present full-screen with your question and a reveal-answer button, export
-            a PNG, or print an A4/Letter worksheet.
-          </p>
-        </div>
-      </div>
+      <h2>Popular comparisons</h2>
+      <ul class="pair-grid">
+        {
+          popular.map((p) => (
+            <li>
+              <a class="pair-card" href={`/compare/${pairSlug(p)}/`}>
+                {LIBRARY_BY_ID[p.a].name} <span class="vs">vs</span> {LIBRARY_BY_ID[p.b].name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p><a href="/compare/">See all curated comparisons →</a></p>
     </div>
   </section>
 
-  <!-- Popular comparisons -->
+  <!-- Categories -->
   <section class="section">
     <div class="container">
-      <h2>Popular comparisons</h2>
+      <h2>Browse by category</h2>
       <div class="grid-3">
-        <a class="card link-card" href="/animal-size-comparison/">
-          <h3>Animal sizes</h3>
-          <p>Elephant vs. mouse, giraffe vs. child, blue whale vs. everything.</p>
-        </a>
-        <a class="card link-card" href="/size-comparison-for-kids/">
-          <h3>Teaching size to kids</h3>
-          <p>Age-by-age tasks for big/small, long/short, tall/short — K through 5.</p>
-        </a>
-        <a class="card link-card" href="/tools/size-comparison-maker/">
-          <h3>Compare anything</h3>
-          <p>Enter your own measurements and compare objects from your classroom.</p>
-        </a>
+        {
+          categories.map((c) => (
+            <a class="card link-card" href="/compare/">
+              <h3>{c.label} <span class="count">{c.count}</span></h3>
+              <p>{c.blurb}</p>
+            </a>
+          ))
+        }
       </div>
     </div>
   </section>
 
-  <!-- How scale works -->
+  <!-- How it works -->
   <section class="section strip">
     <div class="container narrow">
       <h2>How the scale works</h2>
+      <div class="grid-3">
+        <div>
+          <h3>Heights & lengths</h3>
+          <p>One shared scale factor and ground line. Objects that measure different dimensions are flagged, never mixed silently.</p>
+        </div>
+        <div>
+          <h3>Weights</h3>
+          <p>Bars exactly proportional to real mass — no truncated axes, no log scales.</p>
+        </div>
+        <div>
+          <h3>Volumes</h3>
+          <p>Spheres scale by the cube root of volume, with the rule printed on the canvas — because 3-D honesty needs a caption.</p>
+        </div>
+      </div>
       <p>
-        Each object is labelled with the <strong>dimension</strong> that was measured —
-        height, length, width, or diameter — and objects that measure different things
-        (like an elephant's shoulder height and a whale's body length) are flagged so
-        you can discuss it with your class instead of being misled by it.
-      </p>
-      <p>
-        When the difference is enormous, the small object honestly stays tiny and the
-        canvas says so. That honesty is the whole point: students should trust what
-        they see.
+        When the difference is enormous, the small object honestly stays tiny — and we say so.
+        That honesty is the whole point.
       </p>
     </div>
   </section>
@@ -152,45 +137,44 @@ const jsonLd = [
 </BaseLayout>
 
 <style>
-  .hero {
-    padding-block: 64px 40px;
-    text-align: center;
+  .hero { padding-block: 64px 40px; text-align: center; }
+  .hero h1 { max-width: 24ch; margin-inline: auto; }
+  .hero .lede { margin-inline: auto; max-width: 56ch; }
+  .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+  .studio-home { padding-bottom: 24px; }
+  .strip { background: var(--surface); border-block: 1px solid var(--line); }
+  .narrow { max-width: 860px; }
+  .pair-grid {
+    list-style: none;
+    margin: 20px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
   }
-  .hero h1 {
-    max-width: 21ch;
-    margin-inline: auto;
-  }
-  .hero .lede {
-    margin-inline: auto;
-    max-width: 56ch;
-  }
-  .hero-actions {
-    display: flex;
-    gap: 14px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 26px;
-  }
-  .tool-home {
-    padding-bottom: 24px;
-  }
-  .strip {
-    background: var(--surface);
-    border-block: 1px solid var(--line);
-  }
-  .narrow {
-    max-width: 760px;
-  }
-  .link-card {
+  .pair-card {
+    display: block;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
     text-decoration: none;
-    color: inherit;
+    color: var(--ink);
+    font-weight: 600;
     transition: border-color 120ms ease, box-shadow 120ms ease;
   }
-  .link-card:hover {
-    border-color: var(--primary);
-    box-shadow: var(--shadow-lift);
-  }
+  .pair-card:hover { border-color: var(--primary); color: var(--primary-strong); box-shadow: var(--shadow); }
+  .vs { color: var(--ink-faint); font-weight: 400; font-style: italic; font-size: 0.9em; }
+  .link-card { text-decoration: none; color: inherit; }
   .link-card h3 { color: var(--primary); }
+  .count {
+    font-size: 0.72rem;
+    background: var(--primary-soft);
+    color: var(--primary-strong);
+    border-radius: 999px;
+    padding: 2px 8px;
+    vertical-align: middle;
+  }
   details {
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
