@@ -62,3 +62,20 @@
 
 - 视觉素材：新对象全部走 Fluent Emoji（MIT）；品种类共用通用 dog/cat 图标（同画布靠名称区分）
 - 下轮审计重点：AKC 单品种页数值、球类官方规格 PDF、食物 USDA 条目锚定
+
+## 第三波核验（2026-11-21，商业品类扩展）
+
+### 新增对象（4）
+| 组 | 数量 | 来源 | 状态 |
+|---|---|---|---|
+| 床垫补充 | 1 | Wikipedia Bed size（Twin XL 965×2032mm） | 📖 标准值 |
+| 行李箱 | 3 | Wikipedia Hand luggage（IATA 56×45×25 建议上限；easyJet 小行李 45×36×20；随身小包典型上限 40×30×20，带 range） | ✅ 当日 curl 拉取原文证实；航司各自上限不同已标注 |
+
+### 商业对象视觉重构（17 个：电视 7 / 床垫 7 / 行李箱 3）
+- 弃用 Fluent Emoji 卡通图，改为自绘产品化剪影（tvpanel / mattress / suitcase，CC0 原创作品）
+- 修正诚实性问题：emoji 宽高比 ≠ 产品真实比例（电视原 0.928 → 真实 16:9 = 0.5625；床垫原 1.421 → 各自真实宽/长）
+- 新增 `rect: ['width','height']` 成对属性机制：显示任一边时，另一边取实测值（见 objects.ts / ScaleCanvas objectVisual），两轴均真实比例
+- bed.svg / television.svg / luggage.svg 资产及 fluent-map 对应条目已删除
+
+### 新增精选对（8，商业意图词）
+bed-queen×bed-full、bed-king×bed-queen、bed-full×bed-twin、bed-twin-xl×bed-twin、tv-65×tv-55、tv-75×tv-65、luggage-carry-on×luggage-personal-item、luggage-carry-on×luggage-cabin-eu

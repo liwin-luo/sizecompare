@@ -2763,11 +2763,11 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
     id: 'tv-43',
     name: "43-inch TV",
     category: 'everyday',
-    silhouette: 'book',
-    image: '/objects/television.svg',
-    aspect: 0.928,
+    silhouette: 'tvpanel',
+    aspect: 0.5625,
     axis: 'horizontal',
     primaryAttr: 'width',
+    rect: ['width', 'height'],
     measurements: {
       width: {
         value: 952,
@@ -2786,18 +2786,18 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
         uncertainty_note: "Derived from the nominal diagonal and the 16:9 panel ratio; actual bezels add a little."
       },
     },
-    image_license: 'fluent-emoji-MIT',
-    attribution: 'Microsoft Fluent Emoji (MIT)',
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
   },
   {
     id: 'tv-50',
     name: "50-inch TV",
     category: 'everyday',
-    silhouette: 'book',
-    image: '/objects/television.svg',
-    aspect: 0.928,
+    silhouette: 'tvpanel',
+    aspect: 0.5625,
     axis: 'horizontal',
     primaryAttr: 'width',
+    rect: ['width', 'height'],
     measurements: {
       width: {
         value: 1107,
@@ -2816,18 +2816,18 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
         uncertainty_note: "Derived from the nominal diagonal and the 16:9 panel ratio; actual bezels add a little."
       },
     },
-    image_license: 'fluent-emoji-MIT',
-    attribution: 'Microsoft Fluent Emoji (MIT)',
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
   },
   {
     id: 'tv-55',
     name: "55-inch TV",
     category: 'everyday',
-    silhouette: 'book',
-    image: '/objects/television.svg',
-    aspect: 0.928,
+    silhouette: 'tvpanel',
+    aspect: 0.5625,
     axis: 'horizontal',
     primaryAttr: 'width',
+    rect: ['width', 'height'],
     measurements: {
       width: {
         value: 1218,
@@ -2846,18 +2846,18 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
         uncertainty_note: "Derived from the nominal diagonal and the 16:9 panel ratio; actual bezels add a little."
       },
     },
-    image_license: 'fluent-emoji-MIT',
-    attribution: 'Microsoft Fluent Emoji (MIT)',
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
   },
   {
     id: 'tv-65',
     name: "65-inch TV",
     category: 'everyday',
-    silhouette: 'book',
-    image: '/objects/television.svg',
-    aspect: 0.928,
+    silhouette: 'tvpanel',
+    aspect: 0.5625,
     axis: 'horizontal',
     primaryAttr: 'width',
+    rect: ['width', 'height'],
     measurements: {
       width: {
         value: 1439,
@@ -2876,18 +2876,18 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
         uncertainty_note: "Derived from the nominal diagonal and the 16:9 panel ratio; actual bezels add a little."
       },
     },
-    image_license: 'fluent-emoji-MIT',
-    attribution: 'Microsoft Fluent Emoji (MIT)',
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
   },
   {
     id: 'tv-75',
     name: "75-inch TV",
     category: 'everyday',
-    silhouette: 'book',
-    image: '/objects/television.svg',
-    aspect: 0.928,
+    silhouette: 'tvpanel',
+    aspect: 0.5625,
     axis: 'horizontal',
     primaryAttr: 'width',
+    rect: ['width', 'height'],
     measurements: {
       width: {
         value: 1660,
@@ -2906,18 +2906,18 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
         uncertainty_note: "Derived from the nominal diagonal and the 16:9 panel ratio; actual bezels add a little."
       },
     },
-    image_license: 'fluent-emoji-MIT',
-    attribution: 'Microsoft Fluent Emoji (MIT)',
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
   },
   {
     id: 'tv-85',
     name: "85-inch TV",
     category: 'everyday',
-    silhouette: 'book',
-    image: '/objects/television.svg',
-    aspect: 0.928,
+    silhouette: 'tvpanel',
+    aspect: 0.5625,
     axis: 'horizontal',
     primaryAttr: 'width',
+    rect: ['width', 'height'],
     measurements: {
       width: {
         value: 1882,
@@ -2936,18 +2936,18 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
         uncertainty_note: "Derived from the nominal diagonal and the 16:9 panel ratio; actual bezels add a little."
       },
     },
-    image_license: 'fluent-emoji-MIT',
-    attribution: 'Microsoft Fluent Emoji (MIT)',
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
   },
   {
     id: 'tv-98',
     name: "98-inch TV",
     category: 'everyday',
-    silhouette: 'book',
-    image: '/objects/television.svg',
-    aspect: 0.928,
+    silhouette: 'tvpanel',
+    aspect: 0.5625,
     axis: 'horizontal',
     primaryAttr: 'width',
+    rect: ['width', 'height'],
     measurements: {
       width: {
         value: 2170,
@@ -2966,18 +2966,18 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
         uncertainty_note: "Derived from the nominal diagonal and the 16:9 panel ratio; actual bezels add a little."
       },
     },
-    image_license: 'fluent-emoji-MIT',
-    attribution: 'Microsoft Fluent Emoji (MIT)',
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
   },
   {
     id: 'bed-crib',
     name: "Crib mattress",
     category: 'everyday',
-    silhouette: 'book',
-    image: '/objects/bed.svg',
-    aspect: 1.421,
+    silhouette: 'mattress',
+    aspect: 0.538,
     axis: 'horizontal',
     primaryAttr: 'width',
+    rect: ['width', 'height'],
     measurements: {
       width: {
         value: 711,
@@ -2995,18 +2995,18 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
         uncertainty_note: "Standard US mattress dimensions; frames add a little."
       },
     },
-    image_license: 'fluent-emoji-MIT',
-    attribution: 'Microsoft Fluent Emoji (MIT)',
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
   },
   {
     id: 'bed-twin',
     name: "Twin mattress",
     category: 'everyday',
-    silhouette: 'book',
-    image: '/objects/bed.svg',
-    aspect: 1.421,
+    silhouette: 'mattress',
+    aspect: 0.507,
     axis: 'horizontal',
     primaryAttr: 'width',
+    rect: ['width', 'height'],
     measurements: {
       width: {
         value: 965,
@@ -3024,18 +3024,47 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
         uncertainty_note: "Standard US mattress dimensions; frames add a little."
       },
     },
-    image_license: 'fluent-emoji-MIT',
-    attribution: 'Microsoft Fluent Emoji (MIT)',
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'bed-twin-xl',
+    name: "Twin XL mattress",
+    category: 'everyday',
+    silhouette: 'mattress',
+    aspect: 0.475,
+    axis: 'horizontal',
+    primaryAttr: 'width',
+    rect: ['width', 'height'],
+    measurements: {
+      width: {
+        value: 965,
+        context: "mattress width (US standard)",
+        source_url: "https://en.wikipedia.org/wiki/Bed_size",
+        source_name: "Standard US bed sizes",
+        checked_at: "2026-11-21"
+      },
+      height: {
+        value: 2032,
+        context: "mattress length (US standard)",
+        source_url: "https://en.wikipedia.org/wiki/Bed_size",
+        source_name: "Standard US bed sizes",
+        checked_at: "2026-11-21",
+        uncertainty_note: "Standard US mattress dimensions; frames add a little."
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
   },
   {
     id: 'bed-full',
     name: "Full mattress",
     category: 'everyday',
-    silhouette: 'book',
-    image: '/objects/bed.svg',
-    aspect: 1.421,
+    silhouette: 'mattress',
+    aspect: 0.72,
     axis: 'horizontal',
     primaryAttr: 'width',
+    rect: ['width', 'height'],
     measurements: {
       width: {
         value: 1372,
@@ -3053,18 +3082,18 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
         uncertainty_note: "Standard US mattress dimensions; frames add a little."
       },
     },
-    image_license: 'fluent-emoji-MIT',
-    attribution: 'Microsoft Fluent Emoji (MIT)',
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
   },
   {
     id: 'bed-queen',
     name: "Queen mattress",
     category: 'everyday',
-    silhouette: 'book',
-    image: '/objects/bed.svg',
-    aspect: 1.421,
+    silhouette: 'mattress',
+    aspect: 0.75,
     axis: 'horizontal',
     primaryAttr: 'width',
+    rect: ['width', 'height'],
     measurements: {
       width: {
         value: 1524,
@@ -3082,18 +3111,18 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
         uncertainty_note: "Standard US mattress dimensions; frames add a little."
       },
     },
-    image_license: 'fluent-emoji-MIT',
-    attribution: 'Microsoft Fluent Emoji (MIT)',
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
   },
   {
     id: 'bed-king',
     name: "King mattress",
     category: 'everyday',
-    silhouette: 'book',
-    image: '/objects/bed.svg',
-    aspect: 1.421,
+    silhouette: 'mattress',
+    aspect: 0.95,
     axis: 'horizontal',
     primaryAttr: 'width',
+    rect: ['width', 'height'],
     measurements: {
       width: {
         value: 1930,
@@ -3111,18 +3140,18 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
         uncertainty_note: "Standard US mattress dimensions; frames add a little."
       },
     },
-    image_license: 'fluent-emoji-MIT',
-    attribution: 'Microsoft Fluent Emoji (MIT)',
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
   },
   {
     id: 'bed-cal-king',
     name: "California King mattress",
     category: 'everyday',
-    silhouette: 'book',
-    image: '/objects/bed.svg',
-    aspect: 1.421,
+    silhouette: 'mattress',
+    aspect: 0.857,
     axis: 'horizontal',
     primaryAttr: 'width',
+    rect: ['width', 'height'],
     measurements: {
       width: {
         value: 1829,
@@ -3140,8 +3169,102 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
         uncertainty_note: "Standard US mattress dimensions; frames add a little."
       },
     },
-    image_license: 'fluent-emoji-MIT',
-    attribution: 'Microsoft Fluent Emoji (MIT)',
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'luggage-personal-item',
+    name: "Personal item (under-seat bag)",
+    category: 'everyday',
+    silhouette: 'suitcase',
+    aspect: 0.75,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    rect: ['width', 'height'],
+    measurements: {
+      height: {
+        value: 400,
+        min: 300,
+        max: 450,
+        context: "bag height, typical airline under-seat maximum",
+        source_url: "https://en.wikipedia.org/wiki/Hand_luggage",
+        source_name: "Hand luggage — under-seat allowances (40×30×20 cm small-bag rules)",
+        checked_at: "2026-11-21",
+        uncertainty_note: "Each airline sets its own limit; 40×30×20 cm is a typical under-seat maximum."
+      },
+      width: {
+        value: 300,
+        min: 250,
+        max: 360,
+        context: "bag width, typical airline under-seat maximum",
+        source_url: "https://en.wikipedia.org/wiki/Hand_luggage",
+        source_name: "Hand luggage — under-seat allowances (40×30×20 cm small-bag rules)",
+        checked_at: "2026-11-21",
+        uncertainty_note: "Each airline sets its own limit; 40×30×20 cm is a typical under-seat maximum."
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'luggage-carry-on',
+    name: "Carry-on suitcase (IATA max)",
+    category: 'everyday',
+    silhouette: 'suitcase',
+    aspect: 0.804,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    rect: ['width', 'height'],
+    measurements: {
+      height: {
+        value: 560,
+        context: "carry-on height at the IATA recommended maximum",
+        source_url: "https://en.wikipedia.org/wiki/Hand_luggage",
+        source_name: "IATA recommended carry-on maximum (56×45×25 cm)",
+        checked_at: "2026-11-21",
+        uncertainty_note: "IATA recommendation (2022); individual airline sizers vary by a few cm."
+      },
+      width: {
+        value: 450,
+        context: "carry-on width at the IATA recommended maximum",
+        source_url: "https://en.wikipedia.org/wiki/Hand_luggage",
+        source_name: "IATA recommended carry-on maximum (56×45×25 cm)",
+        checked_at: "2026-11-21",
+        uncertainty_note: "IATA recommendation (2022); individual airline sizers vary by a few cm."
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'luggage-cabin-eu',
+    name: "Small cabin bag (easyJet max)",
+    category: 'everyday',
+    silhouette: 'suitcase',
+    aspect: 0.8,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    rect: ['width', 'height'],
+    measurements: {
+      height: {
+        value: 450,
+        context: "cabin bag height at easyJet's free small-bag maximum",
+        source_url: "https://en.wikipedia.org/wiki/Hand_luggage",
+        source_name: "easyJet small cabin bag maximum (45×36×20 cm)",
+        checked_at: "2026-11-21",
+        uncertainty_note: "easyJet free small-bag allowance; handles and wheels included."
+      },
+      width: {
+        value: 360,
+        context: "cabin bag width at easyJet's free small-bag maximum",
+        source_url: "https://en.wikipedia.org/wiki/Hand_luggage",
+        source_name: "easyJet small cabin bag maximum (45×36×20 cm)",
+        checked_at: "2026-11-21",
+        uncertainty_note: "easyJet free small-bag allowance; handles and wheels included."
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
   },
   {
     id: 'ball-soccer',

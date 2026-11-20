@@ -71,6 +71,41 @@ describe('objectVisual', () => {
     expect(v.silhouette).toBeNull();
     expect(v.axis).toBe('horizontal');
   });
+
+  it('derives a true rectangle from paired dimensions on rect objects', () => {
+    const meas = (value: number) => ({
+      value,
+      context: 'x',
+      source_url: 'x',
+      source_name: 'x',
+      checked_at: '2026-11-21',
+    });
+    const rectObj = (axis: 'vertical' | 'horizontal'): ComparisonObject => ({
+      kind: 'library',
+      record: {
+        id: 'rect-test',
+        name: 'Test product',
+        category: 'everyday',
+        silhouette: 'tvpanel',
+        aspect: 99, // wrong on purpose: rect must win
+        axis,
+        primaryAttr: 'width',
+        rect: ['width', 'height'],
+        measurements: { width: meas(1218), height: meas(685) },
+        image_license: 'original-CC0',
+        attribution: 'SizeCompare original',
+      },
+    });
+    // Horizontal: width drives the box → h = w / (w/h) = real height.
+    const horiz = objectVisual(rectObj('horizontal'), 'width')!;
+    expect(horiz.aspect).toBeCloseTo(1218 / 685);
+    // Same rectangle compared the other way round (e.g. Twin vs Twin XL).
+    const flipped = objectVisual(rectObj('horizontal'), 'height')!;
+    expect(flipped.aspect).toBeCloseTo(685 / 1218);
+    // Vertical: height drives, width comes from the pair.
+    const vert = objectVisual(rectObj('vertical'), 'height')!;
+    expect(vert.aspect).toBeCloseTo(1218 / 685);
+  });
 });
 
 describe('formatAttrValue passthrough', () => {

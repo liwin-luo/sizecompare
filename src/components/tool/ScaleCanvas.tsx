@@ -64,9 +64,19 @@ export function objectVisual(
   const value = objectValue(obj, attr);
   if (value === null) return null;
   if (obj.kind === 'library') {
+    const rect = obj.record.rect;
+    let aspect = obj.record.aspect;
+    if (rect && rect.includes(attr)) {
+      const other = obj.record.measurements[rect.find((k) => k !== attr)!]?.value;
+      // True rectangle from real measurements: horizontal boxes are driven
+      // by the displayed value (aspect = w/h), vertical boxes by the pair.
+      if (other) {
+        aspect = obj.record.axis === 'vertical' ? other / value : value / other;
+      }
+    }
     return {
       valueMm: value,
-      aspect: obj.record.aspect,
+      aspect,
       axis: obj.record.axis,
       silhouette: obj.record.silhouette,
       image: obj.record.image,

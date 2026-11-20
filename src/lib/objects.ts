@@ -52,6 +52,13 @@ export interface ObjectV2 {
   /** Attribute shown as the picker's default label. */
   primaryAttr: AttributeKey;
   /**
+   * For planar products (TVs, mattresses, luggage): the two linear attrs
+   * that span the drawing's true rectangle. When either is displayed, the
+   * perpendicular axis is taken from the other's real measurement instead
+   * of the single representative `aspect`.
+   */
+  rect?: [AttributeKey, AttributeKey];
+  /**
    * Emoji-style SVG asset (Microsoft Fluent Emoji), served from /objects/.
    * The content crop is burned into the file's own viewBox — measured by
    * rasterization at asset-integration time — so a full-bleed <image>

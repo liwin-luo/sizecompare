@@ -24,6 +24,79 @@ export interface Pair {
 }
 
 export const PAIRS: Pair[] = [
+  /* commercial — beds, TVs, luggage (buyer-intent keywords) */
+  {
+    a: 'bed-queen',
+    b: 'bed-full',
+    attr: 'width',
+    title: '— which bed fits your room?',
+    blurb:
+      'The most-asked mattress question: a Queen is 15 cm (6 in) wider and 13 cm (5 in) longer than a Full — drawn here at true scale.',
+    question: 'How much floor space does the Queen really add?',
+  },
+  {
+    a: 'bed-king',
+    b: 'bed-queen',
+    attr: 'width',
+    title: '— Queen vs King mattress',
+    blurb:
+      'A King is 41 cm (16 in) wider than a Queen at the same length — nearly a whole extra Twin mattress of width.',
+    question: 'Is the King worth the extra floor space in your room?',
+  },
+  {
+    a: 'bed-full',
+    b: 'bed-twin',
+    attr: 'width',
+    title: '— which single bed is right?',
+    blurb:
+      'A Full (Double) is 41 cm (16 in) wider than a Twin but exactly the same length — wider, not longer.',
+    question: 'Can two people really share a Full?',
+  },
+  {
+    a: 'bed-twin-xl',
+    b: 'bed-twin',
+    attr: 'height',
+    title: '— the 5-inch difference that matters',
+    blurb:
+      'Identical 38-inch width, 13 cm (5 in) more length: the Twin XL is the dorm-room classic built for taller sleepers.',
+    question: 'Do those extra 5 inches matter for how tall you are?',
+  },
+  {
+    a: 'tv-65',
+    b: 'tv-55',
+    attr: 'width',
+    title: '— which TV size is right for your room?',
+    blurb:
+      'Going from 55 to 65 inches adds 22 cm (9 in) of width and about 40% more screen area — see both on your wall at true scale.',
+    question: 'Will the 65-inch fit your TV stand or wall?',
+  },
+  {
+    a: 'tv-75',
+    b: 'tv-65',
+    attr: 'width',
+    title: '— how much bigger is it really?',
+    blurb:
+      'From 65 to 75 inches adds another 22 cm (9 in) of width and a third more screen area — the last step before true home-cinema money.',
+    question: 'How much wall does the 75-inch actually need?',
+  },
+  {
+    a: 'luggage-carry-on',
+    b: 'luggage-personal-item',
+    attr: 'height',
+    title: '— what fits under the seat vs overhead',
+    blurb:
+      'The overhead-bin case against the under-seat bag: a maximum carry-on stands 16 cm taller and 15 cm wider than a typical personal item.',
+    question: 'Which bag is your free allowance on the next flight?',
+  },
+  {
+    a: 'luggage-carry-on',
+    b: 'luggage-cabin-eu',
+    attr: 'height',
+    title: '— will a US bag pass a European sizer?',
+    blurb:
+      'The IATA-guideline carry-on is 11 cm taller and 9 cm wider than easyJet\u2019s free small bag — the reason US-sized cases get gate-checked in Europe.',
+    question: 'Does your bag pass the sizer at the gate?',
+  },
   /* animals — height */
   {
     a: 'elephant',

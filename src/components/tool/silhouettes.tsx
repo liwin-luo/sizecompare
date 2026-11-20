@@ -90,6 +90,43 @@ export const SILHOUETTES: Record<string, Silhouette> = {
     ),
   },
 
+  /* ── commercial products (neutral, true-proportion drawings) ── */
+  tvpanel: {
+    viewBox: '0 0 160 90',
+    render: (c) => (
+      <>
+        <rect x="0" y="0" width="160" height="90" rx="3" fill="#0f172a" />
+        <rect x="4" y="4" width="152" height="82" rx="1.5" fill="#1e293b" />
+        <rect x="4" y="4" width="152" height="82" rx="1.5" fill={c} opacity="0.1" />
+        <circle cx="153" cy="86" r="1" fill={c} />
+      </>
+    ),
+  },
+  mattress: {
+    viewBox: '0 0 150 200',
+    render: (c) => (
+      <>
+        <rect x="3" y="3" width="144" height="194" rx="10" fill="#e2e8f0" stroke={shade(c)} strokeWidth="4" />
+        <rect x="16" y="16" width="118" height="42" rx="7" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="2" />
+        <line x1="16" y1="82" x2="134" y2="82" stroke="#cbd5e1" strokeWidth="2" />
+      </>
+    ),
+  },
+  suitcase: {
+    viewBox: '0 0 80 100',
+    render: (c) => (
+      <>
+        <rect x="30" y="1" width="20" height="5" rx="2.5" fill="#334155" />
+        <rect x="38" y="4" width="4" height="12" fill="#334155" />
+        <rect x="6" y="16" width="68" height="74" rx="8" fill={c} />
+        <rect x="6" y="16" width="68" height="12" rx="6" fill={shade(c)} />
+        <rect x="6" y="47" width="68" height="4" fill={shade(c)} />
+        <rect x="10" y="90" width="9" height="7" rx="2" fill="#334155" />
+        <rect x="61" y="90" width="9" height="7" rx="2" fill="#334155" />
+      </>
+    ),
+  },
+
   /* ── everyday ── */
   apple: {
     viewBox: '0 0 100 100',
