@@ -428,7 +428,7 @@ export default function CompareStudio({
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search 50+ objects…"
+              placeholder="Search 190+ objects…"
               aria-label="Search objects"
             />
             {searchResults.length > 0 && (
