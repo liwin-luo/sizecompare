@@ -1,0 +1,152 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CompareStudio from '../../components/tool/ComparisonTool';
+import '../../styles/tool.css';
+import '../../styles/print.css';
+
+const title = 'Compare Studio — True-Scale Comparisons of Anything';
+const description =
+  'Compare the height, weight, or volume of any objects at true scale. Search 50+ measured objects or add your own. Present full-screen, download PNG, or print. Free, no sign-up.';
+const path = '/studio/';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'SizeCompare — Compare Studio',
+  url: `https://sizecompare.org${path}`,
+  applicationCategory: 'EducationalApplication',
+  operatingSystem: 'Web browser',
+  description,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+};
+---
+
+<BaseLayout title={title} description={description} path={path}>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <section class="section" style="padding-bottom: 24px">
+    <div class="container">
+      <h1>Compare Studio</h1>
+      <p class="lede">
+        Put any two or three things side by side at their <strong>real, true scale</strong> —
+        height, weight, or volume. Every built-in measurement shows its source, so you
+        can trust what's on the screen.
+      </p>
+    </div>
+  </section>
+
+  <div class="container" style="padding-bottom: 48px">
+    <CompareStudio client:visible />
+  </div>
+
+  <section class="section" style="background: var(--surface); border-top: 1px solid var(--line)">
+    <div class="container">
+      <div class="grid-3">
+        <div class="card">
+          <h3>1 · Pick your objects</h3>
+          <p>
+            Search the library — animals, planets, buildings, vehicles, food, everyday
+            things — or add your own measurement in any unit (mm to km, grams to tons,
+            millilitres to gallons, even <code>5'4"</code>-style lengths).
+          </p>
+        </div>
+        <div class="card">
+          <h3>2 · Compare honestly</h3>
+          <p>
+            Heights draw at one true scale with a shared ground line. Weights use
+            strictly proportional bars. Volumes scale spheres by the cube root —
+            never by how big they should "look". Nothing is stretched to fit.
+          </p>
+        </div>
+        <div class="card">
+          <h3>3 · Show it, save it</h3>
+          <p>
+            Present full-screen with your own question and a reveal-answer button,
+            download a PNG, or print a clean reference sheet with a source table.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width: 780px">
+      <h2>Why true scale matters</h2>
+      <p>
+        Most comparison pictures online are not drawn to scale — images get resized
+        to fit the layout, which quietly teaches the wrong proportions. This studio
+        draws every object with the <em>same</em> scale factor, labels each object's
+        measured attribute (height, length, weight, volume…), and shows where every
+        number comes from.
+      </p>
+      <p>
+        When two things differ enormously — a mouse beside a blue whale, the Sun
+        beside the Earth — the small one honestly stays tiny, and the canvas says
+        so instead of secretly enlarging it.
+      </p>
+      <h2>Frequently asked questions</h2>
+      <div class="faq">
+        <details>
+          <summary>Is it free? Do I need an account?</summary>
+          <p>Free, no account, no uploads. Your comparison is saved in your own browser.</p>
+        </details>
+        <details>
+          <summary>Can I use the pictures in my own materials?</summary>
+          <p>
+            Yes — exported PNGs and printouts are yours to use. All silhouettes are
+            original artwork (CC0), and measurement sources are listed under each
+            object and on printouts.
+          </p>
+        </details>
+        <details>
+          <summary>Why only three objects at a time?</summary>
+          <p>
+            Three keeps labels readable and comparisons honest. Ordering exercises
+            with more objects are on the roadmap.
+          </p>
+        </details>
+        <details>
+          <summary>Why does the small object look SO small sometimes?</summary>
+          <p>
+            Because it really is that small. A house mouse is about 1/40th of an
+            elephant's height and 1/300,000th of its weight — honest scale looks
+            extreme. Inflating the small object to "look better" would be lying with
+            pictures, and that's exactly what this tool refuses to do.
+          </p>
+        </details>
+        <details>
+          <summary>Where do the measurements come from?</summary>
+          <p>
+            Official standards where they exist (ISO paper and card sizes, NBA ball
+            specs, NASA planetary fact sheets), reputable references for animals and
+            structures (National Geographic, AMNH, official monument sites), and
+            manufacturer specs for devices and vehicles — each shown with its
+            measurement context and check date. See the About page for details.
+          </p>
+        </details>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .faq details {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    background: var(--surface);
+  }
+  .faq summary {
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .faq p { margin-bottom: 0; margin-top: 8px; color: var(--ink-soft); }
+  code {
+    background: var(--surface-2);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+</style>
