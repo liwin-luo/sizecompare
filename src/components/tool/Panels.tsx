@@ -1,20 +1,31 @@
 /**
- * Editor side panels — object picker, custom object form, lesson editor
- * and export actions. Pure presentational components; state lives in
- * ComparisonTool.
+ * Editor side panels — object picker, custom object form, comparison
+ * editor and export actions. Pure presentational components; state
+ * lives in CompareStudio.
  */
 
 import { useState } from 'react';
 import { CATEGORY_LABELS, OBJECT_LIBRARY } from '../../data/library';
 import {
-  DIMENSION_LABELS,
-  validateName,
-  type Category,
-  type CustomObject,
-  type DimensionType,
-  type ObjectRecord,
-} from '../../lib/objects';
-import { parseMeasurement, UNIT_LABELS, type Unit, type UnitSystem } from '../../lib/units';
+  ATTRIBUTE_FAMILY,
+  ATTRIBUTE_LABELS,
+  ALL_ATTRS,
+  type AttributeFamily,
+  type AttributeKey,
+} from '../../lib/attributes';
+import { validateName, type CustomObject, type ObjectV2 } from '../../lib/objects';
+import {
+  parseMass,
+  parseMeasurement,
+  parseVolume,
+  MASS_LABELS,
+  UNIT_LABELS,
+  VOLUME_LABELS,
+  type MassUnit,
+  type Unit,
+  type UnitSystem,
+  type VolumeUnit,
+} from '../../lib/units';
 import { SILHOUETTES } from './silhouettes';
 import { OBJ_PALETTE, formatValue } from './ScaleCanvas';
 
@@ -23,7 +34,8 @@ import { OBJ_PALETTE, formatValue } from './ScaleCanvas';
 export interface SelectedItem {
   id: string;
   name: string;
-  value_mm: number;
+  /** Pre-formatted primary-attribute display, e.g. "3.2 m". */
+  display: string;
 }
 
 export function SelectedObjects({
@@ -38,7 +50,7 @@ export function SelectedObjects({
   if (items.length === 0) {
     return (
       <p className="hint" style={{ margin: 0 }}>
-        No objects yet — pick from the library or add your own below.
+        No objects yet — search the library or add your own below.
       </p>
     );
   }
@@ -48,7 +60,7 @@ export function SelectedObjects({
         <li key={r.id}>
           <span className="dot" style={{ background: OBJ_PALETTE[i % OBJ_PALETTE.length] }} />
           <span className="sel-name">{r.name}</span>
-          <span className="sel-value">{formatValue(r.value_mm, 'metric')}</span>
+          <span className="sel-value">{r.display}</span>
           <button type="button" onClick={() => onRemove(r.id)} aria-label={`Remove ${r.name}`}>
             ×
           </button>
@@ -65,7 +77,7 @@ export function SelectedObjects({
 
 /* ── library picker ── */
 
-const CATEGORIES: Category[] = ['classroom', 'everyday', 'animal', 'reference'];
+const CATEGORIES = ['animal', 'everyday', 'food', 'space', 'building', 'vehicle', 'reference'];
 
 export function ObjectPicker({
   selectedIds,
@@ -73,10 +85,10 @@ export function ObjectPicker({
   disabled,
 }: {
   selectedIds: string[];
-  onAdd: (record: ObjectRecord) => void;
+  onAdd: (record: ObjectV2) => void;
   disabled: boolean;
 }) {
-  const [cat, setCat] = useState<Category>('classroom');
+  const [cat, setCat] = useState('animal');
 
   return (
     <div>
@@ -104,11 +116,16 @@ export function ObjectPicker({
                 className={`lib-card ${selected ? 'picked' : ''}`}
                 disabled={disabled && !selected}
                 onClick={() => onAdd(r)}
-                title={r.measurement_context}
+                title={
+                  r.measurements[r.primaryAttr]?.context ??
+                  `${ATTRIBUTE_LABELS[r.primaryAttr]}: ${formatValue(r, r.primaryAttr, 'metric')}`
+                }
               >
                 <MiniSilhouette record={r} />
                 <span className="lib-name">{r.name}</span>
-                <span className="lib-value">{formatValue(r.value_mm, 'metric')}</span>
+                <span className="lib-value">
+                  {formatValue(r, r.primaryAttr, 'metric')}
+                </span>
               </button>
             </li>
           );
@@ -118,7 +135,7 @@ export function ObjectPicker({
   );
 }
 
-function MiniSilhouette({ record }: { record: ObjectRecord }) {
+function MiniSilhouette({ record }: { record: ObjectV2 }) {
   const sil = SILHOUETTES[record.silhouette];
   const h = 34;
   const w = Math.min(64, Math.max(10, h * record.aspect));
@@ -131,8 +148,16 @@ function MiniSilhouette({ record }: { record: ObjectRecord }) {
 
 /* ── custom object form ── */
 
-const DIMENSIONS: DimensionType[] = ['height', 'length', 'width', 'diameter'];
-const UNITS: Unit[] = ['mm', 'cm', 'm', 'in', 'ft'];
+const LINEAR_UNITS: Unit[] = ['mm', 'cm', 'm', 'in', 'ft'];
+const MASS_UNITS: MassUnit[] = ['g', 'kg', 't', 'oz', 'lb'];
+const VOLUME_UNITS: VolumeUnit[] = ['ml', 'l', 'floz', 'gal'];
+
+function unitsFor(attr: AttributeKey): { values: string[]; labels: Record<string, string> } {
+  const family = ATTRIBUTE_FAMILY[attr];
+  if (family === 'weight') return { values: MASS_UNITS, labels: MASS_LABELS };
+  if (family === 'volume') return { values: VOLUME_UNITS, labels: VOLUME_LABELS };
+  return { values: LINEAR_UNITS, labels: UNIT_LABELS };
+}
 
 export function CustomObjectForm({
   onAdd,
@@ -142,10 +167,16 @@ export function CustomObjectForm({
   disabled: boolean;
 }) {
   const [name, setName] = useState('');
-  const [dimension, setDimension] = useState<DimensionType>('length');
+  const [attr, setAttr] = useState<AttributeKey>('height');
   const [value, setValue] = useState('');
-  const [unit, setUnit] = useState<Unit>('cm');
+  const [unit, setUnit] = useState<string>('cm');
   const [error, setError] = useState<string | null>(null);
+
+  function switchAttr(next: AttributeKey) {
+    setAttr(next);
+    const { values } = unitsFor(next);
+    if (!values.includes(unit)) setUnit(values[1] ?? values[0]);
+  }
 
   function submit(e: { preventDefault(): void }) {
     e.preventDefault();
@@ -154,22 +185,36 @@ export function CustomObjectForm({
       setError(nameCheck.error ?? 'Check the name.');
       return;
     }
-    const parsed = parseMeasurement(value, unit);
-    if (!parsed.ok || parsed.mm === undefined) {
-      setError(parsed.error ?? 'Check the measurement.');
-      return;
+    const family = ATTRIBUTE_FAMILY[attr] as AttributeFamily;
+    let base: number | null = null;
+    if (family === 'weight') {
+      const res = parseMass(value, unit as MassUnit);
+      if (!res.ok) { setError(res.error ?? 'Check the weight.'); return; }
+      base = res.g ?? null;
+    } else if (family === 'volume') {
+      const res = parseVolume(value, unit as VolumeUnit);
+      if (!res.ok) { setError(res.error ?? 'Check the volume.'); return; }
+      base = res.ml ?? null;
+    } else {
+      const res = parseMeasurement(value, unit as Unit);
+      if (!res.ok) { setError(res.error ?? 'Check the measurement.'); return; }
+      base = res.mm ?? null;
     }
+    if (base === null) { setError('Enter a value.'); return; }
+
     onAdd({
       id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       name: name.trim(),
-      dimension_type: dimension,
-      value_mm: parsed.mm,
+      attr,
+      value: base,
       color: OBJ_PALETTE[0],
     });
     setName('');
     setValue('');
     setError(null);
   }
+
+  const { values, labels } = unitsFor(attr);
 
   return (
     <form className="custom-form" onSubmit={submit}>
@@ -178,13 +223,23 @@ export function CustomObjectForm({
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="e.g. My shoe"
+          placeholder="e.g. My bike"
           maxLength={60}
         />
       </label>
+      <label>
+        Attribute
+        <select value={attr} onChange={(e) => switchAttr(e.target.value as AttributeKey)}>
+          {ALL_ATTRS.map((a) => (
+            <option key={a} value={a}>
+              {ATTRIBUTE_LABELS[a]}
+            </option>
+          ))}
+        </select>
+      </label>
       <div className="row">
         <label>
-          Measurement
+          Value
           <input
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -194,28 +249,15 @@ export function CustomObjectForm({
         </label>
         <label>
           Unit
-          <select value={unit} onChange={(e) => setUnit(e.target.value as Unit)}>
-            {UNITS.map((u) => (
+          <select value={unit} onChange={(e) => setUnit(e.target.value)}>
+            {values.map((u) => (
               <option key={u} value={u}>
-                {UNIT_LABELS[u]}
+                {labels[u]}
               </option>
             ))}
           </select>
         </label>
       </div>
-      <label>
-        Dimension
-        <select
-          value={dimension}
-          onChange={(e) => setDimension(e.target.value as DimensionType)}
-        >
-          {DIMENSIONS.map((d) => (
-            <option key={d} value={d}>
-              {DIMENSION_LABELS[d]}
-            </option>
-          ))}
-        </select>
-      </label>
       {error && (
         <p className="form-error" role="alert">
           {error}
@@ -228,7 +270,7 @@ export function CustomObjectForm({
   );
 }
 
-/* ── lesson editor ── */
+/* ── comparison editor ── */
 
 export function EditorPanel({
   title,
@@ -256,11 +298,11 @@ export function EditorPanel({
         <input value={title} onChange={(e) => onTitle(e.target.value)} maxLength={90} />
       </label>
       <label>
-        Classroom question
+        Question
         <input
           value={prompt}
           onChange={(e) => onPrompt(e.target.value)}
-          placeholder="Which one is taller? How much taller?"
+          placeholder="Which one is taller? How much heavier?"
           maxLength={140}
         />
       </label>
@@ -273,7 +315,7 @@ export function EditorPanel({
             className={unitSystem === 'metric' ? 'on' : ''}
             onClick={() => onUnitSystem('metric')}
           >
-            Metric (cm / m)
+            Metric (cm / m / kg)
           </button>
           <button
             type="button"
@@ -281,7 +323,7 @@ export function EditorPanel({
             className={unitSystem === 'imperial' ? 'on' : ''}
             onClick={() => onUnitSystem('imperial')}
           >
-            Imperial (in / ft)
+            Imperial (in / ft / lb)
           </button>
         </div>
       </fieldset>

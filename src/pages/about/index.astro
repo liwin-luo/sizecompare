@@ -7,7 +7,13 @@ const description =
   'Who makes SizeCompare, how our measurements are sourced and checked, and how original artwork keeps the comparisons honest.';
 const path = '/about/';
 
-const sources = [...new Set(OBJECT_LIBRARY.map((r) => r.source_name))];
+const sources = [
+  ...new Set(
+    OBJECT_LIBRARY.flatMap((r) =>
+      Object.values(r.measurements).map((m) => m?.source_name ?? ''),
+    ).filter((s) => s !== ''),
+  ),
+];
 ---
 
 <BaseLayout title={title} description={description} path={path}>

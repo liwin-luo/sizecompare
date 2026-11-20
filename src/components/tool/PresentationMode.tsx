@@ -1,26 +1,32 @@
 /**
- * Presentation mode — the classroom projection view.
+ * Presentation mode — the big-screen projection view.
  *
- * Fullscreen, huge type, no editing chrome. The teacher's question sits
- * under the canvas with a Reveal button so answers stay hidden until the
- * class has discussed the comparison.
+ * Fullscreen, huge type, no editing chrome. The question sits under the
+ * canvas with a Reveal button so the answer stays hidden until the
+ * audience has discussed the comparison.
  */
 
 import { useEffect, useRef, useState } from 'react';
+import type { AttributeKey } from '../../lib/attributes';
 import type { ComparisonObject } from '../../lib/objects';
 import type { UnitSystem } from '../../lib/units';
+import { ATTRIBUTE_FAMILY } from '../../lib/attributes';
 import { ScaleCanvas, buildAnswerSentence } from './ScaleCanvas';
+import { WeightBars } from './WeightBars';
+import { VolumeSpheres } from './VolumeSpheres';
 
 export function PresentationMode({
   title,
   prompt,
   objects,
+  attr,
   unitSystem,
   onExit,
 }: {
   title: string;
   prompt: string;
   objects: ComparisonObject[];
+  attr: AttributeKey;
   unitSystem: UnitSystem;
   onExit: () => void;
 }) {
@@ -60,14 +66,42 @@ export function PresentationMode({
     };
   }, [onExit]);
 
-  const answer = buildAnswerSentence(objects, unitSystem);
+  const answer = buildAnswerSentence(objects, attr as never, unitSystem);
+  const family = ATTRIBUTE_FAMILY[attr];
 
   return (
     <div className="presentation" ref={rootRef}>
       <div className="presentation-inner">
-        <h2 className="presentation-title">{title || 'Size comparison'}</h2>
+        <h2 className="presentation-title">{title || 'Comparison'}</h2>
         <div className="presentation-canvas">
-          <ScaleCanvas objects={objects} box={box} unitSystem={unitSystem} large showSources={false} />
+          {family === 'weight' ? (
+            <WeightBars
+              objects={objects}
+              attr={attr as 'weight'}
+              box={box}
+              unitSystem={unitSystem}
+              large
+              showSources={false}
+            />
+          ) : family === 'volume' ? (
+            <VolumeSpheres
+              objects={objects}
+              attr={attr as 'volume'}
+              box={box}
+              unitSystem={unitSystem}
+              large
+              showSources={false}
+            />
+          ) : (
+            <ScaleCanvas
+              objects={objects}
+              attr={attr as never}
+              box={box}
+              unitSystem={unitSystem}
+              large
+              showSources={false}
+            />
+          )}
         </div>
         <div className="presentation-bottom">
           {prompt && <p className="presentation-prompt">{prompt}</p>}

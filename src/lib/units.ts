@@ -1,86 +1,135 @@
 /**
  * Unit conversion — the single source of numeric truth.
  *
- * Every measurement in the app is stored internally in millimetres.
- * Display units are derived views only; converting never mutates the
- * underlying value. Factors for in/ft are exact by international
- * definition (1 in = 25.4 mm).
+ * Every measurement is stored internally in one base unit per family:
+ *   linear (height/length/width/diameter) → millimetres
+ *   weight                                → grams
+ *   volume                                → millilitres (= cm³)
+ * Display units are derived views; converting never mutates base values.
+ * Imperial factors are exact by international definition.
  */
 
-export type Unit = 'mm' | 'cm' | 'm' | 'in' | 'ft';
+export type Unit = 'mm' | 'cm' | 'm' | 'km' | 'in' | 'ft';
+export type MassUnit = 'g' | 'kg' | 't' | 'oz' | 'lb' | 'ton';
+export type VolumeUnit = 'ml' | 'l' | 'm³' | 'floz' | 'gal';
 
 export type UnitSystem = 'metric' | 'imperial';
-
-/** Metric system uses m for large values, cm mid, mm small — chosen at display time. */
-export const DISPLAY_UNITS: Record<UnitSystem, Unit[]> = {
-  metric: ['mm', 'cm', 'm'],
-  imperial: ['in', 'ft'],
-};
 
 export const UNIT_LABELS: Record<Unit, string> = {
   mm: 'mm',
   cm: 'cm',
   m: 'm',
+  km: 'km',
   in: 'in',
   ft: 'ft',
 };
 
-/** Exact conversion factors to millimetres. */
+export const MASS_LABELS: Record<MassUnit, string> = {
+  g: 'g',
+  kg: 'kg',
+  t: 't',
+  oz: 'oz',
+  lb: 'lb',
+  ton: 'ton',
+};
+
+export const VOLUME_LABELS: Record<VolumeUnit, string> = {
+  ml: 'ml',
+  l: 'l',
+  'm³': 'm³',
+  floz: 'fl oz',
+  gal: 'gal',
+};
+
+/** Exact conversion factors to the base unit. */
 export const FACTORS_MM: Record<Unit, number> = {
   mm: 1,
   cm: 10,
   m: 1000,
+  km: 1_000_000,
   in: 25.4,
   ft: 304.8,
 };
 
-/** Sensible input bounds (in mm): 0.1 mm grain of rice … 10 km Golden Gate Bridge. */
+export const FACTORS_G: Record<MassUnit, number> = {
+  g: 1,
+  kg: 1000,
+  t: 1_000_000,
+  oz: 28.349_523_125,
+  lb: 453.59237,
+  ton: 907_184.74, // US short ton = 2000 lb
+};
+
+export const FACTORS_ML: Record<VolumeUnit, number> = {
+  ml: 1,
+  l: 1000,
+  'm³': 1_000_000,
+  floz: 29.573_529_562_5, // US fluid ounce
+  gal: 3785.411_784, // US liquid gallon
+};
+
+/** Sensible input bounds per family (in base units). */
 export const MIN_MM = 0.1;
-export const MAX_MM = 10_000_000;
+export const MAX_MM = 1e15; // 1e9 km — comfortably beyond the Sun
+export const MIN_G = 0.001;
+export const MAX_G = 1e30; // ~10 solar masses — everything on Earth is far below
+export const MIN_ML = 0.1;
+export const MAX_ML = 1e36; // ~1.4e18 km³ × 10⁴ — Sun is 1.41e33 ml
+
+/* ── linear ── */
 
 export function toMm(value: number, unit: Unit): number {
   return value * FACTORS_MM[unit];
 }
-
 export function fromMm(mm: number, unit: Unit): number {
   return mm / FACTORS_MM[unit];
 }
-
 export function convert(value: number, from: Unit, to: Unit): number {
   return fromMm(toMm(value, from), to);
 }
 
-/** Trim trailing zeros from a fixed-precision number string. */
+/* ── mass ── */
+
+export function toG(value: number, unit: MassUnit): number {
+  return value * FACTORS_G[unit];
+}
+export function fromG(g: number, unit: MassUnit): number {
+  return g / FACTORS_G[unit];
+}
+
+/* ── volume ── */
+
+export function toMl(value: number, unit: VolumeUnit): number {
+  return value * FACTORS_ML[unit];
+}
+export function fromMl(ml: number, unit: VolumeUnit): number {
+  return ml / FACTORS_ML[unit];
+}
+
+/* ── formatting helpers ── */
+
 function trimZeros(s: string): string {
   return s.includes('.') ? s.replace(/0+$/, '').replace(/\.$/, '') : s;
 }
 
-/** Default fraction digits per unit for readable classroom labels. */
-const DEFAULT_DIGITS: Record<Unit, number> = {
-  mm: 0,
-  cm: 1,
-  m: 2,
-  in: 1,
-  ft: 2,
-};
+function fmt(value: number, digits: number): string {
+  return trimZeros(value.toFixed(digits));
+}
+
+const LINEAR_DIGITS: Partial<Record<Unit, number>> = { mm: 0, cm: 1, m: 2, km: 2 };
 
 /** Format an internal mm value in a display unit, e.g. 1828.8 → "6 ft". */
-export function formatMm(
-  mm: number,
-  unit: Unit,
-  maxFractionDigits?: number,
-): string {
-  const digits = maxFractionDigits ?? DEFAULT_DIGITS[unit];
-  return `${trimZeros(fromMm(mm, unit).toFixed(digits))} ${UNIT_LABELS[unit]}`;
+export function formatMm(mm: number, unit: Unit, maxFractionDigits?: number): string {
+  const digits = maxFractionDigits ?? LINEAR_DIGITS[unit] ?? 1;
+  return `${fmt(fromMm(mm, unit), digits)} ${UNIT_LABELS[unit]}`;
 }
 
 /**
- * Imperial convention for heights/lengths of everyday scale:
- * 1737.36 mm → "5 ft 8 in". Values under 1 ft render as inches only.
- * Falls back to plain feet beyond 99 ft (no yard/mile formatting).
+ * Imperial convention for heights/lengths: 1737.36 mm → "5 ft 8 in".
+ * Under 1 ft renders as inches; exact-foot values drop the inches part.
  */
 export function formatImperialHeight(mm: number): string {
-  if (mm < FACTORS_MM.ft) return formatMm(mm, 'in');
+  if (mm < FACTORS_MM.ft) return `${fmt(fromMm(mm, 'in'), 1)} in`;
   const totalInches = fromMm(mm, 'in');
   const feet = Math.floor(totalInches / 12);
   const inches = Math.round(totalInches - feet * 12);
@@ -89,11 +138,7 @@ export function formatImperialHeight(mm: number): string {
   return `${feet} ft ${inches} in`;
 }
 
-/**
- * Parse "5'8"" / "5 ft 8 in" / "5ft8" style input into mm.
- * Returns null when the string doesn't match the feet-inches pattern —
- * callers then fall back to plain numeric parsing.
- */
+/** Parse "5'8"" / "5 ft 8 in" / "6ft" into mm. Null when not matching. */
 export function parseFeetInches(raw: string): number | null {
   const m = raw
     .trim()
@@ -111,43 +156,140 @@ export interface ParseResult {
   error?: string;
 }
 
+function boundsCheck(value: number, min: number, max: number, maxLabel: string): ParseResult | null {
+  if (value < min) return { ok: false, error: 'That value is too small to draw.' };
+  if (value > max) return { ok: false, error: `That value is too large (maximum ${maxLabel}).` };
+  return null;
+}
+
 /**
- * Validate and normalise user-entered measurements.
- * Zero, negative, non-finite and out-of-bound values are rejected with a
- * message that is safe to show in the UI.
+ * Validate and normalise a linear measurement. Accepts plain numbers,
+ * comma groupings, and feet-inches strings ("5'4""). Rejects zero,
+ * negative, non-finite and out-of-bound values with UI-safe messages.
  */
 export function parseMeasurement(raw: string, unit: Unit): ParseResult {
   const text = raw.trim();
   if (text === '') return { ok: false, error: 'Enter a measurement.' };
 
-  const bounds = (mm: number): ParseResult => {
-    if (mm < MIN_MM) {
-      return { ok: false, error: 'That measurement is too small to draw (minimum 0.1 mm).' };
-    }
-    if (mm > MAX_MM) {
-      return { ok: false, error: 'That measurement is too large (maximum 10,000 m).' };
-    }
-    return { ok: true, mm };
-  };
-
   const numeric = Number(text.replace(/,/g, ''));
   if (Number.isFinite(numeric) && text !== '') {
-    if (numeric <= 0) {
-      return { ok: false, error: 'Measurement must be greater than zero.' };
-    }
-    return bounds(toMm(numeric, unit));
+    if (numeric <= 0) return { ok: false, error: 'Measurement must be greater than zero.' };
+    const mm = toMm(numeric, unit);
+    return (
+      boundsCheck(mm, MIN_MM, MAX_MM, '1,000,000 km') ?? { ok: true, mm }
+    );
   }
 
-  // Not plain numeric — try "5'8"" / "5 ft 8 in" before giving up.
   const ftIn = parseFeetInches(text);
-  if (ftIn !== null && ftIn > 0) return bounds(ftIn);
-
+  if (ftIn !== null && ftIn > 0) {
+    return boundsCheck(ftIn, MIN_MM, MAX_MM, '1,000,000 km') ?? { ok: true, mm: ftIn };
+  }
   return { ok: false, error: 'Enter a number, e.g. 30 or 7.5.' };
 }
 
-/** Pick a comfortable metric display unit for a magnitude (mm → cm → m). */
+export interface MassParseResult {
+  ok: boolean;
+  g?: number;
+  error?: string;
+}
+
+/** Validate a weight input in the given mass unit. */
+export function parseMass(raw: string, unit: MassUnit): MassParseResult {
+  const text = raw.trim();
+  if (text === '') return { ok: false, error: 'Enter a weight.' };
+  const numeric = Number(text.replace(/,/g, ''));
+  if (!Number.isFinite(numeric)) return { ok: false, error: 'Enter a number, e.g. 75 or 0.5.' };
+  if (numeric <= 0) return { ok: false, error: 'Weight must be greater than zero.' };
+  const g = toG(numeric, unit);
+  return boundsCheck(g, MIN_G, MAX_G, '10²¹ t') ?? { ok: true, g };
+}
+
+export interface VolumeParseResult {
+  ok: boolean;
+  ml?: number;
+  error?: string;
+}
+
+/** Validate a volume input in the given volume unit. */
+export function parseVolume(raw: string, unit: VolumeUnit): VolumeParseResult {
+  const text = raw.trim();
+  if (text === '') return { ok: false, error: 'Enter a volume.' };
+  const numeric = Number(text.replace(/,/g, ''));
+  if (!Number.isFinite(numeric)) return { ok: false, error: 'Enter a number, e.g. 500 or 2.5.' };
+  if (numeric <= 0) return { ok: false, error: 'Volume must be greater than zero.' };
+  const ml = toMl(numeric, unit);
+  return boundsCheck(ml, MIN_ML, MAX_ML, '10³⁰ m³') ?? { ok: true, ml };
+}
+
+/* ── auto display units ── */
+
+/** Comfortable metric linear unit for a magnitude (mm → cm → m → km). */
 export function autoMetricUnit(mm: number): Unit {
   if (mm < 10) return 'mm';
   if (mm < 1000) return 'cm';
-  return 'm';
+  if (mm < 1_000_000) return 'm';
+  return 'km';
+}
+
+/** Comfortable metric mass unit (g → kg → t). */
+export function autoMassUnit(g: number): MassUnit {
+  if (g < 1000) return 'g';
+  if (g < 1_000_000) return 'kg';
+  return 't';
+}
+
+/** Comfortable metric volume unit (ml → l → m³). */
+export function autoVolumeUnit(ml: number): VolumeUnit {
+  if (ml < 1000) return 'ml';
+  if (ml < 1_000_000) return 'l';
+  return 'm³';
+}
+
+const MASS_DIGITS: Partial<Record<MassUnit, number>> = { g: 1, kg: 1, t: 1, oz: 1, lb: 1, ton: 1 };
+const VOLUME_DIGITS: Partial<Record<VolumeUnit, number>> = {
+  ml: 0,
+  l: 1,
+  'm³': 2,
+  floz: 1,
+  gal: 2,
+};
+
+/** Astronomic values (planets, stars) switch to scientific notation. */
+function bigOr(value: number, digits: number): string {
+  return value >= 1e7 ? value.toExponential(2) : fmt(value, digits);
+}
+
+export function formatMassG(g: number, unit: MassUnit, maxFractionDigits?: number): string {
+  const digits = maxFractionDigits ?? MASS_DIGITS[unit] ?? 1;
+  return `${bigOr(fromG(g, unit), digits)} ${MASS_LABELS[unit]}`;
+}
+
+export function formatVolMl(ml: number, unit: VolumeUnit, maxFractionDigits?: number): string {
+  const digits = maxFractionDigits ?? VOLUME_DIGITS[unit] ?? 1;
+  return `${bigOr(fromMl(ml, unit), digits)} ${VOLUME_LABELS[unit]}`;
+}
+
+/**
+ * Imperial weight: under 1 lb → oz; under 10 lb → "lb + oz"; under 2000 lb
+ * → plain lb; above → US short tons. (1609.6 g → "3 lb 8 oz".)
+ */
+export function formatImperialWeight(g: number): string {
+  const totalLb = fromG(g, 'lb');
+  if (totalLb < 1) return `${fmt(fromG(g, 'oz'), 1)} oz`;
+  if (totalLb < 10) {
+    const lb = Math.floor(totalLb);
+    const oz = Math.round(fromG(g - toG(lb, 'lb'), 'oz'));
+    if (oz === 16) return `${lb + 1} lb`;
+    if (oz === 0) return `${lb} lb`;
+    return `${lb} lb ${oz} oz`;
+  }
+  if (totalLb < 2000) return `${fmt(totalLb, totalLb < 100 ? 1 : 0)} lb`;
+  return `${fmt(fromG(g, 'ton'), 1)} ton`;
+}
+
+/** Imperial volume: under 1 quart → fl oz (1 decimal); above → US gallons. */
+export function formatImperialVolume(ml: number): string {
+  const floz = fromMl(ml, 'floz');
+  if (floz < 32) return `${fmt(floz, 1)} fl oz`;
+  return `${fmt(fromMl(ml, 'gal'), fromMl(ml, 'gal') < 10 ? 2 : 1)} gal`;
 }

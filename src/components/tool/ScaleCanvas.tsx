@@ -1,28 +1,30 @@
 /**
- * ScaleCanvas — the true-scale SVG renderer.
+ * ScaleCanvas — the true-scale SVG renderer for LINEAR attributes
+ * (height / length / width / diameter).
  *
- * Everything on the canvas uses inline presentation attributes (no CSS
- * classes, no CSS variables) so the exact same markup serializes cleanly
- * to a standalone PNG and prints identically. One comparison, one scale
- * factor, one shared ground line.
+ * Everything uses inline presentation attributes (no CSS classes, no
+ * CSS variables) so the markup serializes cleanly to PNG and prints
+ * identically. One comparison, one scale factor, one shared ground
+ * line. Weight and volume comparisons render in WeightBars /
+ * VolumeSpheres instead.
  */
 
 import { useMemo } from 'react';
+import { computeLayout, assessScale, type Layout, type PlacedItem } from '../../lib/scale';
 import {
-  computeLayout,
-  assessScale,
-  type Layout,
-  type PlacedItem,
-} from '../../lib/scale';
-import {
-  DIMENSION_LABELS,
-  objectDimension,
   objectName,
-  objectValueMm,
+  objectValue,
   type ComparisonObject,
-  type DimensionType,
+  type ObjectV2,
 } from '../../lib/objects';
-import { autoMetricUnit, formatImperialHeight, formatMm, type UnitSystem } from '../../lib/units';
+import {
+  ATTRIBUTE_LABELS,
+  formatAttrValue,
+  ratioPhrase,
+  type AttributeKey,
+  type LinearAttr,
+} from '../../lib/attributes';
+import type { UnitSystem } from '../../lib/units';
 import { SILHOUETTES } from './silhouettes';
 
 export const OBJ_PALETTE = ['#0e7490', '#b4551f', '#6d4bb6', '#a8234b', '#2f7d32'];
@@ -31,9 +33,9 @@ export const MAX_OBJECTS = 3;
 
 const FONT = 'Arial, "Helvetica Neue", Helvetica, sans-serif';
 
-/** Perpendicular footprint for custom objects without a silhouette. */
-function customAspect(dimension: DimensionType): number {
-  switch (dimension) {
+/** Perpendicular footprint for custom objects (generic shapes). */
+function customAspect(attr: LinearAttr): number {
+  switch (attr) {
     case 'height':
       return 0.42;
     case 'diameter':
@@ -43,89 +45,84 @@ function customAspect(dimension: DimensionType): number {
   }
 }
 
-function customAxis(dimension: DimensionType): 'vertical' | 'horizontal' | 'both' {
-  if (dimension === 'height') return 'vertical';
-  if (dimension === 'diameter') return 'both';
+function customAxis(attr: LinearAttr): 'vertical' | 'horizontal' | 'both' {
+  if (attr === 'height') return 'vertical';
+  if (attr === 'diameter') return 'both';
   return 'horizontal';
 }
 
-export function objectVisual(obj: ComparisonObject): {
+export function objectVisual(
+  obj: ComparisonObject,
+  attr: LinearAttr,
+): {
   valueMm: number;
   aspect: number;
   axis: 'vertical' | 'horizontal' | 'both';
   silhouette: string | null;
-} {
+} | null {
+  const value = objectValue(obj, attr);
+  if (value === null) return null;
   if (obj.kind === 'library') {
     return {
-      valueMm: obj.record.value_mm,
+      valueMm: value,
       aspect: obj.record.aspect,
       axis: obj.record.axis,
       silhouette: obj.record.silhouette,
     };
   }
   return {
-    valueMm: obj.record.value_mm,
-    aspect: customAspect(obj.record.dimension_type),
-    axis: customAxis(obj.record.dimension_type),
+    valueMm: value,
+    aspect: customAspect(attr),
+    axis: customAxis(attr),
     silhouette: null,
   };
 }
 
-export function formatValue(mm: number, system: UnitSystem): string {
-  return system === 'metric'
-    ? formatMm(mm, autoMetricUnit(mm))
-    : formatImperialHeight(mm);
+/** Format a library record's value for the given attribute (picker labels). */
+export function formatValue(
+  record: ObjectV2,
+  attr: AttributeKey,
+  system: UnitSystem,
+): string {
+  const m = record.measurements[attr];
+  return m ? formatAttrValue(attr, m.value, system) : '—';
 }
-
-const DIMENSION_WORD: Record<DimensionType, string> = {
-  height: 'taller',
-  length: 'longer',
-  width: 'wider',
-  diameter: 'wider',
-};
 
 /** Auto answer sentence for answer reveal + worksheet answer keys. */
 export function buildAnswerSentence(
   objects: ComparisonObject[],
+  attr: AttributeKey,
   system: UnitSystem,
 ): string | null {
   if (objects.length < 2) return null;
-  const sorted = [...objects].sort((a, b) => objectValueMm(b) - objectValueMm(a));
+  const values = objects.map((o) => objectValue(o, attr));
+  if (values.some((v) => v === null)) return null;
+
+  const sorted = objects
+    .map((o, i) => ({ o, v: values[i] as number }))
+    .sort((a, b) => b.v - a.v);
   const big = sorted[0];
   const small = sorted[sorted.length - 1];
-  const bigV = objectValueMm(big);
-  const smallV = objectValueMm(small);
-  const ratio = bigV / smallV;
-  const mixed = new Set(sorted.map((o) => objectDimension(o))).size > 1;
-
-  const bigName = objectName(big);
-  const smallName = objectName(small);
-  const bigLabel = `${bigName} (${formatValue(bigV, system)})`;
-  const smallLabel = `${smallName} (${formatValue(smallV, system)})`;
-
-  if (ratio < 1.05) {
-    return `${bigLabel} is about the same measured size as ${smallLabel}.`;
-  }
-  const ratioText = `${ratio.toFixed(ratio < 10 ? 1 : 0)}×`;
-  if (mixed) {
-    return `${bigLabel} is about ${ratioText} the measured size of ${smallLabel}.`;
-  }
-  return `${bigLabel} is about ${ratioText} ${DIMENSION_WORD[objectDimension(big)]} than ${smallLabel}.`;
+  const bigLabel = `${objectName(big.o)} (${formatAttrValue(attr, big.v, system)})`;
+  const smallLabel = `${objectName(small.o)} (${formatAttrValue(attr, small.v, system)})`;
+  return `${bigLabel} is ${ratioPhrase(attr, big.v / small.v)} ${smallLabel}.`;
 }
 
 interface CanvasProps {
   objects: ComparisonObject[];
+  attr: LinearAttr;
   box: { width: number; height: number };
   unitSystem: UnitSystem;
-  /** Big type for classroom projection. */
+  /** Big type for projection mode. */
   large?: boolean;
-  /** Show measurement source lines under objects. */
+  /** Show measurement source names under objects. */
   showSources?: boolean;
   svgId?: string;
 }
 
 export function ScaleCanvas({
   objects,
+  attr,
   box,
   unitSystem,
   large = false,
@@ -140,15 +137,24 @@ export function ScaleCanvas({
   const { layout, health } = useMemo<{
     layout: Layout | null;
     health: ReturnType<typeof assessScale> | null;
+    missing: boolean;
   }>(() => {
-    if (objects.length === 0) return { layout: null, health: null };
-    const items = objects.map((o) => {
-      const v = objectVisual(o);
-      return { valueMm: v.valueMm, aspect: v.aspect, axis: v.axis };
-    });
+    const visuals = objects.map((o) => objectVisual(o, attr));
+    if (objects.length === 0 || visuals.some((v) => v === null)) {
+      return { layout: null, health: null, missing: visuals.some((v) => v === null) };
+    }
+    const items = visuals.map((v) => ({
+      valueMm: (v as NonNullable<typeof v>).valueMm,
+      aspect: (v as NonNullable<typeof v>).aspect,
+      axis: (v as NonNullable<typeof v>).axis,
+    }));
     const l = computeLayout(items, box, large ? 60 : 34, large ? 80 : 34);
-    return { layout: l, health: assessScale(items.map((i) => i.valueMm), l.scale) };
-  }, [objects, box, large]);
+    return {
+      layout: l,
+      health: assessScale(items.map((i) => i.valueMm), l.scale),
+      missing: false,
+    };
+  }, [objects, attr, box, large]);
 
   if (!layout) {
     return (
@@ -168,18 +174,15 @@ export function ScaleCanvas({
           fontSize="18"
           fill="#6b7280"
         >
-          Add two objects to compare
+          {health === null && objects.length > 0
+            ? 'Pick another attribute — an object is missing this one'
+            : 'Add objects to compare'}
         </text>
       </svg>
     );
   }
 
   const totalH = box.height + labelZone;
-  const dims = objects.map((o) => objectDimension(o));
-  const mixed = new Set(dims).size > 1;
-  const dimLabel = mixed
-    ? `Mixed: ${[...new Set(dims)].map((d) => DIMENSION_LABELS[d]).join(' + ')}`
-    : DIMENSION_LABELS[dims[0]];
 
   return (
     <svg
@@ -187,13 +190,20 @@ export function ScaleCanvas({
       viewBox={`0 0 ${box.width} ${totalH}`}
       width="100%"
       role="img"
-      aria-label={`Size comparison chart: ${objects.map((o) => objectName(o)).join(', ')} at one true scale`}
+      aria-label={`${ATTRIBUTE_LABELS[attr]} comparison chart: ${objects.map((o) => objectName(o)).join(', ')} at one true scale`}
     >
       <rect x="0" y="0" width={box.width} height={totalH} fill="#ffffff" rx="8" />
 
-      {/* compared-dimension badge */}
-      <text x="16" y="26" fontFamily={FONT} fontSize={large ? 24 : 14} fontWeight="600" fill={mixed ? '#b45309' : '#0e6f63'}>
-        {`Comparing: ${dimLabel}`}
+      {/* compared-attribute badge */}
+      <text
+        x="16"
+        y="26"
+        fontFamily={FONT}
+        fontSize={large ? 24 : 14}
+        fontWeight="600"
+        fill="#0e6f63"
+      >
+        {`Comparing: ${ATTRIBUTE_LABELS[attr]}`}
       </text>
 
       {/* shared ground line */}
@@ -210,12 +220,13 @@ export function ScaleCanvas({
       {layout.items.map((placed) => {
         const obj = objects[placed.index];
         const color = OBJ_PALETTE[placed.index % OBJ_PALETTE.length];
-        const v = objectVisual(obj);
+        const v = objectVisual(obj, attr) as NonNullable<ReturnType<typeof objectVisual>>;
         return (
           <ObjectGroup
             key={obj.record.id}
             placed={placed}
             obj={obj}
+            attr={attr}
             visual={v}
             color={color}
             layout={layout}
@@ -246,7 +257,8 @@ export function ScaleCanvas({
 interface ObjectGroupProps {
   placed: PlacedItem;
   obj: ComparisonObject;
-  visual: ReturnType<typeof objectVisual>;
+  attr: LinearAttr;
+  visual: NonNullable<ReturnType<typeof objectVisual>>;
   color: string;
   layout: Layout;
   unitSystem: UnitSystem;
@@ -257,6 +269,7 @@ interface ObjectGroupProps {
 function ObjectGroup({
   placed,
   obj,
+  attr,
   visual,
   color,
   layout,
@@ -265,40 +278,35 @@ function ObjectGroup({
   showSource,
 }: ObjectGroupProps) {
   const name = objectName(obj);
-  const valueText = formatValue(visual.valueMm, unitSystem);
+  const valueText = formatAttrValue(attr, visual.valueMm, unitSystem);
   const { nameSize, valueSize, sourceSize } = fontSizes;
 
   // Canvas keeps the citation to the source name only — full provenance
-  // lines (context + range) live in the print sheet and library details,
-  // where they don't collide between neighbouring objects.
-  const source =
-    obj.kind === 'library' ? obj.record.source_name : 'Custom measurement';
+  // lives in the print sheet, where it can't collide between neighbours.
+  const sourceNameOnly =
+    obj.kind === 'library'
+      ? (obj.record.measurements[attr]?.source_name ?? 'Custom measurement')
+      : 'Custom measurement';
 
   const centerX = placed.x + placed.w / 2;
   const labelY = layout.baselineY + (nameSize + 14);
 
   // Dimension line along the measured axis with end ticks.
   const tick = 6;
-  let dimLine: React.ReactNode = null;
-  if (visual.axis === 'vertical' || visual.axis === 'both') {
-    const x = Math.max(placed.x - 8, 2);
-    dimLine = (
+  const dimLine =
+    visual.axis === 'vertical' || visual.axis === 'both' ? (
       <g stroke="#334155" strokeWidth="1.5">
-        <line x1={x} y1={placed.y} x2={x} y2={layout.baselineY} />
-        <line x1={x - tick} y1={placed.y} x2={x + tick} y2={placed.y} />
-        <line x1={x - tick} y1={layout.baselineY} x2={x + tick} y2={layout.baselineY} />
+        <line x1={Math.max(placed.x - 8, 2)} y1={placed.y} x2={Math.max(placed.x - 8, 2)} y2={layout.baselineY} />
+        <line x1={Math.max(placed.x - 8, 2) - tick} y1={placed.y} x2={Math.max(placed.x - 8, 2) + tick} y2={placed.y} />
+        <line x1={Math.max(placed.x - 8, 2) - tick} y1={layout.baselineY} x2={Math.max(placed.x - 8, 2) + tick} y2={layout.baselineY} />
+      </g>
+    ) : (
+      <g stroke="#334155" strokeWidth="1.5">
+        <line x1={placed.x} y1={layout.baselineY + 8} x2={placed.x + placed.w} y2={layout.baselineY + 8} />
+        <line x1={placed.x} y1={layout.baselineY + 8 - tick} x2={placed.x} y2={layout.baselineY + 8 + tick} />
+        <line x1={placed.x + placed.w} y1={layout.baselineY + 8 - tick} x2={placed.x + placed.w} y2={layout.baselineY + 8 + tick} />
       </g>
     );
-  } else {
-    const y = layout.baselineY + 8;
-    dimLine = (
-      <g stroke="#334155" strokeWidth="1.5">
-        <line x1={placed.x} y1={y} x2={placed.x + placed.w} y2={y} />
-        <line x1={placed.x} y1={y - tick} x2={placed.x} y2={y + tick} />
-        <line x1={placed.x + placed.w} y1={y - tick} x2={placed.x + placed.w} y2={y + tick} />
-      </g>
-    );
-  }
 
   const silhouette = visual.silhouette ? SILHOUETTES[visual.silhouette] : null;
 
@@ -351,7 +359,7 @@ function ObjectGroup({
       >
         {valueText}
       </text>
-      {showSource && source && (
+      {showSource && (
         <text
           x={centerX}
           y={labelY + valueSize + 6 + sourceSize + 6}
@@ -360,7 +368,7 @@ function ObjectGroup({
           fontSize={sourceSize}
           fill="#6b7280"
         >
-          {source.length > 28 ? `${source.slice(0, 27)}…` : source}
+          {sourceNameOnly.length > 28 ? `${sourceNameOnly.slice(0, 27)}…` : sourceNameOnly}
         </text>
       )}
     </g>

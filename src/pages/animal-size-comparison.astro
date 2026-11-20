@@ -2,17 +2,18 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ComparisonTool from '../components/tool/ComparisonTool';
 import { OBJECT_LIBRARY } from '../data/library';
-import { formatMm, autoMetricUnit, formatImperialHeight } from '../lib/units';
-import { DIMENSION_LABELS } from '../lib/objects';
+import { ATTRIBUTE_LABELS, formatAttrValue } from '../lib/attributes';
+import type { AttributeKey } from '../lib/attributes';
 import '../styles/tool.css';
 import '../styles/print.css';
 
-const title = 'Animal Size Comparison — True-Scale Charts for Teaching';
+const title = 'Animal Size Comparison — True-Scale Heights & Weights';
 const description =
-  'Compare real animal sizes at true scale: elephant vs. mouse, giraffe vs. child, blue whale vs. all of them. Sourced measurements with ranges, printable for the classroom.';
+  'Compare real animal sizes and weights at true scale: elephant vs. mouse, giraffe vs. person, blue whale vs. all of them. Sourced measurements with ranges, printable for the classroom.';
 const path = '/animal-size-comparison/';
 
 const animals = OBJECT_LIBRARY.filter((r) => r.category === 'animal');
+const columns: AttributeKey[] = ['height', 'length', 'weight'];
 ---
 
 <BaseLayout title={title} description={description} path={path}>
@@ -20,9 +21,9 @@ const animals = OBJECT_LIBRARY.filter((r) => r.category === 'animal');
     <div class="container">
       <h1>Animal size comparison</h1>
       <p class="lede">
-        How tall is an elephant, really? How does a mouse look beside one? The tool
-        below starts with a classic — change the animals, add a child or adult for
-        reference, then present or print. Every measurement is sourced, with ranges
+        How tall is an elephant, really? How much does a blue whale weigh? The tool
+        below starts with a classic — switch between height and weight, change the
+        animals, then present or print. Every measurement is sourced, with ranges
         where nature varies.
       </p>
     </div>
@@ -44,44 +45,60 @@ const animals = OBJECT_LIBRARY.filter((r) => r.category === 'animal');
           <thead>
             <tr>
               <th>Animal</th>
-              <th>Dimension</th>
-              <th>Representative</th>
-              <th>Typical range</th>
-              <th>Imperial</th>
-              <th>Source</th>
+              {columns.map((c) => <th>{ATTRIBUTE_LABELS[c]}</th>)}
+              <th>Sources</th>
             </tr>
           </thead>
           <tbody>
             {
-              animals.map((a) => (
-                <tr>
-                  <td>{a.name}</td>
-                  <td>{DIMENSION_LABELS[a.dimension_type].toLowerCase()}</td>
-                  <td>{formatMm(a.value_mm, autoMetricUnit(a.value_mm))}</td>
-                  <td>
-                    {a.min_mm != null && a.max_mm != null
-                      ? `${formatMm(a.min_mm, autoMetricUnit(a.min_mm))} – ${formatMm(
-                          a.max_mm,
-                          autoMetricUnit(a.max_mm),
-                        )}`
-                      : '—'}
-                  </td>
-                  <td>{formatImperialHeight(a.value_mm)}</td>
-                  <td>
-                    <a href={a.source_url} rel="nofollow noopener" target="_blank">
-                      {a.source_name}
-                    </a>
-                  </td>
-                </tr>
-              ))
+              animals.map((a) => {
+                const sources = [
+                  ...new Set(
+                    columns
+                      .map((c) => a.measurements[c]?.source_name)
+                      .filter((s): s is string => Boolean(s)),
+                  ),
+                ];
+                const firstUrl = a.measurements[columns.find((c) => a.measurements[c])!]
+                  ?.source_url ?? '#';
+                return (
+                  <tr>
+                    <td>{a.name}</td>
+                    {columns.map((c) => {
+                      const m = a.measurements[c];
+                      return (
+                        <td>
+                          {m ? (
+                            <span>
+                              {formatAttrValue(c, m.value, 'metric')}
+                              {m.min != null && m.max != null && (
+                                <span class="range">
+                                  {' '}
+                                  ({formatAttrValue(c, m.min, 'metric')} – {formatAttrValue(c, m.max, 'metric')})
+                                </span>
+                              )}
+                            </span>
+                          ) : (
+                            '—'
+                          )}
+                        </td>
+                      );
+                    })}
+                    <td>
+                      <a href={firstUrl} rel="nofollow noopener" target="_blank">
+                        {sources.join(' · ')}
+                      </a>
+                    </td>
+                  </tr>
+                );
+              })
             }
           </tbody>
         </table>
       </div>
       <p class="muted small">
-        Dinosaur and extinct-animal comparisons are on the roadmap — prehistoric sizes
-        are fossil estimates, so they need their own careful presentation with
-        estimate ranges.
+        Dinosaur comparisons are on the roadmap — prehistoric sizes are fossil
+        estimates, so they need their own careful presentation with estimate ranges.
       </p>
     </div>
   </section>
@@ -109,6 +126,7 @@ const animals = OBJECT_LIBRARY.filter((r) => r.category === 'animal');
     text-align: left;
     padding: 10px 14px;
     border-bottom: 1px solid var(--line);
+    vertical-align: top;
   }
   th {
     background: var(--surface-2);
@@ -117,10 +135,5 @@ const animals = OBJECT_LIBRARY.filter((r) => r.category === 'animal');
     letter-spacing: 0.04em;
   }
   tr:last-child td { border-bottom: none; }
-  td:nth-child(3),
-  td:nth-child(4),
-  td:nth-child(5) {
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
+  .range { color: var(--ink-faint); font-size: 0.85em; white-space: nowrap; }
 </style>

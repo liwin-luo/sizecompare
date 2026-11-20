@@ -383,3 +383,117 @@ label.check input {
 .print-sheet {
   display: none;
 }
+
+/* ── attribute tabs ── */
+
+.attr-tabs {
+  display: flex;
+  gap: 6px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.attr-tabs button {
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.attr-tabs button.on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+.attr-tabs button:hover:not(.on) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ── search box ── */
+
+.search-box {
+  position: relative;
+  margin-bottom: 12px;
+}
+.search-box input {
+  width: 100%;
+  font: inherit;
+  font-size: 0.92rem;
+  padding: 9px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+}
+.search-results {
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lift);
+  max-height: 280px;
+  overflow-y: auto;
+}
+.search-results button {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+}
+.search-results button:hover:not(:disabled) {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.search-results button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── empty canvas state ── */
+
+.canvas-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  background: var(--surface);
+  border-radius: 8px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.canvas-empty .hint { font-weight: 400; }
+
+/* ── info banner ── */
+
+.info-banner {
+  background: var(--primary-soft);
+  border: 1px solid #bcd9d4;
+  color: #0a5850;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.92rem;
+  margin: 14px 0 0;
+}

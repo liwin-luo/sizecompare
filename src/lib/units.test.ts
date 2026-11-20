@@ -1,11 +1,25 @@
 import { describe, expect, it } from 'vitest';
 import {
+  autoMassUnit,
+  autoVolumeUnit,
   convert,
+  FACTORS_G,
+  FACTORS_ML,
   formatImperialHeight,
+  formatImperialVolume,
+  formatImperialWeight,
+  formatMassG,
   formatMm,
+  formatVolMl,
+  fromG,
+  fromMl,
   fromMm,
   parseFeetInches,
+  parseMass,
   parseMeasurement,
+  parseVolume,
+  toG,
+  toMl,
   toMm,
 } from './units';
 
@@ -83,7 +97,8 @@ describe('measurement input validation', () => {
 
   it('rejects extremes in either direction with friendly errors', () => {
     expect(parseMeasurement('0.001', 'mm').ok).toBe(false); // below MIN_MM
-    expect(parseMeasurement('999999', 'm').ok).toBe(false); // above MAX_MM
+    expect(parseMeasurement('9999999999', 'km').ok).toBe(false); // above MAX_MM
+    expect(parseMeasurement('999999', 'm').ok).toBe(true); // well within new bound
     const tiny = parseMeasurement('0.01', 'mm');
     expect(tiny.ok).toBe(false);
   });
@@ -92,5 +107,68 @@ describe('measurement input validation', () => {
     const res = parseMeasurement(`5'4"`, 'ft');
     expect(res.ok).toBe(true);
     if (res.ok) expect(res.mm).toBeCloseTo(toMm(64, 'in'), 6);
+  });
+});
+
+describe('mass conversion', () => {
+  it('uses exact avoirdupois definitions', () => {
+    expect(FACTORS_G.lb).toBe(453.59237);
+    expect(FACTORS_G.oz).toBeCloseTo(28.349523125, 10);
+    expect(toG(1, 'kg')).toBe(1000);
+    expect(fromG(toG(150, 't'), 'kg')).toBeCloseTo(150000, 6);
+    expect(toG(2000, 'lb')).toBeCloseTo(toG(1, 'ton'), 6); // short ton
+  });
+
+  it('formats metric masses with auto units', () => {
+    expect(formatMassG(400, autoMassUnit(400))).toBe('400 g');
+    expect(formatMassG(75000, autoMassUnit(75000))).toBe('75 kg');
+    expect(formatMassG(6000000, autoMassUnit(6000000))).toBe('6 t');
+  });
+
+  it('formats imperial weights across ranges', () => {
+    expect(formatImperialWeight(400)).toBe('14.1 oz');
+    expect(formatImperialWeight(1587.57)).toBe('3 lb 8 oz');
+    expect(formatImperialWeight(165346)).toBe('365 lb'); // 364.57 lb rounds
+    expect(formatImperialWeight(150000000)).toBe('165.3 ton');
+  });
+
+  it('validates weight input bounds', () => {
+    expect(parseMass('', 'kg').ok).toBe(false);
+    expect(parseMass('0', 'kg').ok).toBe(false);
+    expect(parseMass('abc', 'kg').ok).toBe(false);
+    expect(parseMass('-2', 'lb').ok).toBe(false);
+    expect(parseMass('75', 'kg')).toEqual({ ok: true, g: 75000 });
+    expect(parseMass('0.0000001', 'g').ok).toBe(false);
+    expect(parseMass('1e35', 't').ok).toBe(false);
+  });
+});
+
+describe('volume conversion', () => {
+  it('uses exact US definitions', () => {
+    expect(FACTORS_ML.gal).toBeCloseTo(3785.411784, 6);
+    expect(FACTORS_ML.floz).toBeCloseTo(29.5735295625, 10);
+    expect(toMl(1, 'm³')).toBe(1_000_000); // a cubic metre is 1000 litres
+    expect(fromMl(toMl(355, 'ml'), 'l')).toBeCloseTo(0.355, 10);
+  });
+
+  it('formats metric volumes with auto units', () => {
+    expect(formatVolMl(355, autoVolumeUnit(355))).toBe('355 ml');
+    expect(formatVolMl(5000, autoVolumeUnit(5000))).toBe('5 l');
+    expect(formatVolMl(2583000, autoVolumeUnit(2583000))).toBe('2.58 m³');
+  });
+
+  it('formats imperial volumes across ranges', () => {
+    expect(formatImperialVolume(355)).toBe('12 fl oz');
+    expect(formatImperialVolume(500)).toBe('16.9 fl oz');
+    expect(formatImperialVolume(3785.411784)).toBe('1 gal');
+    expect(formatImperialVolume(1000000)).toBe('264.2 gal');
+  });
+
+  it('validates volume input bounds', () => {
+    expect(parseVolume('', 'ml').ok).toBe(false);
+    expect(parseVolume('-1', 'l').ok).toBe(false);
+    expect(parseVolume('x', 'ml').ok).toBe(false);
+    expect(parseVolume('500', 'ml')).toEqual({ ok: true, ml: 500 });
+    expect(parseVolume('0.05', 'ml').ok).toBe(false);
   });
 });
