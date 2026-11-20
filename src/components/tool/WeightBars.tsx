@@ -7,7 +7,7 @@
 import { useMemo } from 'react';
 import { ChartError, weightBarLayout } from '../../lib/charts';
 import { formatAttrValue } from '../../lib/attributes';
-import { objectName, objectSourceLine, objectValue, type ComparisonObject } from '../../lib/objects';
+import { objectName, objectValue, type ComparisonObject } from '../../lib/objects';
 import type { UnitSystem } from '../../lib/units';
 import { OBJ_PALETTE } from './ScaleCanvas';
 
@@ -32,9 +32,18 @@ export function WeightBars({
 }) {
   const values = objects.map((o) => objectValue(o, attr) ?? 0);
 
+  const nameSize = large ? 28 : 15;
+  const valueSize = large ? 24 : 14;
+  const sourceSize = large ? 16 : 11;
+  const captionSize = large ? 18 : 11;
+  const sourceH = showSources ? sourceSize + 10 : 0;
+
   const layout = useMemo(() => {
     try {
-      return { layout: weightBarLayout(values, box), error: null as string | null };
+      return {
+        layout: weightBarLayout(values, box, 28, { sourceH }),
+        error: null as string | null,
+      };
     } catch (e) {
       return {
         layout: null,
@@ -42,14 +51,9 @@ export function WeightBars({
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [objects, attr, box.width, box.height]);
+  }, [objects, attr, box.width, box.height, sourceH]);
 
-  const nameSize = large ? 28 : 15;
-  const valueSize = large ? 24 : 14;
-  const sourceSize = large ? 16 : 11;
-  const captionSize = large ? 18 : 11;
-
-  const totalH = box.height + (showSources ? objects.length * (sourceSize + 10) : 0) + 8;
+  const totalH = (layout.layout?.neededHeight ?? box.height) + captionSize + 8;
 
   if (!layout.layout) {
     return (
@@ -63,7 +67,6 @@ export function WeightBars({
   }
 
   const { rows, extreme } = layout.layout;
-  const sourcePad = showSources ? sourceSize + 10 : 0;
 
   return (
     <svg
@@ -83,7 +86,11 @@ export function WeightBars({
         const color = OBJ_PALETTE[row.index % OBJ_PALETTE.length];
         const value = values[row.index];
         const valueText = formatAttrValue(attr, value, unitSystem);
-        const source = objectSourceLine(obj, attr);
+        // Caption: source name + a *formatted* range when one exists.
+        const m = obj.kind === 'library' ? obj.record.measurements[attr] : null;
+        const source = m
+          ? `${m.source_name}${m.min != null && m.max != null ? ` (${formatAttrValue(attr, m.min, unitSystem)}–${formatAttrValue(attr, m.max, unitSystem)})` : ''}`
+          : 'Custom measurement';
         return (
           <g key={obj.record.id}>
             <text
@@ -118,7 +125,7 @@ export function WeightBars({
             {showSources && source && (
               <text
                 x={row.barX}
-                y={row.barY + row.barH + sourcePad - 2}
+                y={row.barY + row.barH + sourceSize + 6}
                 fontFamily={FONT}
                 fontSize={sourceSize}
                 fill="#6b7280"

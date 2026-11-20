@@ -104,9 +104,11 @@ export default function CompareStudio({
   const [box, setBox] = useState({ width: 800, height: 440 });
   const [query, setQuery] = useState('');
 
-  /* restore previous work from localStorage (client only) */
+  /* restore previous work from localStorage (client only) — but never
+     override a comparison preloaded from a /compare/ page */
   useEffect(() => {
     track('tool_start');
+    if (preloadIds && preloadIds.length >= 2) return;
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) {
@@ -116,6 +118,7 @@ export default function CompareStudio({
     } catch {
       /* corrupted save — start from the example */
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* persist */

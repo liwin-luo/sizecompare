@@ -39,6 +39,8 @@ export interface BarLayout {
   /** Length in px of the longest bar. */
   maxBarW: number;
   rowH: number;
+  /** Height actually needed (≥ box.height when source rows expand it). */
+  neededHeight: number;
   /** min/max ratio and honest readability assessment. */
   ratio: number;
   extreme: boolean;
@@ -53,11 +55,14 @@ const MIN_BAR_PX = 4;
 /**
  * Horizontal proportional bars, stacked top to bottom. The longest bar
  * spans `box.width - 2*padding`; every other bar keeps its true share.
+ * `sourceH` reserves per-row height for a source caption line; when set,
+ * the layout expands the box height itself (`neededHeight` in the result).
  */
 export function weightBarLayout(
   values: number[],
   box: Box,
   padding = 28,
+  opts: { sourceH?: number } = {},
 ): BarLayout {
   if (values.length === 0) throw new ChartError('At least one positive value is required.');
   // Validate the RAW input — silently dropping bad values would mislead.
@@ -65,12 +70,11 @@ export function weightBarLayout(
     throw new ChartError('All weights must be positive numbers.');
   }
 
+  const sourceH = Math.max(opts.sourceH ?? 0, 0);
   const maxValue = Math.max(...values);
-  const rowH = NAME_H + BAR_H + ROW_GAP;
+  const rowH = NAME_H + BAR_H + ROW_GAP + sourceH;
   const needed = values.length * rowH - ROW_GAP + padding * 2;
-  if (needed > box.height) {
-    throw new ChartError('Canvas is too short for this many rows.');
-  }
+  const height = Math.max(box.height, needed);
 
   const barMaxW = box.width - padding * 2;
   const scale = barMaxW / maxValue;
@@ -98,6 +102,7 @@ export function weightBarLayout(
     maxValue,
     maxBarW: barMaxW,
     rowH,
+    neededHeight: height,
     ratio,
     extreme: ratio > 1000 || (Math.min(...values) * scale < MIN_BAR_PX),
   };
