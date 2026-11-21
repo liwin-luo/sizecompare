@@ -16,11 +16,19 @@ import {
 import { validateName, type CustomObject, type ObjectV2 } from '../../lib/objects';
 import {
   parseArea,
+  parseBarValue,
   parseMass,
   parseMeasurement,
   parseVolume,
   AREA_LABELS,
+  KMH_PER_MPH,
   MASS_LABELS,
+  MAX_KMH,
+  MAX_PEOPLE,
+  MAX_YEARS,
+  MIN_KMH,
+  MIN_PEOPLE,
+  MIN_YEARS,
   UNIT_LABELS,
   VOLUME_LABELS,
   type AreaUnit,
@@ -171,12 +179,23 @@ const LINEAR_UNITS: Unit[] = ['mm', 'cm', 'm', 'in', 'ft'];
 const MASS_UNITS: MassUnit[] = ['g', 'kg', 't', 'oz', 'lb'];
 const VOLUME_UNITS: VolumeUnit[] = ['ml', 'l', 'floz', 'gal'];
 const AREA_UNITS: AreaUnit[] = ['m²', 'km²', 'sq ft', 'sq mi'];
+const SPEED_UNITS = ['km/h', 'mph'];
+
+const BAR_UNIT_SPECS: Partial<Record<AttributeKey, { values: string[] }>> = {
+  population: { values: ['people'] },
+  lifespan: { values: ['years'] },
+  speed: { values: SPEED_UNITS },
+  popdensity: { values: ['people/km²'] },
+  density: { values: ['g/ml'] },
+};
 
 function unitsFor(attr: AttributeKey): { values: string[]; labels: Record<string, string> } {
   const family = ATTRIBUTE_FAMILY[attr];
   if (family === 'weight') return { values: MASS_UNITS, labels: MASS_LABELS };
   if (family === 'volume') return { values: VOLUME_UNITS, labels: VOLUME_LABELS };
   if (family === 'area') return { values: AREA_UNITS, labels: AREA_LABELS };
+  const bar = BAR_UNIT_SPECS[attr];
+  if (bar) return { values: bar.values, labels: Object.fromEntries(bar.values.map((u) => [u, u])) };
   return { values: LINEAR_UNITS, labels: UNIT_LABELS };
 }
 
@@ -208,7 +227,24 @@ export function CustomObjectForm({
     }
     const family = ATTRIBUTE_FAMILY[attr] as AttributeFamily;
     let base: number | null = null;
-    if (family === 'weight') {
+    if (family === 'bars') {
+      const noun = ATTRIBUTE_LABELS[attr].toLowerCase();
+      const limits: Record<string, [number, number, string]> = {
+        population: [MIN_PEOPLE, MAX_PEOPLE, '10 billion people'],
+        lifespan: [MIN_YEARS, MAX_YEARS, '10,000 years'],
+        speed: [MIN_KMH, MAX_KMH, '300,000 km/h'],
+        popdensity: [0.0001, 1e9, '1 billion people/km²'],
+        density: [0.0001, 1e6, '1,000,000 g/ml'],
+      };
+      const [min, max, maxLabel] = limits[attr] ?? [0.0001, 1e12, 'out of range'];
+      const res = parseBarValue(value, min, max, maxLabel, noun);
+      if (!res.ok) {
+        setError(res.error ?? 'Check the value.');
+        return;
+      }
+      // speed entered in mph converts to the km/h base exactly
+      base = attr === 'speed' && unit === 'mph' ? (res.value ?? 0) * KMH_PER_MPH : (res.value ?? 0);
+    } else if (family === 'weight') {
       const res = parseMass(value, unit as MassUnit);
       if (!res.ok) { setError(res.error ?? 'Check the weight.'); return; }
       base = res.g ?? null;
@@ -302,20 +338,32 @@ export function EditorPanel({
   prompt,
   unitSystem,
   showAnswers,
+  anchorEnabled,
+  anchorId,
+  anchorOptions,
+  anchorDisabled,
   onTitle,
   onPrompt,
   onUnitSystem,
   onShowAnswers,
+  onAnchor,
 }: {
   title: string;
   prompt: string;
   unitSystem: UnitSystem;
   showAnswers: boolean;
+  anchorEnabled: boolean;
+  /** null = follow the per-attribute default anchor. */
+  anchorId: string | null;
+  anchorOptions: { id: string; name: string; isDefault: boolean }[];
+  anchorDisabled: boolean;
   onTitle: (v: string) => void;
   onPrompt: (v: string) => void;
   onUnitSystem: (v: UnitSystem) => void;
   onShowAnswers: (v: boolean) => void;
+  onAnchor: (enabled: boolean, id: string | null) => void;
 }) {
+  const defaultOption = anchorOptions.find((o) => o.isDefault);
   return (
     <div className="editor-panel">
       <label>
@@ -351,6 +399,37 @@ export function EditorPanel({
             Imperial (in / ft / lb)
           </button>
         </div>
+      </fieldset>
+      <fieldset className="unit-toggle" disabled={anchorDisabled}>
+        <legend>Reference anchor</legend>
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={anchorEnabled && !anchorDisabled}
+            disabled={anchorDisabled}
+            onChange={(e) => onAnchor(e.target.checked, null)}
+          />
+          Pin a familiar object for scale
+        </label>
+        {anchorEnabled && !anchorDisabled && (
+          <label>
+            Anchor object
+            <select
+              value={anchorId ?? ''}
+              onChange={(e) => onAnchor(true, e.target.value === '' ? null : e.target.value)}
+            >
+              <option value="">
+                {defaultOption ? `Auto (${defaultOption.name})` : 'Choose an object'}
+              </option>
+              {anchorOptions.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.name}
+                  {`${o.isDefault ? ' · default' : ''}`}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
       </fieldset>
       <label className="check">
         <input

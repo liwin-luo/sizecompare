@@ -15,10 +15,10 @@ export interface Example {
 
 export const EXAMPLES: Example[] = [
   {
-    id: 'elephant-vs-adult',
+    id: 'elephant-vs-giraffe',
     title: 'How tall is an elephant really?',
     prompt: 'How many of you, standing on each other, would be as tall as this elephant?',
-    libraryIds: ['elephant', 'adult', 'child'],
+    libraryIds: ['elephant', 'giraffe'],
     attr: 'height',
   },
   {

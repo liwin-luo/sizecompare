@@ -764,4 +764,34 @@ export const SILHOUETTES: Record<string, Silhouette> = {
       </>
     ),
   },
+  /* ── nature: ocean depths (tall water column; depth drawn as height) ── */
+  watercolumn: {
+    viewBox: '0 0 32 100',
+    render: (c) => (
+      <>
+        <path
+          d="M6 0 Q10 5 16 4 Q24 3 26 8 L28 96 Q28 100 24 100 L8 100 Q4 100 4 96 Z"
+          fill={c}
+          opacity="0.85"
+        />
+        <path d="M6 26 Q16 22 26 26" stroke={shade(c)} strokeWidth="2" fill="none" />
+        <path d="M6 40 Q16 36 26 40" stroke={shade(c)} strokeWidth="2" fill="none" />
+        <path d="M6 54 Q16 50 26 54" stroke={shade(c)} strokeWidth="2" fill="none" />
+        <path d="M6 68 Q16 64 26 68" stroke={shade(c)} strokeWidth="2" fill="none" />
+      </>
+    ),
+  },
+  /* ── birds in flight (simple falcon glyph) ── */
+  falcon: {
+    viewBox: '0 0 90 100',
+    render: (c) => (
+      <>
+        <path
+          d="M45 18 Q52 10 60 12 Q56 16 54 22 L86 40 Q70 42 58 40 L64 58 Q56 52 48 48 L42 82 Q42 90 36 96 Q38 86 34 78 L30 48 Q20 52 12 62 L16 42 Q6 40 0 34 L28 30 Q38 26 45 18 Z"
+          fill={c}
+        />
+        <circle cx="56" cy="18" r="2.6" fill="#1c2431" />
+      </>
+    ),
+  },
 };

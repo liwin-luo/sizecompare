@@ -383,3 +383,75 @@ export function formatImperialArea(mm2: number): string {
   const sqmi = fromMm2(mm2, 'sq mi');
   return `${fmtGroup(sqmi, sqmi < 10 ? 2 : sqmi < 100 ? 1 : 0)} sq mi`;
 }
+
+/* ── bar-family quantities: population, lifespan, speed, densities ──
+ *
+ * Base units: people, years, km/h, people/km², g/ml. Population and the
+ * densities use grouped integers; speed converts km/h ↔ mph exactly
+ * (1 mile = 1.609344 km, international definition). */
+
+export const KMH_PER_MPH = 1.609344;
+/** people/km² → people/sq mi (× (1.609344 km)²) */
+export const SQMI_PER_SQKM = 2.589988110336;
+
+export const MIN_PEOPLE = 1;
+export const MAX_PEOPLE = 1e10;
+export const MIN_YEARS = 0.01;
+export const MAX_YEARS = 1e4;
+export const MIN_KMH = 0.1;
+export const MAX_KMH = 300_000; // spacecraft re-entry scale
+
+/** "1,408,975,000" — grouped, no decimals (people are whole). */
+export function formatPopulation(people: number): string {
+  return `${fmtGroup(Math.round(people), 0)} people`;
+}
+
+/** "73 years" / "4.5 years" / "5 months" under 0.25y. */
+export function formatLifespan(years: number): string {
+  if (years < 0.25) return `${Math.max(1, Math.round(years * 12))} months`;
+  const digits = years < 100 ? 1 : 0;
+  return `${fmt(years, digits)} years`;
+}
+
+/** Metric "104 km/h" / imperial "65 mph". */
+export function formatSpeed(kmh: number, system: UnitSystem): string {
+  return system === 'metric'
+    ? `${fmt(kmh, kmh < 10 ? 1 : 0)} km/h`
+    : `${fmt(kmh / KMH_PER_MPH, kmh < 16 ? 1 : 0)} mph`;
+}
+
+/** Metric "433 people/km²" / imperial per square mile. */
+export function formatPopDensity(perKm2: number, system: UnitSystem): string {
+  return system === 'metric'
+    ? `${fmtGroup(perKm2, perKm2 < 10 ? 1 : 0)} people/km²`
+    : `${fmtGroup(perKm2 * SQMI_PER_SQKM, perKm2 < 4 ? 1 : 0)} people/sq mi`;
+}
+
+/** "1.11 g/ml" — same in both systems (an SI ratio, not a convention). */
+export function formatDensity(gPerMl: number): string {
+  return `${fmt(gPerMl, 2)} g/ml`;
+}
+
+export interface PlainParseResult {
+  ok: boolean;
+  value?: number;
+  error?: string;
+}
+
+/** Validate a plain positive number (bars-family custom input). */
+export function parseBarValue(
+  raw: string,
+  min: number,
+  max: number,
+  maxLabel: string,
+  noun: string,
+): PlainParseResult {
+  const text = raw.trim();
+  if (text === '') return { ok: false, error: `Enter a ${noun}.` };
+  const numeric = Number(text.replace(/,/g, ''));
+  if (!Number.isFinite(numeric)) return { ok: false, error: 'Enter a number, e.g. 75 or 0.5.' };
+  if (numeric <= 0) return { ok: false, error: 'The value must be greater than zero.' };
+  const outOfBounds = boundsCheck(numeric, min, max, maxLabel);
+  if (outOfBounds) return { ok: false, error: outOfBounds.error };
+  return { ok: true, value: numeric };
+}

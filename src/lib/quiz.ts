@@ -10,6 +10,7 @@
 import { LIBRARY_BY_ID, OBJECT_LIBRARY } from '../data/library';
 import { PAIRS } from '../data/pairs';
 import { ALL_ATTRS, type AttributeKey } from './attributes';
+import { SITE } from '../site.config';
 
 export type Tier = 'easy' | 'medium' | 'hard';
 
@@ -61,6 +62,16 @@ export function askPhrase(attr: AttributeKey): string {
       return 'Which is wider?';
     case 'diameter':
       return 'Which is wider?';
+    case 'population':
+      return 'Which has more people?';
+    case 'speed':
+      return 'Which is faster?';
+    case 'lifespan':
+      return 'Which lives longer?';
+    case 'popdensity':
+      return 'Which is more densely populated?';
+    case 'density':
+      return 'Which is denser?';
     default:
       return 'Which is longer?';
   }
@@ -180,4 +191,61 @@ export function pickRound(pool: QuizQuestion[], seed: number): RoundQuestion[] {
       rightId: flip ? q.aId : q.bId,
     };
   });
+}
+
+/* ── shareable rounds ──────────────────────────────────────────────── */
+
+/**
+ * Bump when the pool's composition changes (library/pairs edits) — links
+ * carrying an older version fall back to a random round instead of
+ * silently serving different questions for the same seed.
+ */
+export const QUIZ_VERSION = 1;
+
+export interface QuizChallenge {
+  seed: number;
+  /** Score to beat, when the challenger shared one. */
+  beat: number | null;
+}
+
+/** Parse `?s=&b=&v=` from a search string — null when no valid challenge. */
+export function parseQuizUrl(search: string): QuizChallenge | null {
+  const params = new URLSearchParams(search);
+  const rawVersion = params.get('v');
+  const version = rawVersion === null ? 1 : Number(rawVersion);
+  if (version !== QUIZ_VERSION) return null;
+
+  const seed = Number(params.get('s'));
+  if (!Number.isInteger(seed) || seed < 1 || seed >= 2 ** 31) return null;
+
+  const rawBeat = params.get('b');
+  const beat = rawBeat === null ? null : Number(rawBeat);
+  if (beat !== null && (!Number.isInteger(beat) || beat < 0 || beat > ROUND_SIZE)) return null;
+
+  return { seed, beat };
+}
+
+/** `/quiz/?s=..&v=..` (plus `&b=..` when a score to beat is shared). */
+export function quizPath(seed: number, beat?: number): string {
+  const params = new URLSearchParams({ s: String(seed), v: String(QUIZ_VERSION) });
+  if (beat !== undefined) params.set('b', String(beat));
+  return `/quiz/?${params.toString()}`;
+}
+
+/** Absolute challenge URL for share text. */
+export function quizUrl(seed: number, beat?: number): string {
+  return `${SITE.origin}${quizPath(seed, beat)}`;
+}
+
+/** Wordle-style scorecard: header, green/red grid, challenge call, URL. */
+export function buildShareText(correctFlags: boolean[], score: number, url: string): string {
+  const squares = correctFlags.map((ok) => (ok ? '🟩' : '🟥'));
+  const rows: string[] = [];
+  for (let i = 0; i < squares.length; i += 5) rows.push(squares.slice(i, i + 5).join(''));
+  return [
+    `SizeCompare Quiz 📏 ${score}/${ROUND_SIZE}`,
+    ...rows,
+    `Same ${ROUND_SIZE} questions — can you beat me?`,
+    url,
+  ].join('\n');
 }

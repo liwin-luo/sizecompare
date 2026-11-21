@@ -12,7 +12,7 @@ import type { ObjectV2 } from '../lib/objects';
 const ANIMAL_NOTE =
   'Typical adult size varies by sex, age and population; a representative value is shown.';
 
-export const OBJECT_LIBRARY: ObjectV2[] = [
+const RAW_LIBRARY: ObjectV2[] = [
   /* ── everyday ── */
   {
     id: 'pencil',
@@ -601,6 +601,26 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
     image: '/objects/adult.svg',
     image_license: 'fluent-emoji-MIT',
     attribution: 'Microsoft Fluent Emoji (MIT)',
+  },
+  {
+    id: 'football-pitch',
+    name: 'Football pitch (FIFA)',
+    category: 'reference',
+    silhouette: 'placesquare',
+    aspect: 1,
+    axis: 'both',
+    primaryAttr: 'area',
+    measurements: {
+      area: {
+        value: 7.14e9,
+        context: 'recommended standard pitch 105 m × 68 m (7,140 m²)',
+        source_url: 'https://www.fifa.com/about-fifa/football-development/football-stadiums',
+        source_name: 'FIFA Football Stadiums — pitch dimensions',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
   },
   /* ── animals (wave 2) ── */
   {
@@ -7357,7 +7377,884 @@ export const OBJECT_LIBRARY: ObjectV2[] = [
     attribution: 'SizeCompare original',
   },
 
+  /* ── nature: mountains & ocean depths (wave N) ── */
+  {
+    id: 'k2',
+    name: 'K2',
+    category: 'nature',
+    silhouette: 'everest',
+    aspect: 1.077,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    measurements: {
+      height: {
+        value: 8.611e6,
+        context: 'summit elevation above sea level (surveyed)',
+        source_url: 'https://en.wikipedia.org/wiki/K2',
+        source_name: 'Wikipedia — K2 (surveyed elevation)',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'aconcagua',
+    name: 'Aconcagua',
+    category: 'nature',
+    silhouette: 'everest',
+    aspect: 1.077,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    measurements: {
+      height: {
+        value: 6.961e6,
+        context: 'summit elevation above sea level — highest peak outside Asia',
+        source_url: 'https://en.wikipedia.org/wiki/Aconcagua',
+        source_name: 'Wikipedia — Aconcagua (surveyed elevation)',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'denali',
+    name: 'Denali',
+    category: 'nature',
+    silhouette: 'everest',
+    aspect: 1.077,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    measurements: {
+      height: {
+        value: 6.19e6,
+        context: 'summit elevation above sea level (2015 USGS survey)',
+        source_url: 'https://en.wikipedia.org/wiki/Denali',
+        source_name: 'Wikipedia — Denali (2015 USGS survey)',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'kilimanjaro',
+    name: 'Kilimanjaro',
+    category: 'nature',
+    silhouette: 'everest',
+    aspect: 1.077,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    measurements: {
+      height: {
+        value: 5.895e6,
+        context: 'summit elevation above sea level (Uhuru Peak)',
+        source_url: 'https://en.wikipedia.org/wiki/Mount_Kilimanjaro',
+        source_name: 'Wikipedia — Mount Kilimanjaro (surveyed elevation)',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'elbrus',
+    name: 'Mount Elbrus',
+    category: 'nature',
+    silhouette: 'everest',
+    aspect: 1.077,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    measurements: {
+      height: {
+        value: 5.642e6,
+        context: 'summit elevation above sea level — highest peak in Europe',
+        source_url: 'https://en.wikipedia.org/wiki/Mount_Elbrus',
+        source_name: 'Wikipedia — Mount Elbrus (surveyed elevation)',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'vinson',
+    name: 'Vinson Massif',
+    category: 'nature',
+    silhouette: 'everest',
+    aspect: 1.077,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    measurements: {
+      height: {
+        value: 4.892e6,
+        context: 'summit elevation above sea level — highest peak in Antarctica',
+        source_url: 'https://en.wikipedia.org/wiki/Vinson_Massif',
+        source_name: 'Wikipedia — Vinson Massif (surveyed elevation)',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'mont-blanc',
+    name: 'Mont Blanc',
+    category: 'nature',
+    silhouette: 'everest',
+    aspect: 1.077,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    measurements: {
+      height: {
+        value: 4.808e6,
+        min: 4.792e6,
+        max: 4.810e6,
+        context: 'rock summit elevation above sea level (snow cap varies)',
+        source_url: 'https://en.wikipedia.org/wiki/Mont_Blanc',
+        source_name: 'Wikipedia — Mont Blanc (surveyed elevation)',
+        checked_at: '2026-11-21',
+        uncertainty_note: 'Summit snow depth varies year to year; the rock summit value is used.',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'matterhorn',
+    name: 'Matterhorn',
+    category: 'nature',
+    silhouette: 'everest',
+    aspect: 1.077,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    measurements: {
+      height: {
+        value: 4.478e6,
+        context: 'summit elevation above sea level',
+        source_url: 'https://en.wikipedia.org/wiki/Matterhorn',
+        source_name: 'Wikipedia — Matterhorn (surveyed elevation)',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'mariana-trench',
+    name: 'Mariana Trench (Challenger Deep)',
+    category: 'nature',
+    silhouette: 'watercolumn',
+    aspect: 0.32,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    measurements: {
+      height: {
+        value: 1.0935e7,
+        min: 1.0925e7,
+        max: 1.0941e7,
+        context: 'maximum ocean depth below sea level (Challenger Deep)',
+        source_url: 'https://en.wikipedia.org/wiki/Challenger_Deep',
+        source_name: 'Wikipedia — Challenger Deep (2020 survey)',
+        checked_at: '2026-11-21',
+        uncertainty_note: 'Depth surveys differ by a few metres between expeditions.',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'tonga-trench',
+    name: 'Tonga Trench (Horizon Deep)',
+    category: 'nature',
+    silhouette: 'watercolumn',
+    aspect: 0.32,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    measurements: {
+      height: {
+        value: 1.0882e7,
+        context: 'maximum depth below sea level — deepest point in the Southern Hemisphere',
+        source_url: 'https://en.wikipedia.org/wiki/Tonga_Trench',
+        source_name: 'Wikipedia — Tonga Trench (surveyed depth)',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'puerto-rico-trench',
+    name: 'Puerto Rico Trench (Milwaukee Deep)',
+    category: 'nature',
+    silhouette: 'watercolumn',
+    aspect: 0.32,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    measurements: {
+      height: {
+        value: 8.376e6,
+        context: 'maximum depth below sea level — deepest point in the Atlantic Ocean',
+        source_url: 'https://en.wikipedia.org/wiki/Puerto_Rico_Trench',
+        source_name: 'Wikipedia — Puerto Rico Trench (surveyed depth)',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'java-trench',
+    name: 'Java (Sunda) Trench',
+    category: 'nature',
+    silhouette: 'watercolumn',
+    aspect: 0.32,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    measurements: {
+      height: {
+        value: 7.192e6,
+        context: 'maximum depth below sea level (2021 survey)',
+        source_url: 'https://en.wikipedia.org/wiki/Sunda_Trench',
+        source_name: 'Wikipedia — Sunda Trench (2021 survey)',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'ocean-average',
+    name: 'Deep ocean (average depth)',
+    category: 'nature',
+    silhouette: 'watercolumn',
+    aspect: 0.32,
+    axis: 'vertical',
+    primaryAttr: 'height',
+    measurements: {
+      height: {
+        value: 3.688e6,
+        context: 'global mean ocean depth below sea level',
+        source_url: 'https://oceanservice.noaa.gov/facts/oceandepth.html',
+        source_name: 'NOAA — How deep is the ocean?',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+
+  /* ── speed & longevity stars (waves S/L) ── */
+  {
+    id: 'cheetah',
+    name: 'Cheetah',
+    category: 'animal',
+    silhouette: 'lion',
+    aspect: 1.014,
+    axis: 'vertical',
+    primaryAttr: 'speed',
+    measurements: {
+      height: {
+        value: 800,
+        context: 'shoulder height, adult',
+        source_url: 'https://en.wikipedia.org/wiki/Cheetah',
+        source_name: 'Wikipedia — Cheetah (characteristics)',
+        checked_at: '2026-11-21',
+      },
+      speed: {
+        value: 98,
+        max: 104,
+        context: 'measured sprint over a measured 100 m course (Cincinnati Zoo timed run)',
+        source_url: 'https://en.wikipedia.org/wiki/Cheetah',
+        source_name: 'Wikipedia — Cheetah (speed record)',
+        checked_at: '2026-11-21',
+        uncertainty_note: 'Measured 98 km/h with peaks near 104 km/h; popular 120 km/h claims are unverified.',
+      },
+      lifespan: {
+        value: 12,
+        context: 'typical maximum lifespan (wild and captive mixed)',
+        source_url: 'https://genomics.senescence.info/species/',
+        source_name: 'AnAge — animal longevity records',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'peregrine-falcon',
+    name: 'Peregrine falcon',
+    category: 'animal',
+    silhouette: 'falcon',
+    aspect: 0.9,
+    axis: 'vertical',
+    primaryAttr: 'speed',
+    measurements: {
+      height: {
+        value: 420,
+        context: 'body length, adult',
+        source_url: 'https://en.wikipedia.org/wiki/Peregrine_falcon',
+        source_name: 'Wikipedia — Peregrine falcon (description)',
+        checked_at: '2026-11-21',
+      },
+      speed: {
+        value: 389,
+        context: 'stoop (hunting dive) — fastest measured speed of any animal',
+        source_url: 'https://en.wikipedia.org/wiki/Peregrine_falcon',
+        source_name: 'Wikipedia — Peregrine falcon (flight speed)',
+        checked_at: '2026-11-21',
+        uncertainty_note: 'Dive speed; level flight is around 65–90 km/h.',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'sailfish',
+    name: 'Sailfish',
+    category: 'animal',
+    silhouette: 'shark',
+    aspect: 1.0,
+    axis: 'horizontal',
+    primaryAttr: 'speed',
+    measurements: {
+      length: {
+        value: 3.0e6,
+        context: 'total length, large adult',
+        source_url: 'https://en.wikipedia.org/wiki/Sailfish',
+        source_name: 'Wikipedia — Sailfish (description)',
+        checked_at: '2026-11-21',
+      },
+      speed: {
+        value: 110,
+        context: 'estimated burst swimming speed — often cited as the fastest fish',
+        source_url: 'https://en.wikipedia.org/wiki/Sailfish',
+        source_name: 'Wikipedia — Sailfish (speed)',
+        checked_at: '2026-11-21',
+        uncertainty_note: 'Estimate; reliable measured values are lower.',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'galapagos-tortoise',
+    name: 'Galápagos giant tortoise',
+    category: 'animal',
+    silhouette: 'placesquare',
+    aspect: 1,
+    axis: 'both',
+    primaryAttr: 'lifespan',
+    measurements: {
+      length: {
+        value: 1.2e6,
+        context: 'shell length, large adult',
+        source_url: 'https://en.wikipedia.org/wiki/Gal%C3%A1pagos_tortoise',
+        source_name: 'Wikipedia — Galápagos tortoise (description)',
+        checked_at: '2026-11-21',
+      },
+      lifespan: {
+        value: 150,
+        context: 'documented maximum lifespan — among the longest-lived vertebrates',
+        source_url: 'https://en.wikipedia.org/wiki/Gal%C3%A1pagos_tortoise',
+        source_name: 'Wikipedia — Galápagos tortoise (lifespan)',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'bowhead-whale',
+    name: 'Bowhead whale',
+    category: 'animal',
+    silhouette: 'bluewhale',
+    aspect: 0.937,
+    axis: 'horizontal',
+    primaryAttr: 'lifespan',
+    measurements: {
+      length: {
+        value: 1.6e7,
+        context: 'total length, adult',
+        source_url: 'https://en.wikipedia.org/wiki/Bowhead_whale',
+        source_name: 'Wikipedia — Bowhead whale (description)',
+        checked_at: '2026-11-21',
+      },
+      lifespan: {
+        value: 200,
+        context: 'estimated maximum lifespan from amino-acid racemization of eye lenses',
+        source_url: 'https://en.wikipedia.org/wiki/Bowhead_whale',
+        source_name: 'Wikipedia — Bowhead whale (lifespan)',
+        checked_at: '2026-11-21',
+        uncertainty_note: 'Estimate; some individuals may exceed 200 years.',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'bullet-train',
+    name: 'Shinkansen bullet train',
+    category: 'vehicle',
+    silhouette: 'locomotive',
+    aspect: 1.082,
+    axis: 'horizontal',
+    primaryAttr: 'speed',
+    measurements: {
+      length: {
+        value: 2.05e5,
+        context: 'trainset length (16-car N700 series)',
+        source_url: 'https://en.wikipedia.org/wiki/N700_Series_Shinkansen',
+        source_name: 'Wikipedia — N700 Series Shinkansen',
+        checked_at: '2026-11-21',
+      },
+      speed: {
+        value: 320,
+        context: 'maximum commercial service speed',
+        source_url: 'https://en.wikipedia.org/wiki/Shinkansen',
+        source_name: 'Wikipedia — Shinkansen (service speed)',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'f1-car',
+    name: 'Formula 1 car',
+    category: 'vehicle',
+    silhouette: 'car',
+    aspect: 1.49,
+    axis: 'horizontal',
+    primaryAttr: 'speed',
+    measurements: {
+      length: {
+        value: 5.6e3,
+        context: 'overall car length',
+        source_url: 'https://en.wikipedia.org/wiki/Formula_One_car',
+        source_name: 'Wikipedia — Formula One car (dimensions)',
+        checked_at: '2026-11-21',
+      },
+      speed: {
+        value: 372.5,
+        context: 'official top-speed record in a race (Mexico City, 2016)',
+        source_url: 'https://en.wikipedia.org/wiki/Formula_One_car',
+        source_name: 'Wikipedia — Formula One car (speed records)',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+
+  /* ── volume everyday wave (wave V) ── */
+  {
+    id: 'olympic-pool',
+    name: 'Olympic swimming pool',
+    category: 'everyday',
+    silhouette: 'placesquare',
+    aspect: 1,
+    axis: 'both',
+    primaryAttr: 'volume',
+    measurements: {
+      volume: {
+        value: 2.5e9,
+        context: 'World Aquatics standard pool 50 m × 25 m × 2 m deep',
+        source_url: 'https://en.wikipedia.org/wiki/Olympic-size_swimming_pool',
+        source_name: 'Wikipedia — Olympic-size swimming pool',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'hot-tub',
+    name: 'Hot tub (6-person)',
+    category: 'everyday',
+    silhouette: 'placesquare',
+    aspect: 1,
+    axis: 'both',
+    primaryAttr: 'volume',
+    measurements: {
+      volume: {
+        value: 1.5e6,
+        min: 1.2e6,
+        max: 1.9e6,
+        context: 'typical filled water capacity, 5–6 seat spa',
+        source_url: 'https://en.wikipedia.org/wiki/Hot_tub',
+        source_name: 'Wikipedia — Hot tub (typical capacity)',
+        checked_at: '2026-11-21',
+        uncertainty_note: 'Typical value; capacities vary by model.',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'bathtub',
+    name: 'Bathtub (standard)',
+    category: 'everyday',
+    silhouette: 'placesquare',
+    aspect: 1,
+    axis: 'both',
+    primaryAttr: 'volume',
+    measurements: {
+      volume: {
+        value: 3.0e5,
+        min: 2.4e5,
+        max: 3.6e5,
+        context: 'water volume to overflow drain, standard alcove tub',
+        source_url: 'https://en.wikipedia.org/wiki/Bathtub',
+        source_name: 'Wikipedia — Bathtub (capacity)',
+        checked_at: '2026-11-21',
+        uncertainty_note: 'Typical value; tub sizes vary.',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'fridge',
+    name: 'Refrigerator (family)',
+    category: 'everyday',
+    silhouette: 'placesquare',
+    aspect: 1,
+    axis: 'both',
+    primaryAttr: 'volume',
+    measurements: {
+      volume: {
+        value: 4.0e5,
+        min: 3.0e5,
+        max: 6.0e5,
+        context: 'typical combined fridge-freezer capacity',
+        source_url: 'https://en.wikipedia.org/wiki/Refrigerator',
+        source_name: 'Wikipedia — Refrigerator (typical capacity)',
+        checked_at: '2026-11-21',
+        uncertainty_note: 'Typical value; capacities vary by model.',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'aquarium',
+    name: 'Home aquarium (200 L)',
+    category: 'everyday',
+    silhouette: 'placesquare',
+    aspect: 1,
+    axis: 'both',
+    primaryAttr: 'volume',
+    measurements: {
+      volume: {
+        value: 2.0e5,
+        context: 'typical medium home tank, filled volume',
+        source_url: 'https://en.wikipedia.org/wiki/Aquarium',
+        source_name: 'Wikipedia — Aquarium (typical sizes)',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'moving-box',
+    name: 'Large moving box',
+    category: 'everyday',
+    silhouette: 'placesquare',
+    aspect: 1,
+    axis: 'both',
+    primaryAttr: 'volume',
+    measurements: {
+      volume: {
+        value: 1.1e5,
+        min: 9.0e4,
+        max: 1.3e5,
+        context: 'large cardboard moving box, ≈110 L',
+        source_url: 'https://en.wikipedia.org/wiki/Cardboard_box',
+        source_name: 'Wikipedia — Cardboard box (common sizes)',
+        checked_at: '2026-11-21',
+        uncertainty_note: 'Typical value; box sizes vary.',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'travel-backpack',
+    name: 'Travel backpack (35 L)',
+    category: 'everyday',
+    silhouette: 'placesquare',
+    aspect: 1,
+    axis: 'both',
+    primaryAttr: 'volume',
+    measurements: {
+      volume: {
+        value: 3.5e4,
+        context: 'typical carry-on travel backpack capacity',
+        source_url: 'https://en.wikipedia.org/wiki/Backpack',
+        source_name: 'Wikipedia — Backpack (typical capacities)',
+        checked_at: '2026-11-21',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+  {
+    id: 'kettle',
+    name: 'Electric kettle',
+    category: 'everyday',
+    silhouette: 'placesquare',
+    aspect: 1,
+    axis: 'both',
+    primaryAttr: 'volume',
+    measurements: {
+      volume: {
+        value: 1.7e3,
+        min: 1.0e3,
+        max: 2.0e3,
+        context: 'typical rated capacity',
+        source_url: 'https://en.wikipedia.org/wiki/Electric_kettle',
+        source_name: 'Wikipedia — Electric kettle (capacity)',
+        checked_at: '2026-11-21',
+        uncertainty_note: 'Typical value; capacities vary by model.',
+      },
+    },
+    image_license: 'original-CC0',
+    attribution: 'SizeCompare original',
+  },
+
 ];
+
+/* ── sidecar attribute tables (waves L/S/P) ──
+ *
+ * Lifespan and speed tag EXISTING objects without editing dozens of
+ * records by hand: values are applied at load, each carrying its own
+ * source. Population (wave P) is fetched from the World Bank by
+ * scripts/emoji-tools/wave-population.py and pasted here as POPULATION.
+ * Records that already declare the attribute inline (cheetah, f1-car…)
+ * always win — sidecars never overwrite. */
+
+interface SidecarEntry {
+  value: number;
+  min?: number;
+  max?: number;
+  source_url: string;
+  source_name: string;
+  uncertainty_note?: string;
+}
+
+const LIFESPAN_CONTEXT = 'typical maximum lifespan (wild and captive mixed)';
+const ANAGE_URL = 'https://genomics.senescence.info/species/';
+const ANAGE = 'AnAge — animal longevity records';
+const WHO_URL = 'https://www.who.int/data/gho/data/themes/mortality-and-global-health-estimates';
+const BREED_SRC = 'Wikipedia — dog breed / cat breed (lifespan)';
+
+const LIFESPAN: Record<string, SidecarEntry> = {
+  elephant: { value: 65, source_url: ANAGE_URL, source_name: ANAGE },
+  bluewhale: { value: 90, source_url: ANAGE_URL, source_name: ANAGE },
+  giraffe: { value: 25, source_url: ANAGE_URL, source_name: ANAGE },
+  mouse: { value: 2, source_url: ANAGE_URL, source_name: ANAGE },
+  rabbit: { value: 9, source_url: ANAGE_URL, source_name: ANAGE },
+  cat: { value: 15, source_url: BREED_SRC, source_name: BREED_SRC },
+  'dog-labrador': { value: 12, source_url: BREED_SRC, source_name: BREED_SRC },
+  'dog-great-dane': { value: 8, source_url: BREED_SRC, source_name: BREED_SRC },
+  'dog-chihuahua': { value: 15, source_url: BREED_SRC, source_name: BREED_SRC },
+  horse: { value: 25, source_url: ANAGE_URL, source_name: ANAGE },
+  cow: { value: 20, source_url: ANAGE_URL, source_name: ANAGE },
+  pig: { value: 15, source_url: ANAGE_URL, source_name: ANAGE },
+  lion: { value: 15, source_url: ANAGE_URL, source_name: ANAGE },
+  polarbear: { value: 25, source_url: ANAGE_URL, source_name: ANAGE },
+  ostrich: { value: 40, source_url: ANAGE_URL, source_name: ANAGE },
+  penguin: { value: 20, source_url: ANAGE_URL, source_name: ANAGE },
+  gorilla: { value: 40, source_url: ANAGE_URL, source_name: ANAGE },
+  adult: { value: 73.3, source_url: WHO_URL, source_name: 'WHO — global average life expectancy at birth (2019)' },
+};
+
+const SPEED_CONTEXT_EST = 'estimated top speed — see uncertainty note';
+const SPEED: Record<string, SidecarEntry> = {
+  ostrich: { value: 70, source_url: 'https://en.wikipedia.org/wiki/Common_ostrich', source_name: 'Wikipedia — Common ostrich (sprint speed)' },
+  lion: { value: 80, source_url: 'https://en.wikipedia.org/wiki/Lion', source_name: 'Wikipedia — Lion (sprint speed)', uncertainty_note: 'Estimate from short sprints.' },
+  horse: { value: 70.76, source_url: 'https://en.wikipedia.org/wiki/Horse_racing', source_name: 'Wikipedia — fastest horse race record (2008)' },
+  adult: { value: 44.72, source_url: 'https://en.wikipedia.org/wiki/Usain_Bolt', source_name: 'Wikipedia — Usain Bolt 100 m peak split (2009)' },
+  rabbit: { value: 55, source_url: 'https://en.wikipedia.org/wiki/European_rabbit', source_name: 'Wikipedia — European rabbit (escape speed)', uncertainty_note: 'Estimate.' },
+  car: { value: 180, source_url: 'https://en.wikipedia.org/wiki/Family_car', source_name: 'Wikipedia — typical modern top speed', uncertainty_note: 'Typical value; sports cars far exceed this.' },
+  bicycle: { value: 40, source_url: 'https://en.wikipedia.org/wiki/Cycling', source_name: 'Wikipedia — fit cyclist flat-road sprint' },
+  bus: { value: 100, source_url: 'https://en.wikipedia.org/wiki/Intercity_coach', source_name: 'Wikipedia — intercity coach top speed' },
+  motorcycle: { value: 200, source_url: 'https://en.wikipedia.org/wiki/Motorcycle', source_name: 'Wikipedia — typical top speed', uncertainty_note: 'Typical value; supersport machines exceed 300 km/h.' },
+  locomotive: { value: 574.8, source_url: 'https://en.wikipedia.org/wiki/TGV', source_name: 'Wikipedia — TGV world speed record (2007)' },
+  'airplane-737': { value: 850, source_url: 'https://en.wikipedia.org/wiki/Boeing_737', source_name: 'Wikipedia — Boeing 737 typical cruise speed' },
+  helicopter: { value: 400.9, source_url: 'https://en.wikipedia.org/wiki/Westland_Lynx', source_name: 'Wikipedia — Westland Lynx speed record (1986)' },
+  sailboat: { value: 121, source_url: 'https://en.wikipedia.org/wiki/Sailing_speed_record', source_name: 'Wikipedia — sailing speed record (Vestas Sailrocket 2)' },
+  rocket: { value: 27000, source_url: 'https://en.wikipedia.org/wiki/Orbital_speed', source_name: 'Wikipedia — low Earth orbit speed (typical)' },
+};
+
+/* populated by wave-population.py (World Bank SP.POP.TOTL 2024;
+ * CIA WFB fallback for micro-states) */
+const POPULATION: Record<string, SidecarEntry> = {
+  'afghanistan': { value: 42647492, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'algeria': { value: 46814308, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'angola': { value: 37885849, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'argentina': { value: 45696159, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'australia': { value: 27194286, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'belgium': { value: 11858610, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'bolivia': { value: 12413315, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'botswana': { value: 2521139, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'brazil': { value: 211998573, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'cameroon': { value: 29123744, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'canada': { value: 41262329, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'central-african-republic': { value: 5330690, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'chad': { value: 20299123, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'chile': { value: 19764771, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'china': { value: 1408975000, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'colombia': { value: 52886363, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'dr-congo': { value: 109276265, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'egypt': { value: 116538258, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'ethiopia': { value: 132059767, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'france': { value: 68551653, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'india': { value: 1450935791, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'indonesia': { value: 283487931, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'iran': { value: 91567738, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'iraq': { value: 46042015, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'kazakhstan': { value: 20592571, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'kenya': { value: 56432944, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'libya': { value: 7381023, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'luxembourg': { value: 677012, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'madagascar': { value: 31964956, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'mali': { value: 24478595, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'mauritania': { value: 5169395, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'mexico': { value: 130861007, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'mongolia': { value: 3524788, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'morocco': { value: 38081173, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'mozambique': { value: 34631766, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'myanmar': { value: 54500091, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'namibia': { value: 3030131, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'netherlands': { value: 17993485, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'niger': { value: 27032412, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'nigeria': { value: 232679478, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'norway': { value: 5572279, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'pakistan': { value: 251269164, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'papua-new-guinea': { value: 10576502, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'paraguay': { value: 6929153, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'peru': { value: 34217848, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'russia': { value: 143669648, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'saudi-arabia': { value: 35300280, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'somalia': { value: 19009151, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'south-africa': { value: 64007187, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'south-sudan': { value: 11943408, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'spain': { value: 48848840, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'sudan': { value: 50448963, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'sweden': { value: 10569709, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'tanzania': { value: 68560157, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'thailand': { value: 71668011, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'turkey': { value: 85518661, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'turkmenistan': { value: 7494498, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'ukraine': { value: 37860221, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'united-states': { value: 340003797, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'uzbekistan': { value: 36361859, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'venezuela': { value: 28405543, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'yemen': { value: 40583164, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'zambia': { value: 21314956, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'zimbabwe': { value: 16634373, source_url: 'https://data.worldbank.org/indicator/SP.POP.TOTL', source_name: 'World Bank — SP.POP.TOTL (2024)' },
+  'liechtenstein': { value: 39780, source_url: 'https://www.cia.gov/the-world-factbook/field/population/', source_name: 'CIA World Factbook — Population (2025 est.)' },
+  'monaco': { value: 38350, source_url: 'https://www.cia.gov/the-world-factbook/field/population/', source_name: 'CIA World Factbook — Population (2025 est.)' },
+  'vatican-city': { value: 825, source_url: 'https://www.cia.gov/the-world-factbook/field/population/', source_name: 'CIA World Factbook — Population (2025 est.)' },
+};
+
+function withSidecars(library: ObjectV2[]): ObjectV2[] {
+  const checked = '2026-11-21';
+  const apply = (r: ObjectV2, attr: string, table: Record<string, SidecarEntry>): boolean => {
+    const entry = table[r.id];
+    return Boolean(entry) && !(attr in r.measurements);
+  };
+  return library.map((r) => {
+    const extra: ObjectV2['measurements'] = {};
+    if (apply(r, 'lifespan', LIFESPAN)) {
+      const e = LIFESPAN[r.id];
+      extra.lifespan = {
+        value: e.value,
+        min: e.min,
+        max: e.max,
+        context: LIFESPAN_CONTEXT,
+        source_url: e.source_url,
+        source_name: e.source_name,
+        checked_at: checked,
+        uncertainty_note: e.uncertainty_note,
+      };
+    }
+    if (apply(r, 'speed', SPEED)) {
+      const e = SPEED[r.id];
+      extra.speed = {
+        value: e.value,
+        min: e.min,
+        max: e.max,
+        context: SPEED_CONTEXT_EST,
+        source_url: e.source_url,
+        source_name: e.source_name,
+        checked_at: checked,
+        uncertainty_note: e.uncertainty_note,
+      };
+    }
+    if (apply(r, 'population', POPULATION)) {
+      const e = POPULATION[r.id];
+      extra.population = {
+        value: e.value,
+        min: e.min,
+        max: e.max,
+        context: 'total resident population, latest estimate',
+        source_url: e.source_url,
+        source_name: e.source_name,
+        checked_at: checked,
+        uncertainty_note: e.uncertainty_note,
+      };
+    }
+    return Object.keys(extra).length ? { ...r, measurements: { ...r.measurements, ...extra } } : r;
+  });
+}
+
+/* ── derived measurements (computed at load, never hand-typed) ──
+ *
+ * density = weight ÷ volume (g/ml); popdensity = population ÷ area
+ * (people/km²). Synthesized from two already-sourced measurements, so the
+ * numbers can never drift from their inputs; provenance names both sources.
+ * Ranges are not propagated — the uncertainty note says so.
+ */
+function withDerived(library: ObjectV2[]): ObjectV2[] {
+  const checked = '2026-11-21';
+  return library.map((r) => {
+    const m = r.measurements;
+    const derived: ObjectV2['measurements'] = {};
+    const w = m.weight;
+    const v = m.volume;
+    if (w && v && w.value > 0 && v.value > 0) {
+      derived.density = {
+        value: w.value / v.value,
+        context: 'derived: weight ÷ volume (grams per millilitre)',
+        source_url: w.source_url,
+        source_name: `Derived — ${w.source_name} ÷ ${v.source_name}`,
+        checked_at: checked,
+        uncertainty_note: 'Computed from the two stored measurements; source ranges are not propagated.',
+      };
+    }
+    const p = m.population;
+    const a = m.area;
+    if (p && a && p.value > 0 && a.value > 0) {
+      derived.popdensity = {
+        value: p.value / (a.value / 1e12), // people per km² (area base is mm²)
+        context: 'derived: population ÷ total area',
+        source_url: p.source_url,
+        source_name: `Derived — ${p.source_name} ÷ ${a.source_name}`,
+        checked_at: checked,
+        uncertainty_note: 'Computed from the two stored measurements; source ranges are not propagated.',
+      };
+    }
+    return Object.keys(derived).length ? { ...r, measurements: { ...m, ...derived } } : r;
+  });
+}
+
+/* sidecars first (population etc.), then derived (popdensity needs it) */
+export const OBJECT_LIBRARY: ObjectV2[] = withDerived(withSidecars(RAW_LIBRARY));
 
 export const LIBRARY_BY_ID: Record<string, ObjectV2> = Object.fromEntries(
   OBJECT_LIBRARY.map((r) => [r.id, r]),
@@ -7370,6 +8267,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   space: 'Space',
   building: 'Buildings',
   vehicle: 'Vehicles',
+  nature: 'Mountains & oceans',
   place: 'Places',
   reference: 'People & references',
 };

@@ -22,9 +22,14 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
     "@iconify-json/fluent-emoji": "^1.2.7",
+    "@types/d3-geo": "^3.1.1",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
+    "@types/topojson-client": "^3.1.5",
+    "d3-geo": "^3.1.2",
+    "topojson-client": "^3.1.0",
     "typescript": "^5.7.0",
-    "vitest": "^3.1.0"
+    "vitest": "^3.1.0",
+    "world-atlas": "^2.0.2"
   }
 }

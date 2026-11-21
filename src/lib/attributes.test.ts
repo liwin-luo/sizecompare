@@ -12,12 +12,18 @@ describe('attribute families', () => {
   it('maps every attribute to exactly one family', () => {
     for (const attr of ALL_ATTRS) {
       expect(ATTRIBUTE_FAMILY[attr]).toBeDefined();
-      expect(['linear', 'weight', 'volume', 'area']).toContain(ATTRIBUTE_FAMILY[attr]);
+      expect(['linear', 'weight', 'volume', 'area', 'bars']).toContain(ATTRIBUTE_FAMILY[attr]);
     }
     expect(ATTRIBUTE_FAMILY.weight).toBe('weight');
     expect(ATTRIBUTE_FAMILY.volume).toBe('volume');
     expect(ATTRIBUTE_FAMILY.area).toBe('area');
     expect(ATTRIBUTE_FAMILY.height).toBe('linear');
+    // bar-family attributes render through the same proportional-bar canvas
+    expect(ATTRIBUTE_FAMILY.population).toBe('bars');
+    expect(ATTRIBUTE_FAMILY.speed).toBe('bars');
+    expect(ATTRIBUTE_FAMILY.lifespan).toBe('bars');
+    expect(ATTRIBUTE_FAMILY.popdensity).toBe('bars');
+    expect(ATTRIBUTE_FAMILY.density).toBe('bars');
   });
 
   it('gives the correct base unit per family', () => {
@@ -26,6 +32,29 @@ describe('attribute families', () => {
     expect(attrBaseUnit('weight')).toBe('g');
     expect(attrBaseUnit('volume')).toBe('ml');
     expect(attrBaseUnit('area')).toBe('mm²');
+    expect(attrBaseUnit('population')).toBe('people');
+    expect(attrBaseUnit('lifespan')).toBe('years');
+    expect(attrBaseUnit('speed')).toBe('km/h');
+    expect(attrBaseUnit('popdensity')).toBe('people/km²');
+    expect(attrBaseUnit('density')).toBe('g/ml');
+  });
+
+  it('formats the bar-family attributes for both unit systems', () => {
+    expect(formatAttrValue('population', 1_408_975_000, 'metric')).toBe('1,408,975,000 people');
+    expect(formatAttrValue('lifespan', 73.5, 'metric')).toBe('73.5 years');
+    expect(formatAttrValue('lifespan', 0.1, 'metric')).toBe('1 months');
+    expect(formatAttrValue('speed', 104.6, 'metric')).toBe('105 km/h');
+    expect(formatAttrValue('speed', 104.6, 'imperial')).toContain('mph');
+    expect(formatAttrValue('popdensity', 433, 'metric')).toBe('433 people/km²');
+    expect(formatAttrValue('popdensity', 433, 'imperial')).toContain('people/sq mi');
+    expect(formatAttrValue('density', 1.109, 'metric')).toBe('1.11 g/ml');
+  });
+
+  it('phrases ratios with attribute-specific wording', () => {
+    expect(ratioPhrase('population', 4.2)).toContain('4.2× the population of');
+    expect(ratioPhrase('speed', 2.5)).toContain('2.5× faster than');
+    expect(ratioPhrase('lifespan', 3)).toContain('3.0× longer-lived than');
+    expect(ratioPhrase('density', 12.4)).toContain('12× denser than');
   });
 });
 

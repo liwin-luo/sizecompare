@@ -81,6 +81,7 @@ const others = PAIRS.filter((p) => p !== pair && p.attr !== attr).slice(0, 5);
     <CompareStudio
       client:idle
       preloadIds={[pair.a, pair.b]}
+      preloadAttr={pair.attr}
       preloadTitle={`${recA.name} vs ${recB.name}`}
       preloadPrompt={pair.question}
     />

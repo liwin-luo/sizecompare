@@ -13,7 +13,8 @@ type EventName =
   | 'presentation_started'
   | 'quiz_start'
   | 'quiz_answer'
-  | 'quiz_round_end';
+  | 'quiz_round_end'
+  | 'quiz_share';
 
 declare global {
   interface Window {

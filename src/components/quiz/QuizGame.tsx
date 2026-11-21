@@ -10,7 +10,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { LIBRARY_BY_ID } from '../../data/library';
 import {
-  ATTRIBUTE_FAMILY,
   formatAttrValue,
   type AttributeKey,
 } from '../../lib/attributes';
@@ -18,16 +17,18 @@ import {
   askPhrase,
   biggerSide,
   buildQuestionPool,
+  buildShareText,
+  parseQuizUrl,
   pickRound,
+  quizPath,
+  quizUrl,
   ROUND_SIZE,
+  type QuizChallenge,
   type RoundQuestion,
 } from '../../lib/quiz';
 import type { ComparisonObject } from '../../lib/objects';
 import { buildAnswerSentence } from '../tool/ScaleCanvas';
-import { ScaleCanvas } from '../tool/ScaleCanvas';
-import { WeightBars } from '../tool/WeightBars';
-import { VolumeSpheres } from '../tool/VolumeSpheres';
-import { AreaSquares } from '../tool/AreaSquares';
+import { FamilyCanvas } from '../tool/FamilyCanvas';
 import { track } from '../tool/track';
 import { useReveal } from './useReveal';
 
@@ -69,8 +70,19 @@ export default function QuizGame() {
   const [answers, setAnswers] = useState<Answered[]>([]);
   const [stats, setStats] = useState<QuizStats>({ rounds: 0, best: 0 });
   const [shareNote, setShareNote] = useState<string | null>(null);
+  const [challenge, setChallenge] = useState<QuizChallenge | null>(null);
 
   useEffect(() => setStats(loadStats()), []);
+
+  /* a shared ?s=..&b=.. link pins the round; the URL wins over defaults
+     (stats live in localStorage and are not round state, so no conflict) */
+  useEffect(() => {
+    const fromUrl = parseQuizUrl(window.location.search);
+    if (fromUrl) {
+      setSeed(fromUrl.seed);
+      setChallenge(fromUrl);
+    }
+  }, []);
 
   const q = round[index];
   const revealing = phase === 'revealed';
@@ -89,14 +101,23 @@ export default function QuizGame() {
     [q],
   );
 
-  const startRound = useCallback(() => {
-    setSeed(Math.floor(Math.random() * 2 ** 31));
+  const startRound = useCallback((seedOverride?: number) => {
+    const nextSeed = seedOverride ?? Math.floor(Math.random() * 2 ** 31);
+    setSeed(nextSeed);
+    if (seedOverride === undefined) setChallenge(null);
     setIndex(0);
     setPicked(null);
     setAnswers([]);
     setShareNote(null);
     setPhase('asking');
-    track('quiz_start', { size: ROUND_SIZE });
+    // keep the seed in the URL so a refresh replays the same round and any
+    // later share link points at it (replace, not push — no history noise)
+    try {
+      window.history.replaceState(null, '', quizPath(nextSeed));
+    } catch {
+      /* history unavailable — the round still works */
+    }
+    track('quiz_start', { size: ROUND_SIZE, challenge: seedOverride !== undefined });
   }, []);
 
   const choose = useCallback(
@@ -153,14 +174,20 @@ export default function QuizGame() {
   }, [phase, choose, next]);
 
   async function share() {
-    const text = `I scored ${score}/${ROUND_SIZE} on the size quiz — can you beat me?`;
+    const url = quizUrl(seed, score);
+    const text = buildShareText(
+      answers.map((a) => a.correct),
+      score,
+      url,
+    );
     try {
       if (navigator.share) {
-        await navigator.share({ text, url: window.location.href });
+        await navigator.share({ text });
       } else {
-        await navigator.clipboard.writeText(`${text} ${window.location.href}`);
+        await navigator.clipboard.writeText(text);
         setShareNote('Copied to clipboard!');
       }
+      track('quiz_share', { score, size: answers.length });
     } catch {
       /* share cancelled — nothing to do */
     }
@@ -170,6 +197,14 @@ export default function QuizGame() {
     return (
       <div className="quiz-root">
         <div className="quiz-intro">
+          {challenge && (
+            <p className="quiz-challenge">
+              🎯{' '}
+              {challenge.beat !== null
+                ? `You've been challenged — the same ${ROUND_SIZE} questions, score to beat: ${challenge.beat}/${ROUND_SIZE}`
+                : `You've been challenged — the same ${ROUND_SIZE} questions as your friend`}
+            </p>
+          )}
           <p className="quiz-intro-copy">
             Ten questions. Two things drawn at equal size — guess which is bigger,
             then watch the canvas morph to the true, sourced proportions.
@@ -179,8 +214,12 @@ export default function QuizGame() {
               Rounds played: {stats.rounds} · Best score: {stats.best}/{ROUND_SIZE}
             </p>
           )}
-          <button type="button" className="btn btn-primary btn-lg" onClick={startRound}>
-            Start the quiz
+          <button
+            type="button"
+            className="btn btn-primary btn-lg"
+            onClick={() => startRound(challenge?.seed)}
+          >
+            {challenge ? 'Accept the challenge' : 'Start the quiz'}
           </button>
         </div>
       </div>
@@ -202,6 +241,25 @@ export default function QuizGame() {
                 : 'The true scales are humbling — go again?'}
             {stats.best > 0 ? ` Best: ${stats.best}/${ROUND_SIZE}.` : ''}
           </p>
+          {challenge && challenge.beat !== null && (
+            <p className="quiz-challenge-result">
+              {score > challenge.beat
+                ? '🏆 Challenge beaten — you topped their score!'
+                : score === challenge.beat
+                  ? `Challenge matched at ${challenge.beat}/${ROUND_SIZE} — someone has to break the tie.`
+                  : `Challenge unbeaten — ${challenge.beat}/${ROUND_SIZE} was the score to beat.`}
+            </p>
+          )}
+          <pre className="quiz-share-preview" aria-label="Share scorecard preview">
+            {buildShareText(
+              answers.map((a) => a.correct),
+              score,
+              quizUrl(seed, score),
+            )
+              .split('\n')
+              .slice(0, 3)
+              .join('\n')}
+          </pre>
           <ul className="quiz-review">
             {answers.map((a, i) => {
               const objectsPair: ComparisonObject[] = [
@@ -227,7 +285,7 @@ export default function QuizGame() {
             })}
           </ul>
           <div className="quiz-summary-actions">
-            <button type="button" className="btn btn-primary btn-lg" onClick={startRound}>
+            <button type="button" className="btn btn-primary btn-lg" onClick={() => startRound()}>
               Play again
             </button>
             <button type="button" className="btn btn-ghost" onClick={share}>
@@ -244,7 +302,6 @@ export default function QuizGame() {
     );
   }
 
-  const family = ATTRIBUTE_FAMILY[q.attr];
   const leftName = LIBRARY_BY_ID[q.leftId].name;
   const rightName = LIBRARY_BY_ID[q.rightId].name;
   const leftIsA = q.leftId === q.aId;
@@ -292,43 +349,14 @@ export default function QuizGame() {
       </p>
 
       <div className="quiz-canvas-card">
-        {family === 'weight' ? (
-          <WeightBars
-            objects={objects}
-            attr="weight"
-            box={BOX}
-            unitSystem="metric"
-            showSources={false}
-            reveal={progress}
-          />
-        ) : family === 'volume' ? (
-          <VolumeSpheres
-            objects={objects}
-            attr="volume"
-            box={BOX}
-            unitSystem="metric"
-            showSources={false}
-            reveal={progress}
-          />
-        ) : family === 'area' ? (
-          <AreaSquares
-            objects={objects}
-            attr="area"
-            box={BOX}
-            unitSystem="metric"
-            showSources={false}
-            reveal={progress}
-          />
-        ) : (
-          <ScaleCanvas
-            objects={objects}
-            attr={q.attr as never}
-            box={BOX}
-            unitSystem="metric"
-            showSources={false}
-            reveal={progress}
-          />
-        )}
+        <FamilyCanvas
+          objects={objects}
+          attr={q.attr}
+          box={BOX}
+          unitSystem="metric"
+          showSources={false}
+          reveal={progress}
+        />
       </div>
 
       <div className="quiz-options">

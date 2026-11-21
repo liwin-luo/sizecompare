@@ -1145,10 +1145,336 @@ export const PAIRS: Pair[] = [
       'Sweden looks huge on Mercator maps, but Spain is actually the bigger country by total area — about 1.12×.',
     question: 'Which is bigger: Sweden or Spain?',
   },
+  /* ── population & population density (waves P2, World Bank 2024) ── */
+  {
+    a: 'china',
+    b: 'united-states',
+    attr: 'population',
+    title: '— who has more people?',
+    blurb:
+      'China and the US are the two most populous countries in this library, but the gap is enormous: roughly four Americas for every China.',
+    question: 'Which country has more people: China or the United States?',
+  },
+  {
+    a: 'china',
+    b: 'india',
+    attr: 'population',
+    title: '— the 1.4-billion question',
+    blurb:
+      'India passed China as the world\'s most populous country in 2023. The bars here show how close — and which way the gap runs.',
+    question: 'Which of these two has more people today?',
+  },
+  {
+    a: 'united-states',
+    b: 'indonesia',
+    attr: 'population',
+    title: '— a country or an archipelago of people?',
+    blurb:
+      'Indonesia packs more people onto its islands than the US spreads across a continent — see the true proportions side by side.',
+    question: 'Which has more people: the United States or Indonesia?',
+  },
+  {
+    a: 'brazil',
+    b: 'russia',
+    attr: 'population',
+    title: '— biggest country vs biggest population',
+    blurb:
+      'Russia is the largest country by area, but Brazil has more people by a wide margin — area and population tell very different stories.',
+    question: 'Which of these has more people: Brazil or Russia?',
+  },
+  {
+    a: 'nigeria',
+    b: 'egypt',
+    attr: 'population',
+    title: '— Africa\'s two giants',
+    blurb:
+      'Nigeria and Egypt are Africa\'s population heavyweights — one is projected to become the world\'s third most populous country.',
+    question: 'Which African giant has more people?',
+  },
+  {
+    a: 'ethiopia',
+    b: 'france',
+    attr: 'population',
+    title: '— the surprise answer',
+    blurb:
+      'Ethiopia\'s population is nearly double France\'s — a comparison most people get wrong on the first guess.',
+    question: 'Which has more people: Ethiopia or France?',
+  },
+  {
+    a: 'pakistan',
+    b: 'brazil',
+    attr: 'population',
+    title: '— two of the world\'s six largest',
+    blurb:
+      'Pakistan and Brazil sit close together in the world population ranking — closer than most people expect.',
+    question: 'Which country has more people: Pakistan or Brazil?',
+  },
+  {
+    a: 'monaco',
+    b: 'mongolia',
+    attr: 'popdensity',
+    title: '— the densest vs the emptiest',
+    blurb:
+      'Monaco squeezes about 38,000 people onto 2 km² while Mongolia spreads 3.5 million across 1.5 million km² — the extreme ends of human crowding.',
+    question: 'Which is more densely populated: Monaco or Mongolia?',
+  },
+  {
+    a: 'netherlands',
+    b: 'united-states',
+    attr: 'popdensity',
+    title: '— crowded coasts vs wide-open space',
+    blurb:
+      'The Netherlands fits its entire society into a space smaller than West Virginia — its population density runs more than 14× the US average.',
+    question: 'Which country packs in more people per square kilometre?',
+  },
+
+  /* ── nature: mountains & ocean depths (wave N) ── */
+  {
+    a: 'mariana-trench',
+    b: 'everest',
+    attr: 'height',
+    title: '— the deepest vs the tallest',
+    blurb:
+      'If you dropped Mount Everest into the Challenger Deep, its summit would still lie more than two kilometres underwater — drawn here at one true scale.',
+    question: 'Which is greater: the Mariana Trench\'s depth or Everest\'s height?',
+  },
+  {
+    a: 'k2',
+    b: 'everest',
+    attr: 'height',
+    title: '— the two highest points on Earth',
+    blurb:
+      'K2 stands 238 m below Everest — but climbers call it the harder mountain. Here they are side by side at true scale.',
+    question: 'How much taller is Everest than K2?',
+  },
+  {
+    a: 'tonga-trench',
+    b: 'mariana-trench',
+    attr: 'height',
+    title: '— the two deepest points in the ocean',
+    blurb:
+      'The Horizon Deep trails the Challenger Deep by barely 50 metres — the closest thing the ocean floor has to a photo finish.',
+    question: 'Which trench is deeper: Tonga or the Mariana?',
+  },
+  {
+    a: 'denali',
+    b: 'kilimanjaro',
+    attr: 'height',
+    title: '— the continental showdown',
+    blurb:
+      'North America\'s tallest peak edges out Africa\'s by about one Eiffel Tower of height — see both drawn honestly to scale.',
+    question: 'Which mountain is taller: Denali or Kilimanjaro?',
+  },
+  {
+    a: 'mont-blanc',
+    b: 'matterhorn',
+    attr: 'height',
+    title: '— the Alpine legends',
+    blurb:
+      'Mont Blanc is the higher summit, but the Matterhorn is the more famous silhouette — separated by roughly 330 vertical metres.',
+    question: 'Which Alpine giant is taller?',
+  },
+  {
+    a: 'ocean-average',
+    b: 'puerto-rico-trench',
+    attr: 'height',
+    title: '— the average ocean vs its deepest Atlantic point',
+    blurb:
+      'The Atlantic\'s deepest point is about 2.3× the global average ocean depth — most of the ocean is far deeper than the beach you swim at.',
+    question: 'How much deeper than average is the Puerto Rico Trench?',
+  },
+
+  /* ── lifespan (wave L) ── */
+  {
+    a: 'bowhead-whale',
+    b: 'adult',
+    attr: 'lifespan',
+    title: '— the 200-year whale',
+    blurb:
+      'Bowhead whales may outlive nearly three human lifetimes — eye-lens analysis puts some individuals past 200 years.',
+    question: 'How many human lifetimes fit into one bowhead whale\'s life?',
+  },
+  {
+    a: 'galapagos-tortoise',
+    b: 'adult',
+    attr: 'lifespan',
+    title: '— the tortoise vs you',
+    blurb:
+      'A Galápagos giant tortoise can celebrate its 150th birthday — roughly two full human lifespans.',
+    question: 'Could a tortoise outlive two of you?',
+  },
+  {
+    a: 'elephant',
+    b: 'adult',
+    attr: 'lifespan',
+    title: '— nearly a human lifespan',
+    blurb:
+      'Elephants live into their mid-60s — about as long as humans did for most of history, and remarkably close to us today.',
+    question: 'How close is an elephant\'s lifespan to a human\'s?',
+  },
+  {
+    a: 'dog-great-dane',
+    b: 'dog-chihuahua',
+    attr: 'lifespan',
+    title: '— big dogs live fast',
+    blurb:
+      'The giants of the dog world live barely half as long as the tiniest breeds — a Great Dane is lucky to reach 8, while Chihuahuas often pass 15.',
+    question: 'How much longer does a Chihuahua live than a Great Dane?',
+  },
+  {
+    a: 'mouse',
+    b: 'elephant',
+    attr: 'lifespan',
+    title: '— 30 lives of a mouse',
+    blurb:
+      'A house mouse burns through its whole life in about two years; an elephant gets sixty-five. The honest bar for both, side by side.',
+    question: 'How many mouse lifetimes fit into one elephant\'s?',
+  },
+  {
+    a: 'bluewhale',
+    b: 'adult',
+    attr: 'lifespan',
+    title: '— the longest-lived giant',
+    blurb:
+      'Blue whales routinely pass 90 years — longer than most humans — making them not just the largest animal ever, but among the longest-lived.',
+    question: 'Does a blue whale outlive a human?',
+  },
+
+  /* ── speed (wave S) ── */
+  {
+    a: 'peregrine-falcon',
+    b: 'cheetah',
+    attr: 'speed',
+    title: '— the fastest animal, settled',
+    blurb:
+      'The cheetah owns the land sprint record, but the peregrine falcon\'s hunting dive is nearly four times faster — the true speed king of the animal kingdom.',
+    question: 'Which is faster: a cheetah\'s sprint or a falcon\'s dive?',
+  },
+  {
+    a: 'cheetah',
+    b: 'adult',
+    attr: 'speed',
+    title: '— the fastest human vs the cheetah',
+    blurb:
+      'Usain Bolt\'s peak split hits 44.7 km/h — phenomenal for a human, but a cheetah more than doubles it over the same 100 metres.',
+    question: 'How much faster is a cheetah than the fastest human?',
+  },
+  {
+    a: 'cheetah',
+    b: 'horse',
+    attr: 'speed',
+    title: '— the racehorse vs the sprinter',
+    blurb:
+      'The fastest recorded horse sprints at 70.8 km/h; a cheetah leaves it standing. Both drawn as honest bars.',
+    question: 'Which is faster: a racehorse or a cheetah?',
+  },
+  {
+    a: 'f1-car',
+    b: 'cheetah',
+    attr: 'speed',
+    title: '— machine vs evolution',
+    blurb:
+      'An F1 car\'s record race speed, 372.5 km/h, is nearly four times a cheetah\'s sprint — but the cheetah accelerates harder off the line.',
+    question: 'How much faster is an F1 car than a cheetah?',
+  },
+  {
+    a: 'car',
+    b: 'bicycle',
+    attr: 'speed',
+    title: '— how much does the engine really add?',
+    blurb:
+      'A fit cyclist sprints at about 40 km/h; a family car\'s top speed is around 180 — but in city traffic the gap is much smaller than the brochure suggests.',
+    question: 'How many bikes does a car\'s top speed equal?',
+  },
+  {
+    a: 'bullet-train',
+    b: 'car',
+    attr: 'speed',
+    title: '— the commute comparison',
+    blurb:
+      'A Shinkansen at full service speed covers ground at nearly twice a car\'s top speed — without ever touching a traffic jam.',
+    question: 'Which is faster at its best: bullet train or family car?',
+  },
+  {
+    a: 'airplane-737',
+    b: 'bullet-train',
+    attr: 'speed',
+    title: '— sky vs rail',
+    blurb:
+      'A 737 cruising at 850 km/h still outpaces the world\'s fastest scheduled trains by nearly 3× — the sky keeps its edge.',
+    question: 'How much faster is a jet than a bullet train?',
+  },
+  {
+    a: 'rocket',
+    b: 'airplane-737',
+    attr: 'speed',
+    title: '— orbital velocity vs your flight',
+    blurb:
+      'To stay in orbit a rocket must travel about 27,000 km/h — more than 30× a passenger jet\'s cruise. The honest bar is almost hard to draw.',
+    question: 'How many jet cruises equal one orbital speed?',
+  },
+
+  /* ── volume everyday (wave V) ── */
+  {
+    a: 'olympic-pool',
+    b: 'bathtub',
+    attr: 'volume',
+    title: '— 8,300 baths in one pool',
+    blurb:
+      'An Olympic pool holds about 2.5 million litres — over eight thousand bathtubs. The sphere here honestly shows how extreme that ratio is.',
+    question: 'How many bathtubs fill an Olympic pool?',
+  },
+  {
+    a: 'fridge',
+    b: 'bathtub',
+    attr: 'volume',
+    title: '— the kitchen standoff',
+    blurb:
+      'A family fridge\'s whole capacity barely beats one bathtub of water — a surprising draw for two everyday boxes.',
+    question: 'Which holds more: a fridge or a bathtub?',
+  },
+  {
+    a: 'hot-tub',
+    b: 'bathtub',
+    attr: 'volume',
+    title: '— five baths, one party',
+    blurb:
+      'A six-person hot tub holds roughly five bathtubs of water — the sphere scale keeps the comparison honest.',
+    question: 'How many bathtubs fill a hot tub?',
+  },
+  {
+    a: 'travel-backpack',
+    b: 'kettle',
+    attr: 'volume',
+    title: '— travel vs tea',
+    blurb:
+      'A 35-litre travel backpack swallows about twenty kettles — the humble unit that explains every suitcase decision.',
+    question: 'How many kettles fit in a carry-on backpack?',
+  },
+  {
+    a: 'aquarium',
+    b: 'bathtub',
+    attr: 'volume',
+    title: '— fish tank vs soak',
+    blurb:
+      'A typical 200-litre home aquarium holds about two-thirds of a bathtub — water for fish, or water for you.',
+    question: 'Which holds more water: an aquarium or a bathtub?',
+  },
 ];
 
+/**
+ * The same two objects can be compared on different attributes (China vs
+ * USA by area AND by population). Every conflicting group gets an explicit
+ * `-{attr}` suffix on ALL its members, so slugs stay unique and stable
+ * regardless of array order.
+ */
+const CONFLICTED_KEYS = new Set(
+  PAIRS.map((p) => [p.a, p.b].sort().join('|')).filter((key, i, keys) => keys.indexOf(key) !== i),
+);
+
 export function pairSlug(pair: Pair): string {
-  return `${pair.a}-vs-${pair.b}`;
+  const base = `${pair.a}-vs-${pair.b}`;
+  return CONFLICTED_KEYS.has([pair.a, pair.b].sort().join('|')) ? `${base}-${pair.attr}` : base;
 }
 
 export function pairBySlug(slug: string): Pair | null {

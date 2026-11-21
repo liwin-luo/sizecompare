@@ -1,14 +1,16 @@
 /**
- * WeightBars — honest proportional bar chart for weight comparisons.
- * Bar length is strictly proportional to real mass (no truncated axes).
+ * WeightBars — honest proportional bar chart for weight and the other
+ * bar-family attributes (population, lifespan, speed, densities).
+ * Bar length is strictly proportional to the value (no truncated axes).
  * Inline presentation attributes only, so PNG export stays faithful.
  */
 
 import { useMemo } from 'react';
 import { ChartError, weightBarLayout } from '../../lib/charts';
-import { formatAttrValue } from '../../lib/attributes';
+import { ATTRIBUTE_LABELS, formatAttrValue, type BarAttr } from '../../lib/attributes';
 import { objectName, objectValue, type ComparisonObject } from '../../lib/objects';
 import type { UnitSystem } from '../../lib/units';
+import { ANCHOR_COLOR } from '../../lib/anchors';
 import { OBJ_PALETTE } from './ScaleCanvas';
 
 const FONT = 'Arial, "Helvetica Neue", Helvetica, sans-serif';
@@ -22,9 +24,10 @@ export function WeightBars({
   showSources = true,
   svgId,
   reveal = 1,
+  anchor = null,
 }: {
   objects: ComparisonObject[];
-  attr: 'weight';
+  attr: BarAttr;
   box: { width: number; height: number };
   unitSystem: UnitSystem;
   large?: boolean;
@@ -32,8 +35,14 @@ export function WeightBars({
   svgId?: string;
   /** Quiz reveal progress 0→1: below 1 bars blend from equal length, values hidden. */
   reveal?: number;
+  /** Reference anchor drawn in neutral grey to give the scale human meaning. */
+  anchor?: ComparisonObject | null;
 }) {
-  const values = objects.map((o) => objectValue(o, attr) ?? 0);
+  const attrLabel = ATTRIBUTE_LABELS[attr];
+  // the anchor participates in the layout but never in the quiz blend or
+  // the answer sentence — it is a scale marker, not a contestant
+  const all = useMemo(() => (anchor ? [...objects, anchor] : objects), [objects, anchor]);
+  const values = all.map((o) => objectValue(o, attr) ?? 0);
 
   const nameSize = large ? 28 : 15;
   const valueSize = large ? 24 : 14;
@@ -87,21 +96,23 @@ export function WeightBars({
       role="img"
       aria-label={
         hidden
-          ? `Weight quiz chart: ${objects.map((o) => objectName(o)).join(', ')} with equal bars and values hidden`
-          : `Weight comparison: ${objects.map((o) => objectName(o)).join(', ')}`
+          ? `${attrLabel} quiz chart: ${objects.map((o) => objectName(o)).join(', ')} with equal bars and values hidden`
+          : `${attrLabel} comparison: ${objects.map((o) => objectName(o)).join(', ')}`
       }
     >
       <rect width={box.width} height={totalH} fill="#ffffff" rx="8" />
       <text x="16" y="26" fontFamily={FONT} fontSize={large ? 24 : 14} fontWeight="600" fill="#0e6f63">
-        Comparing: Weight
+        {`Comparing: ${attrLabel}`}
       </text>
 
       {rows.map((row) => {
-        const obj = objects[row.index];
-        const color = OBJ_PALETTE[row.index % OBJ_PALETTE.length];
+        const obj = all[row.index];
+        const isAnchor = row.index >= objects.length;
+        const color = isAnchor ? ANCHOR_COLOR : OBJ_PALETTE[row.index % OBJ_PALETTE.length];
         const value = values[row.index];
         const barW = hidden ? equalW + (row.barW - equalW) * t : row.barW;
         const valueText = hidden ? '?' : formatAttrValue(attr, value, unitSystem);
+        const label = isAnchor ? `${objectName(obj)} · ref` : objectName(obj);
         // Caption: source name + a *formatted* range when one exists.
         const m = obj.kind === 'library' ? obj.record.measurements[attr] : null;
         const source = m
@@ -117,7 +128,7 @@ export function WeightBars({
               fontWeight="700"
               fill="#1c2431"
             >
-              {objectName(obj).length > 30 ? `${objectName(obj).slice(0, 29)}…` : objectName(obj)}
+              {label.length > 30 ? `${label.slice(0, 29)}…` : label}
             </text>
             <rect
               x={row.barX}

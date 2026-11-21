@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ChartError, sphereLayout, weightBarLayout } from './charts';
+import { ChartError, overlayLayout, sphereLayout, weightBarLayout } from './charts';
 
 describe('weightBarLayout', () => {
   const BOX = { width: 800, height: 400 };
@@ -76,5 +76,81 @@ describe('sphereLayout', () => {
     expect(() => sphereLayout([], BOX)).toThrow(ChartError);
     expect(() => sphereLayout([0], BOX)).toThrow(ChartError);
     expect(() => sphereLayout([-5, 5], BOX)).toThrow(ChartError);
+  });
+});
+
+describe('overlayLayout', () => {
+  const BOX = { width: 800, height: 500 };
+
+  it('draws every shape at one shared px-per-mm scale', () => {
+    const layout = overlayLayout(
+      [
+        { wMm: 4_000_000, hMm: 3_000_000, value: 9e18 },
+        { wMm: 2_000_000, hMm: 1_500_000, value: 2e18 },
+      ],
+      BOX,
+    );
+    for (const item of layout.items) {
+      const f = item.index === 0 ? 4_000_000 : 2_000_000;
+      expect(item.w / f).toBeCloseTo(layout.scale, 9);
+      expect(item.h / (item.index === 0 ? 3_000_000 : 1_500_000)).toBeCloseTo(layout.scale, 9);
+    }
+  });
+
+  it('anchors every shape bottom-centre on the shared ground line', () => {
+    const layout = overlayLayout(
+      [
+        { wMm: 4_000_000, hMm: 3_000_000, value: 9e18 },
+        { wMm: 1_200_000, hMm: 2_200_000, value: 1.5e18 },
+      ],
+      BOX,
+    );
+    expect(layout.items.length).toBe(2);
+    for (const item of layout.items) {
+      expect(item.x + item.w / 2).toBeCloseTo(BOX.width / 2, 6);
+      expect(item.y + item.h).toBeCloseTo(layout.baselineY, 6);
+    }
+  });
+
+  it('draws the larger area first so smaller shapes stay visible', () => {
+    const layout = overlayLayout(
+      [
+        { wMm: 1_000_000, hMm: 1_000_000, value: 1e18 },
+        { wMm: 3_000_000, hMm: 3_000_000, value: 8e18 },
+      ],
+      BOX,
+    );
+    expect(layout.items[0].index).toBe(1);
+    expect(layout.items[1].index).toBe(0);
+  });
+
+  it('fits the largest footprint inside the box', () => {
+    const layout = overlayLayout([{ wMm: 5_000_000, hMm: 4_000_000, value: 1.2e19 }], BOX);
+    const item = layout.items[0];
+    expect(item.w).toBeLessThanOrEqual(BOX.width - 80 + 1e-6);
+    expect(item.h).toBeLessThanOrEqual(BOX.height - 80 + 1e-6);
+  });
+
+  it('flags extreme ratios and rejects bad input', () => {
+    const extreme = overlayLayout(
+      [
+        { wMm: 5_000_000, hMm: 4_000_000, value: 1e20 },
+        { wMm: 40_000, hMm: 30_000, value: 6e15 },
+      ],
+      BOX,
+    );
+    expect(extreme.ratio).toBeGreaterThan(14_400);
+    expect(extreme.extreme).toBe(true);
+    const normal = overlayLayout(
+      [
+        { wMm: 4_000_000, hMm: 3_000_000, value: 9e18 },
+        { wMm: 2_500_000, hMm: 2_000_000, value: 4e18 },
+      ],
+      BOX,
+    );
+    expect(normal.extreme).toBe(false);
+    expect(() => overlayLayout([], BOX)).toThrow(ChartError);
+    expect(() => overlayLayout([{ wMm: 0, hMm: 1, value: 1 }], BOX)).toThrow(ChartError);
+    expect(() => overlayLayout([{ wMm: 1, hMm: -1, value: 1 }], BOX)).toThrow(ChartError);
   });
 });

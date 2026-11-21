@@ -5,8 +5,11 @@ import {
   askPhrase,
   biggerSide,
   buildQuestionPool,
+  buildShareText,
   mulberry32,
+  parseQuizUrl,
   pickRound,
+  quizUrl,
   RATIO_MAX,
   RATIO_MIN,
   ROUND_SIZE,
@@ -144,5 +147,76 @@ describe('askPhrase', () => {
     expect(askPhrase('weight')).toBe('Which is heavier?');
     expect(askPhrase('volume')).toBe('Which has more volume?');
     expect(askPhrase('area')).toBe('Which has more area?');
+  });
+});
+
+describe('parseQuizUrl', () => {
+  it('parses a full challenge link', () => {
+    expect(parseQuizUrl('?s=123456&b=7&v=1')).toEqual({ seed: 123456, beat: 7 });
+  });
+
+  it('accepts a seed without a score to beat', () => {
+    expect(parseQuizUrl('?s=42&v=1')).toEqual({ seed: 42, beat: null });
+  });
+
+  it('treats a missing version as v1', () => {
+    expect(parseQuizUrl('?s=42')).toEqual({ seed: 42, beat: null });
+  });
+
+  it('rejects a stale version (old shared links degrade to a random round)', () => {
+    expect(parseQuizUrl('?s=42&v=999')).toBeNull();
+    expect(parseQuizUrl('?s=42&v=abc')).toBeNull();
+  });
+
+  it('rejects out-of-range seeds and beats', () => {
+    expect(parseQuizUrl('?s=0&v=1')).toBeNull();
+    expect(parseQuizUrl('?s=-5&v=1')).toBeNull();
+    expect(parseQuizUrl('?s=2147483648&v=1')).toBeNull();
+    expect(parseQuizUrl('?s=12.5&v=1')).toBeNull();
+    expect(parseQuizUrl('?s=42&b=11&v=1')).toBeNull();
+    expect(parseQuizUrl('?s=42&b=-1&v=1')).toBeNull();
+  });
+
+  it('is safe on empty or malformed input', () => {
+    expect(parseQuizUrl('')).toBeNull();
+    expect(parseQuizUrl('?v=1')).toBeNull();
+    expect(parseQuizUrl('?s=&v=1')).toBeNull();
+    expect(parseQuizUrl('?s=abc&v=1')).toBeNull();
+  });
+
+  it('round-trips with quizUrl', () => {
+    for (const [seed, beat] of [
+      [1, 0],
+      [987654321, ROUND_SIZE],
+      [42, undefined],
+    ] as const) {
+      const url = quizUrl(seed, beat);
+      expect(url.startsWith('https://')).toBe(true);
+      expect(parseQuizUrl(new URL(url).search)).toEqual(
+        beat === undefined ? { seed, beat: null } : { seed, beat },
+      );
+    }
+  });
+});
+
+describe('buildShareText', () => {
+  const flags = [true, false, true, true, false, true, true, false, true, true];
+  const url = 'https://sizecompare.org/quiz/?s=1&b=7&v=1';
+
+  it('renders a header, two 5-square rows and the challenge URL', () => {
+    const lines = buildShareText(flags, 7, url).split('\n');
+    expect(lines[0]).toBe(`SizeCompare Quiz 📏 7/${ROUND_SIZE}`);
+    expect(lines[1]).toBe('🟩🟥🟩🟩🟥');
+    expect(lines[2]).toBe('🟩🟩🟥🟩🟩');
+    expect(lines[3]).toBe(`Same ${ROUND_SIZE} questions — can you beat me?`);
+    expect(lines[4]).toBe(url);
+  });
+
+  it('maps every answer to exactly one square', () => {
+    const text = buildShareText([true, false, true], 2, url);
+    const lines = text.split('\n');
+    expect(lines[1]).toBe('🟩🟥🟩');
+    expect(lines[2]).toBe(`Same ${ROUND_SIZE} questions — can you beat me?`);
+    expect((text.match(/🟩|🟥/gu) ?? []).length).toBe(3);
   });
 });

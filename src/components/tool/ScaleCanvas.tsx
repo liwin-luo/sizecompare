@@ -17,6 +17,7 @@ import {
   type Layout,
   type PlacedItem,
 } from '../../lib/scale';
+import { ANCHOR_COLOR, ANCHOR_BORDER } from '../../lib/anchors';
 import {
   objectName,
   objectValue,
@@ -143,6 +144,8 @@ interface CanvasProps {
    * canvas. Easing is applied by the caller.
    */
   reveal?: number;
+  /** Reference anchor drawn in neutral grey to give the scale human meaning. */
+  anchor?: ComparisonObject | null;
 }
 
 export function ScaleCanvas({
@@ -154,6 +157,7 @@ export function ScaleCanvas({
   showSources = true,
   svgId,
   reveal = 1,
+  anchor = null,
 }: CanvasProps) {
   const nameSize = large ? 30 : 16;
   const valueSize = large ? 26 : 14;
@@ -162,13 +166,20 @@ export function ScaleCanvas({
 
   const hidden = reveal < 1;
 
+  // the anchor participates in the layout (it sets the human sense of
+  // scale) but never in the answer sentence, aria labels or the quiz
+  const all = useMemo(
+    () => (anchor ? [...objects, anchor] : objects),
+    [objects, anchor],
+  );
+
   const { layout, health } = useMemo<{
     layout: Layout | null;
     health: ReturnType<typeof assessScale> | null;
     missing: boolean;
   }>(() => {
-    const visuals = objects.map((o) => objectVisual(o, attr));
-    if (objects.length === 0 || visuals.some((v) => v === null)) {
+    const visuals = all.map((o) => objectVisual(o, attr));
+    if (all.length === 0 || visuals.some((v) => v === null)) {
       return { layout: null, health: null, missing: visuals.some((v) => v === null) };
     }
     const items = visuals.map((v) => ({
@@ -184,7 +195,7 @@ export function ScaleCanvas({
       health: assessScale(items.map((i) => i.valueMm), l.scale),
       missing: false,
     };
-  }, [objects, attr, box, large, reveal]);
+  }, [all, attr, box, large, reveal]);
 
   if (!layout) {
     return (
@@ -252,8 +263,9 @@ export function ScaleCanvas({
       />
 
       {layout.items.map((placed) => {
-        const obj = objects[placed.index];
-        const color = OBJ_PALETTE[placed.index % OBJ_PALETTE.length];
+        const obj = all[placed.index];
+        const isAnchor = placed.index >= objects.length;
+        const color = isAnchor ? ANCHOR_COLOR : OBJ_PALETTE[placed.index % OBJ_PALETTE.length];
         const v = objectVisual(obj, attr) as NonNullable<ReturnType<typeof objectVisual>>;
         return (
           <ObjectGroup
@@ -268,6 +280,7 @@ export function ScaleCanvas({
             fontSizes={{ nameSize, valueSize, sourceSize }}
             showSource={showSources}
             hideMeasured={hidden}
+            reference={isAnchor}
           />
         );
       })}
@@ -303,6 +316,8 @@ interface ObjectGroupProps {
   showSource: boolean;
   /** Quiz question state: hide values and dimension lines until the reveal. */
   hideMeasured?: boolean;
+  /** Reference anchor item — labelled so it reads as the scale marker. */
+  reference?: boolean;
 }
 
 function ObjectGroup({
@@ -316,8 +331,9 @@ function ObjectGroup({
   fontSizes,
   showSource,
   hideMeasured = false,
+  reference = false,
 }: ObjectGroupProps) {
-  const name = objectName(obj);
+  const name = reference ? `${objectName(obj)} · ref` : objectName(obj);
   const valueText = hideMeasured ? '?' : formatAttrValue(attr, visual.valueMm, unitSystem);
   const { nameSize, valueSize, sourceSize } = fontSizes;
 
@@ -351,6 +367,21 @@ function ObjectGroup({
 
   return (
     <g>
+      {/* dashed marker box flags the reference anchor — emoji artwork keeps
+          its own colors, so the grey palette alone is not enough here */}
+      {reference && (
+        <rect
+          x={placed.x - 4}
+          y={placed.y - 4}
+          width={placed.w + 8}
+          height={placed.h + 8}
+          rx="8"
+          fill="none"
+          stroke={ANCHOR_BORDER}
+          strokeWidth="2"
+          strokeDasharray="6 4"
+        />
+      )}
       {visual.image ? (
         // Emoji-style asset with the content crop already burned into its
         // root viewBox — a plain full-bleed image lands exactly in the

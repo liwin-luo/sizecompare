@@ -10,11 +10,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { AttributeKey } from '../../lib/attributes';
 import type { ComparisonObject } from '../../lib/objects';
 import type { UnitSystem } from '../../lib/units';
-import { ATTRIBUTE_FAMILY } from '../../lib/attributes';
-import { ScaleCanvas, buildAnswerSentence } from './ScaleCanvas';
-import { WeightBars } from './WeightBars';
-import { VolumeSpheres } from './VolumeSpheres';
-import { AreaSquares } from './AreaSquares';
+import { buildAnswerSentence } from './ScaleCanvas';
+import { FamilyCanvas } from './FamilyCanvas';
 
 export function PresentationMode({
   title,
@@ -22,6 +19,8 @@ export function PresentationMode({
   objects,
   attr,
   unitSystem,
+  areaOverlay = false,
+  anchor = null,
   onExit,
 }: {
   title: string;
@@ -29,6 +28,10 @@ export function PresentationMode({
   objects: ComparisonObject[];
   attr: AttributeKey;
   unitSystem: UnitSystem;
+  /** Area display style from the studio (outlined overlay vs squares). */
+  areaOverlay?: boolean;
+  /** Reference anchor from the studio, shown in neutral grey. */
+  anchor?: ComparisonObject | null;
   onExit: () => void;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -68,50 +71,22 @@ export function PresentationMode({
   }, [onExit]);
 
   const answer = buildAnswerSentence(objects, attr as never, unitSystem);
-  const family = ATTRIBUTE_FAMILY[attr];
 
   return (
     <div className="presentation" ref={rootRef}>
       <div className="presentation-inner">
         <h2 className="presentation-title">{title || 'Comparison'}</h2>
         <div className="presentation-canvas">
-          {family === 'weight' ? (
-            <WeightBars
-              objects={objects}
-              attr={attr as 'weight'}
-              box={box}
-              unitSystem={unitSystem}
-              large
-              showSources={false}
-            />
-          ) : family === 'volume' ? (
-            <VolumeSpheres
-              objects={objects}
-              attr={attr as 'volume'}
-              box={box}
-              unitSystem={unitSystem}
-              large
-              showSources={false}
-            />
-          ) : family === 'area' ? (
-            <AreaSquares
-              objects={objects}
-              attr={attr as 'area'}
-              box={box}
-              unitSystem={unitSystem}
-              large
-              showSources={false}
-            />
-          ) : (
-            <ScaleCanvas
-              objects={objects}
-              attr={attr as never}
-              box={box}
-              unitSystem={unitSystem}
-              large
-              showSources={false}
-            />
-          )}
+          <FamilyCanvas
+            objects={objects}
+            attr={attr}
+            box={box}
+            unitSystem={unitSystem}
+            large
+            showSources={false}
+            areaOverlay={areaOverlay}
+            anchor={anchor}
+          />
         </div>
         <div className="presentation-bottom">
           {prompt && <p className="presentation-prompt">{prompt}</p>}

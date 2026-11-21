@@ -10,6 +10,7 @@ import { ChartError, sphereLayout } from '../../lib/charts';
 import { formatAttrValue } from '../../lib/attributes';
 import { objectName, objectSourceLine, objectValue, type ComparisonObject } from '../../lib/objects';
 import type { UnitSystem } from '../../lib/units';
+import { ANCHOR_COLOR } from '../../lib/anchors';
 import { OBJ_PALETTE } from './ScaleCanvas';
 
 const FONT = 'Arial, "Helvetica Neue", Helvetica, sans-serif';
@@ -23,6 +24,7 @@ export function VolumeSpheres({
   showSources = true,
   svgId,
   reveal = 1,
+  anchor = null,
 }: {
   objects: ComparisonObject[];
   attr: 'volume';
@@ -33,8 +35,13 @@ export function VolumeSpheres({
   svgId?: string;
   /** Quiz reveal progress 0→1: below 1 radii blend from equal, values hidden. */
   reveal?: number;
+  /** Reference anchor drawn in neutral grey to give the scale human meaning. */
+  anchor?: ComparisonObject | null;
 }) {
-  const values = objects.map((o) => objectValue(o, attr) ?? 0);
+  // the anchor participates in the layout but never in the quiz blend or
+  // the answer sentence — it is a scale marker, not a contestant
+  const all = useMemo(() => (anchor ? [...objects, anchor] : objects), [objects, anchor]);
+  const values = all.map((o) => objectValue(o, attr) ?? 0);
 
   const layout = useMemo(() => {
     try {
@@ -46,7 +53,7 @@ export function VolumeSpheres({
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [objects, attr, box.width, box.height]);
+  }, [all, attr, box.width, box.height]);
 
   const nameSize = large ? 28 : 15;
   const valueSize = large ? 24 : 14;
@@ -107,9 +114,11 @@ export function VolumeSpheres({
       />
 
       {items.map((item) => {
-        const obj = objects[item.index];
-        const color = OBJ_PALETTE[item.index % OBJ_PALETTE.length];
+        const obj = all[item.index];
+        const isAnchor = item.index >= objects.length;
+        const color = isAnchor ? ANCHOR_COLOR : OBJ_PALETTE[item.index % OBJ_PALETTE.length];
         const value = values[item.index];
+        const label = isAnchor ? `${objectName(obj)} · ref` : objectName(obj);
         const r = hidden ? equalR + (item.r - equalR) * t : item.r;
         const cy = baselineY - r;
         const valueText = hidden ? '?' : formatAttrValue(attr, value, unitSystem);
@@ -142,7 +151,7 @@ export function VolumeSpheres({
               fontWeight="700"
               fill="#1c2431"
             >
-              {objectName(obj).length > 24 ? `${objectName(obj).slice(0, 23)}…` : objectName(obj)}
+              {label.length > 24 ? `${label.slice(0, 23)}…` : label}
             </text>
             <text
               x={item.cx}

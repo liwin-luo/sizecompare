@@ -3,8 +3,8 @@
  *
  * Owns the comparison state (objects, active attribute, title, question,
  * units, answers), persists to localStorage only, and composes the
- * three visualization families (linear scale, weight bars, volume
- * spheres) plus editor panels, presentation mode and the print sheet.
+ * four visualization families (linear scale, weight bars, volume
+ * spheres, area squares) plus editor panels, presentation mode and the print sheet.
  * Nothing leaves the browser.
  */
 
@@ -28,9 +28,7 @@ import {
 import { computeLayout, assessScale } from '../../lib/scale';
 import type { UnitSystem } from '../../lib/units';
 import { ScaleCanvas, buildAnswerSentence, formatValue, objectVisual, MAX_OBJECTS } from './ScaleCanvas';
-import { WeightBars } from './WeightBars';
-import { VolumeSpheres } from './VolumeSpheres';
-import { AreaSquares } from './AreaSquares';
+import { FamilyCanvas } from './FamilyCanvas';
 import {
   CustomObjectForm,
   EditorPanel,
@@ -39,6 +37,8 @@ import {
   SelectedObjects,
 } from './Panels';
 import { PresentationMode } from './PresentationMode';
+import { PLACE_SHAPES } from '../../data/placeShapes';
+import { resolveAnchor, anchorOptions, type AnchorChoice } from '../../lib/anchors';
 import { EXAMPLES } from './examples';
 import { exportSvgAsPng } from './exportPng';
 import { track } from './track';
@@ -52,6 +52,13 @@ interface StudioState {
   customs: CustomObject[];
   /** Active attribute; falls back to the first shared one at render time. */
   activeAttr: AttributeKey | null;
+  /** Area display: outlined overlay (default) or √A squares. */
+  areaMode?: 'overlay' | 'squares';
+  /**
+   * Reference anchor. Undefined ≡ on with the per-attribute default;
+   * curated pair pages preload { enabled: false } to stay clean.
+   */
+  anchor?: AnchorChoice;
 }
 
 const STORAGE_KEY = 'sizecompare:studio:v2';
@@ -83,11 +90,15 @@ export default function CompareStudio({
   preloadIds,
   preloadTitle,
   preloadPrompt,
+  preloadAttr,
 }: {
   /** Objects preloaded from a /compare/ page (checked against the library). */
   preloadIds?: string[];
   preloadTitle?: string;
   preloadPrompt?: string;
+  /** Attribute the pair page is about — without it the first shared
+   * attribute (area for countries) would win and hide the page's topic. */
+  preloadAttr?: AttributeKey;
 }) {
   const [state, setState] = useState<StudioState>(() =>
     preloadIds && preloadIds.length >= 2
@@ -96,6 +107,8 @@ export default function CompareStudio({
           libraryIds: preloadIds.filter((id) => id in LIBRARY_BY_ID),
           title: preloadTitle ?? '',
           prompt: preloadPrompt ?? '',
+          activeAttr: preloadAttr ?? null,
+          anchor: { enabled: false, id: null },
         }
       : exampleState(EXAMPLES[0].id),
   );
@@ -165,12 +178,29 @@ export default function CompareStudio({
       ? state.activeAttr
       : (shared[0] ?? null);
 
+  /* outlines exist only for library places with a Natural Earth shape —
+     anything else (custom objects, microstates) keeps the √A squares */
+  const overlayReady =
+    attr === 'area' &&
+    objects.length >= 2 &&
+    objects.every((o) => o.kind === 'library' && o.record.id in PLACE_SHAPES);
+  const areaOverlay = overlayReady && state.areaMode !== 'squares';
+
+  /* familiar reference object pinned into the canvas for human scale */
+  const anchorObj = useMemo(() => resolveAnchor(attr, state.anchor), [attr, state.anchor]);
+  const anchorOpts = useMemo(() => anchorOptions(attr), [attr]);
+
   /* comparison_generated fires when a viewable comparison exists */
   useEffect(() => {
     if (objects.length >= 2 && attr) {
-      track('comparison_generated', { count: objects.length, attr });
+      track('comparison_generated', {
+        count: objects.length,
+        attr,
+        ...(attr === 'area' ? { mode: areaOverlay ? 'overlay' : 'squares' } : {}),
+        ...(anchorObj ? { anchor: true } : {}),
+      });
     }
-  }, [objects, attr]);
+  }, [objects, attr, areaOverlay, anchorObj]);
 
   const warnings = useMemo(() => {
     const list: { tone: 'warn' | 'info'; text: string }[] = [];
@@ -201,13 +231,13 @@ export default function CompareStudio({
       } catch {
         /* invalid values are caught at input time */
       }
-    } else if (family === 'weight') {
+    } else if (family === 'weight' || family === 'bars') {
       const values = objects.map((o) => objectValue(o, attr) ?? 0);
       const ratio = Math.max(...values) / Math.min(...values);
       if (ratio > 1000) {
         list.push({
           tone: 'warn',
-          text: 'These weights differ enormously — the short bar is honestly that light. Bars stay truly proportional.',
+          text: 'These values differ enormously — the short bar is honestly that small. Bars stay truly proportional.',
         });
       }
     } else if (family === 'area') {
@@ -358,40 +388,44 @@ export default function CompareStudio({
                 </>
               )}
             </div>
-          ) : family === 'weight' ? (
-            <WeightBars
-              objects={objects}
-              attr={attr as 'weight'}
-              box={box}
-              unitSystem={state.unitSystem}
-              svgId="compare-canvas-svg"
-            />
-          ) : family === 'volume' ? (
-            <VolumeSpheres
-              objects={objects}
-              attr={attr as 'volume'}
-              box={box}
-              unitSystem={state.unitSystem}
-              svgId="compare-canvas-svg"
-            />
-          ) : family === 'area' ? (
-            <AreaSquares
-              objects={objects}
-              attr={attr as 'area'}
-              box={box}
-              unitSystem={state.unitSystem}
-              svgId="compare-canvas-svg"
-            />
           ) : (
-            <ScaleCanvas
+            <FamilyCanvas
               objects={objects}
-              attr={attr as never}
+              attr={attr}
               box={box}
               unitSystem={state.unitSystem}
               svgId="compare-canvas-svg"
+              areaOverlay={areaOverlay}
+              anchor={anchorObj}
             />
           )}
         </div>
+
+        {/* area display: outlined overlay vs √A squares (outlines need
+            library places with a Natural Earth shape) */}
+        {attr === 'area' && overlayReady && (
+          <div className="attr-tabs" role="group" aria-label="Area display style">
+            <span className="hint" style={{ alignSelf: 'center' }}>
+              Style:
+            </span>
+            <button
+              type="button"
+              className={areaOverlay ? 'on' : ''}
+              aria-pressed={areaOverlay}
+              onClick={() => setState((p) => ({ ...p, areaMode: 'overlay' }))}
+            >
+              Overlay outlines
+            </button>
+            <button
+              type="button"
+              className={!areaOverlay ? 'on' : ''}
+              aria-pressed={!areaOverlay}
+              onClick={() => setState((p) => ({ ...p, areaMode: 'squares' }))}
+            >
+              √Area squares
+            </button>
+          </div>
+        )}
 
         {/* attribute tabs */}
         {shared.length > 0 && (
@@ -446,7 +480,7 @@ export default function CompareStudio({
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search 190+ objects…"
+              placeholder={`Search ${OBJECT_LIBRARY.length}+ objects…`}
               aria-label="Search objects"
             />
             {searchResults.length > 0 && (
@@ -497,10 +531,17 @@ export default function CompareStudio({
             prompt={state.prompt}
             unitSystem={state.unitSystem}
             showAnswers={state.showAnswers}
+            anchorEnabled={state.anchor?.enabled ?? true}
+            anchorId={state.anchor?.id ?? null}
+            anchorOptions={anchorOpts}
+            anchorDisabled={anchorOpts.length === 0}
             onTitle={(v) => setState((p) => ({ ...p, title: v }))}
             onPrompt={(v) => setState((p) => ({ ...p, prompt: v }))}
             onUnitSystem={(v) => setState((p) => ({ ...p, unitSystem: v }))}
             onShowAnswers={(v) => setState((p) => ({ ...p, showAnswers: v }))}
+            onAnchor={(enabled, id) =>
+              setState((p) => ({ ...p, anchor: { enabled, id: id ?? null } }))
+            }
           />
         </section>
 
@@ -525,35 +566,17 @@ export default function CompareStudio({
         {state.prompt && <p className="print-prompt">{state.prompt}</p>}
         {attr !== null && (
           <>
-            {family === 'weight' ? (
-              <WeightBars
-                objects={objects}
-                attr={attr as 'weight'}
-                box={{ width: 740, height: 380 }}
-                unitSystem={state.unitSystem}
-              />
-            ) : family === 'volume' ? (
-              <VolumeSpheres
-                objects={objects}
-                attr={attr as 'volume'}
-                box={{ width: 740, height: 380 }}
-                unitSystem={state.unitSystem}
-              />
-            ) : family === 'area' ? (
-              <AreaSquares
-                objects={objects}
-                attr={attr as 'area'}
-                box={{ width: 740, height: 420 }}
-                unitSystem={state.unitSystem}
-              />
-            ) : (
-              <ScaleCanvas
-                objects={objects}
-                attr={attr as never}
-                box={{ width: 740, height: 480 }}
-                unitSystem={state.unitSystem}
-              />
-            )}
+            <FamilyCanvas
+              objects={objects}
+              attr={attr}
+              box={{
+                width: 740,
+                height: family === 'volume' ? 380 : family === 'area' ? 420 : 480,
+              }}
+              unitSystem={state.unitSystem}
+              areaOverlay={areaOverlay}
+              anchor={anchorObj}
+            />
             <table className="print-table">
               <thead>
                 <tr>
@@ -594,6 +617,8 @@ export default function CompareStudio({
           objects={objects}
           attr={attr}
           unitSystem={state.unitSystem}
+          areaOverlay={areaOverlay}
+          anchor={anchorObj}
           onExit={() => setPresenting(false)}
         />
       )}

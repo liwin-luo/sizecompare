@@ -106,3 +106,61 @@ china×united-states、canada×united-states、russia×china、brazil×australia
 - 四画布（ScaleCanvas/WeightBars/VolumeSpheres/AreaSquares）均支持 `reveal` prop（默认 1 = 原行为，PNG 导出不受影响）
 - 引擎 `src/lib/quiz.ts`：题池 = 精选 PAIRS + 库内同属性自动对（比值 ∈ [1.2, 80]），难度按比分档（≥3× 易 / 1.6–3× 中 / 1.2–1.6× 难），10 题一局 3易+4中+3难、同局对象不重复，mulberry32 种子随机
 - useReveal 遵守 prefers-reduced-motion（直接跳终态）；最佳成绩存 localStorage `sizecompare:quiz:v1`；GA4 事件 quiz_start / quiz_answer / quiz_round_end
+
+## 第五波：国家轮廓重叠对比（2026-11-21）
+
+### 轮廓数据（63/67 国，生成物 src/data/placeShapes.ts）
+- 来源：Natural Earth 110m（经 `world-atlas` npm 包，public domain）——devDeps 仅构建期使用，运行时只带预计算 SVG path（整文件 53 KB）
+- 方法：每国以质心为中心的 azimuthal equal-area 投影（等积，形状中心失真最小）→ 装入 512 单位框、坐标取整；viewBox 为紧贴 bbox（viewBox 宽高比 = 真实形状宽高比，符合剪影契约）
+- **面积校准**：`scaleToMm = √(CIA mm² ÷ viewBox 单位²)`，形状按 vbW·scaleToMm 绘制时包围面积恰等于 CIA 官方值 → 全部国家共用一个诚实的 px/mm 比例因子
+- 校准健康度（对球面 Ω·R²）：min 0.964 / max 1.074 / mean 1.005；脚本断言 ∈ [0.9, 1.1] 否则拒绝出文件
+- 例外（4 国无轮廓，自动回退 √A 方块）：Liechtenstein / Monaco / Vatican City（110m 无多边形）；**Morocco 主动剔除**——CIA 口径 446,550 km² 不含西撒哈拉，NE 边界无法裁剪到该口径（NE Morocco 量得 592k，减去 W. Sahara 96k 仍差 11%），按 CIA 数校准会画出两个来源都不认可的边界
+- Somalia 合并 Somaliland 多边形（CIA 单一口径为一个索马里；合并后校准 0.987 落带内）
+- 重跑：`node scripts/emoji-tools/build-place-shapes.mjs`（直接覆盖 placeShapes.ts，勿手改）
+
+### 渲染与接入
+- `AreaOverlay`（src/components/tool/AreaOverlay.tsx）：纯 SVG 内联属性（PNG 导出契约），大国在后实色 0.92 / 小国在上半透明 0.50 + 2px 描边，底部中心共锚于地线；标签行 "Name — Value"（对象色）；来源行共享 CIA WFB；角注声明共享比例 + Natural Earth PD
+- 布局引擎 `overlayLayout`（charts.ts）：最大足迹定 scale、全部底部中心对齐、按面积降序绘制；extreme 阈值沿用 ratio > 14400 / 最小边 < 6px
+- Studio：`areaMode: 'overlay' | 'squares'` 入 StudioState（localStorage 随存）；默认规则 = attr=area 且全部对象是有轮廓的 library place → overlay，否则强制方块并隐藏切换；画布下方 Overlay/√Area squares 分段切换
+- 接入位：主画布、打印视图、PresentationMode（新 prop areaOverlay）；**Quiz 不接入**（重叠图直接暴露答案，保持等大方块 → 揭晓的教学节奏）；15 个精选 area 对页经 preloadIds 天然默认 overlay
+- GA4：comparison_generated 在 attr=area 时附加 mode: overlay|squares
+
+## 第六波：参照锚（reference anchor）（2026-11-21）
+
+### 机制
+- 每属性一个默认锚（`src/lib/anchors.ts` DEFAULT_ANCHORS）：height=Adult、length=School bus、width=Credit card、diameter=Basketball、weight=Water bottle 500ml、volume=Soda can 355ml；**area 无默认**（真实面积跨 10 个数量级，无单一锚可用——下拉可选 Football pitch / A4 paper）
+- 锚参与布局（提供人尺度参照）但**不计入答案句/aria/GA4 计数**；灰色 ANCHOR_COLOR #94a3b8 渲染 + "· ref" 标签；ScaleCanvas 中 emoji 图对象自带颜色，另加 ANCHOR_BORDER #64748b 虚线框标记
+- StudioState.anchor {enabled,id}（undefined ≡ 默认开；显式 {enabled:false} 关）；**精选对比页 preload 强制关**；localStorage 随存；Editor 面板 checkbox + 下拉（仅列携带当前属性的对象，默认锚排首）
+- 五画布（ScaleCanvas/WeightBars/VolumeSpheres/AreaSquares/AreaOverlay）全部接入；AreaOverlay 中锚画在最底层（有轮廓画灰色虚线轮廓，无轮廓画 √A 灰方块——国家对 + Football pitch 时诚实呈现为亚像素 + extreme 警告）；quiz 不接入
+- GA4 comparison_generated 附 anchor:true；默认示例从 elephant+adult+child 改为 elephant+giraffe（adult/child 改由锚承担"你自己"的参照角色，避免重复）
+
+### 新增对象（1）
+| id | 类别 | 属性 | 来源 | 状态 |
+|---|---|---|---|---|
+| football-pitch | reference | area 7.14e9 mm²（105×68m = 7,140 m²） | FIFA Football Stadiums | 📖 checked_at 2026-11-21 |
+
+- 测试：src/lib/anchors.test.ts（默认表完整性 / resolveAnchor 语义 / 选项过滤）
+
+## 第七波：五属性家族扩展 + FamilyCanvas 重构（2026-11-21）
+
+### 架构
+- **FamilyCanvas**（src/components/tool/FamilyCanvas.tsx）：家族分支的唯一入口，主画布/打印/Presentation/Quiz 四处调用点全部替换（此前加一个家族要改 4 处的债务已还）
+- 新属性家族 `bars`（与 weight 共用 WeightBars 画布）：population（人）/lifespan（年）/speed（km/h，英制 mph 精确换算 1.609344）/popdensity（人/km²，英制 /sq mi）/density（g/ml）
+- **派生测量**：library.ts `withDerived`（加载时合成 density=weight÷volume、popdensity=population÷area，provenance 注明两个来源，范围不传播）；**sidecar 表**：LIFESPAN/SPEED/POPULATION 三张按 id 打标注入已有对象（记录内联声明优先，sidecar 永不覆盖）——避免手工编辑几十条记录
+- pairSlug 冲突：同对象不同属性的对全部加 `-{attr}` 后缀（china-vs-united-states-area / -population），CONFLICTED_KEYS 按排序键判定
+- CompareStudio 新增 `preloadAttr` prop（修复：人口页此前回退显示面积图）
+
+### 数据
+| 波 | 内容 | 来源 | 状态 |
+|---|---|---|---|
+| 人口 P2 | 67 国 population（64 国 World Bank SP.POP.TOTL 2024 + 3 微缩国 CIA WFB） | 单次批量拉取（wave-population.py，逐国请求会被限流） | 📖 checked 2026-11-21，总量 sanity 6.45B ✓ |
+| 自然 N | 山峰 8（K2/Aconcagua/Denali/Kilimanjaro/Elbrus/Vinson/Mont Blanc/Matterhorn，height）+ 海沟 5（Mariana/Tonga/Puerto Rico/Java，depth 建模为 height + 平均海深 3,688m NOAA），新 category 'nature'，剪影 watercolumn/falcon 新增、山复用 everest | Wikipedia 调查值/NOAA | 📖 |
+| 寿命 L | 18 对象 sidecar（elephant 65/bluewhale 90/犬种对比…adult 73.3 WHO）+ 新对象 galapagos-tortoise 150 / bowhead-whale 200（est） | AnAge / WHO / 品种资料 | 📖 估算带 uncertainty_note |
+| 速度 S | 14 对象 sidecar（peregrine 389 潜水实测/cheetah 98 实测/adult 44.72 Bolt/TGV 574.8 纪录/737 850 巡航/rocket 27000 轨道）+ 新对象 cheetah/peregrine-falcon/sailfish/bullet-train/f1-car | Wikipedia 实测/纪录值 | 📖 估算注明 |
+| 体积 V | 8 新对象（olympic-pool 250 万升 World Aquatics 标准至 kettle 1.7L） | 标准/典型值 | 📖 估算带范围 |
+| 派生 | density（重量÷体积，自动）/ popdensity（人口÷面积，67 国自动） | 计算属性 | 自动生成 |
+
+### 精选对 +34（总 166）
+人口 7 / 人口密度 2 / 自然 6 / 寿命 6 / 速度 8 / 体积 5——slug 冲突自动后缀；锚默认：lifespan/speed → adult（"你自己"）；quiz 题池 18,317 题自动覆盖 12 属性（popdensity 1,937 / population 1,800 / speed 145 / lifespan 176 / density 12）
+
+### 库规模：291 对象（262 + 29 新）/ 166 精选对 / 174 静态页

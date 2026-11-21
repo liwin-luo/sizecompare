@@ -172,6 +172,38 @@
 }
 .quiz-share-note { color: var(--ink-faint); font-size: 0.9rem; }
 
+/* ── challenge (shared link) ── */
+
+.quiz-challenge {
+  margin: 0;
+  padding: 10px 18px;
+  border: 1px solid #f0ddb4;
+  border-radius: var(--radius);
+  background: #fdf6e9;
+  color: #7c3f06;
+  font-weight: 700;
+  font-size: 1.02rem;
+}
+.quiz-challenge-result {
+  margin: 0;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+/* ── share scorecard preview ── */
+
+.quiz-share-preview {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  background: var(--surface);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  white-space: pre;
+}
+
 @media (max-width: 640px) {
   .quiz-options { grid-template-columns: 1fr; }
   .quiz-head { flex-wrap: wrap; }

@@ -179,6 +179,85 @@ export function areaSquareLayout(
   };
 }
 
+/* ── area overlay ── */
+
+export interface OverlayFootprint {
+  /** True footprint in base units (mm): shape viewBox bbox × scaleToMm. */
+  wMm: number;
+  hMm: number;
+  /** Area value — sets draw order (largest first) and the ratio. */
+  value: number;
+}
+
+export interface OverlayItem {
+  index: number;
+  /** Top-left of the shape box; bottom-centre anchored on the ground line. */
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+export interface OverlayLayout {
+  /** Draw order: largest area first, so smaller shapes stay visible on top. */
+  items: OverlayItem[];
+  baselineY: number;
+  /** px per mm — identical for every shape (one honest scale). */
+  scale: number;
+  ratio: number;
+  extreme: boolean;
+}
+
+export const MIN_OVERLAY_PX = 6;
+
+/**
+ * Country outlines overlaid bottom-centre on one shared ground line, every
+ * shape at a single px-per-mm scale — the outline analogue of the square
+ * engine. The largest footprint sets the scale; smaller shapes sit on top,
+ * semi-transparent, so the difference reads at a glance.
+ */
+export function overlayLayout(
+  footprints: OverlayFootprint[],
+  box: Box,
+  padding = 40,
+): OverlayLayout {
+  if (footprints.length === 0) throw new ChartError('At least one footprint is required.');
+  // Validate the RAW input — silently dropping bad values would mislead.
+  const invalid = footprints.some(
+    (f) =>
+      !Number.isFinite(f.wMm) || f.wMm <= 0 || !Number.isFinite(f.hMm) || f.hMm <= 0 ||
+      !Number.isFinite(f.value) || f.value <= 0,
+  );
+  if (invalid) throw new ChartError('Footprints must be positive numbers.');
+
+  const maxW = Math.max(...footprints.map((f) => f.wMm));
+  const maxH = Math.max(...footprints.map((f) => f.hMm));
+  const scale = Math.min((box.width - padding * 2) / maxW, (box.height - padding * 2) / maxH);
+
+  const baselineY = box.height - padding;
+  const cx = box.width / 2;
+
+  const order = footprints
+    .map((f, index) => ({ f, index }))
+    .sort((a, b) => b.f.value - a.f.value);
+  const items: OverlayItem[] = order.map(({ f, index }) => {
+    const w = f.wMm * scale;
+    const h = f.hMm * scale;
+    return { index, x: cx - w / 2, y: baselineY - h, w, h };
+  });
+
+  const values = footprints.map((f) => f.value);
+  const ratio = Math.max(...values) / Math.min(...values);
+  const smallestSide = Math.min(...items.map((i) => Math.min(i.w, i.h)));
+  return {
+    items,
+    baselineY,
+    scale,
+    ratio,
+    extreme: ratio > 14_400 || smallestSide < MIN_OVERLAY_PX,
+  };
+}
+
 /* ── volume spheres ── */
 
 export interface SphereItem {
