@@ -54,3 +54,13 @@ npm run check      # astro check 类型检查
 npm run build      # 产物 dist/
 npm run preview    # 本地预览产物
 ```
+
+## 已部署（2026-11-21）
+
+- 仓库：https://github.com/liwin-luo/sizecompare（main）
+- Cloudflare Pages 项目：`sizecompare`（account da8ee117…）
+- 线上：<https://sizecompare.org> / <https://www.sizecompare.org> / https://sizecompare-cma.pages.dev
+- 自定义域：apex + www 均 CNAME（proxied）→ sizecompare-cma.pages.dev；证书 Google CA 自动
+- 部署方式：**wrangler 直接上传**（`npm run deploy`，需 `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` 环境变量；token 在 dash API Tokens 页管理）
+- 如改走 Git 自动构建：dash → Workers & Pages → sizecompare → Settings → Build，连接 GitHub 仓库（build: `npm run build`，output: `dist`，NODE_VERSION=20），此后 push 即自动部署
+- 已在线上验证：全页 200、404 生效、google 验证文件可达、/_astro immutable 缓存头生效、og-image 可达
