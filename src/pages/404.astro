@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Page not found';
+const description = 'That page does not exist — browse curated true-scale comparisons or open the Compare Studio.';
+const path = '/404/';
+---
+
+<BaseLayout title={title} description={description} path={path}>
+  <section class="section" style="padding-block: 72px 48px">
+    <div class="container narrow" style="text-align: center">
+      <p class="code">404</p>
+      <h1>That page doesn't exist</h1>
+      <p class="lede">
+        The link may be mistyped, or the comparison you were looking for isn't
+        in the curated list yet. The Studio has the full library — compare
+        anything you can measure.
+      </p>
+      <p class="hero-actions" style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 26px;">
+        <a class="btn btn-primary btn-lg" href="/studio/">Open the Studio</a>
+        <a class="btn btn-ghost btn-lg" href="/compare/">Browse comparisons</a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .code {
+    font-size: 4.5rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--primary);
+    opacity: 0.35;
+    margin: 0 0 8px;
+  }
+</style>

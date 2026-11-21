@@ -1,0 +1,9 @@
+# Cloudflare Pages headers.
+# Hashed build output never changes for a given URL — cache immutably.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Fluent-emoji object art is content-addressed by name only; allow shared
+# caches but require revalidation so art updates propagate.
+/objects/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800

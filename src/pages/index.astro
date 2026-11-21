@@ -18,7 +18,7 @@ const faqs = [
   },
   {
     q: 'Where do the measurements come from?',
-    a: 'Official standards where they exist (ISO paper and card sizes, NASA planetary fact sheets, NBA ball specs) and reputable references for animals, buildings and vehicles. Every object shows its source, measurement context, and uncertainty range.',
+    a: 'Official standards where they exist (ISO paper and card sizes, NASA planetary fact sheets, NBA ball specs), the CIA World Factbook for country areas, and reputable references for animals, buildings and vehicles. Every object shows its source, measurement context, and uncertainty range.',
   },
   {
     q: 'Why does the small object look SO small sometimes?',
@@ -33,7 +33,9 @@ const counts = OBJECT_LIBRARY.reduce<Record<string, number>>((acc, r) => {
 }, {});
 const categories = [
   { label: 'Animals', count: counts.animal ?? 0, blurb: 'Elephants, whales, T. rex, penguins — heights, lengths and weights.' },
+  { label: 'Places', count: counts.place ?? 0, blurb: 'Countries by total area and population — China, USA, Russia, India.' },
   { label: 'Space', count: counts.space ?? 0, blurb: 'Sun, Earth, Moon, Jupiter, Mars — diameters and volumes from NASA.' },
+  { label: 'Nature', count: counts.nature ?? 0, blurb: 'Everest, K2, Kilimanjaro — and ocean trenches deeper than mountains are tall.' },
   { label: 'Buildings', count: counts.building ?? 0, blurb: 'Eiffel Tower, Burj Khalifa, Statue of Liberty, Everest.' },
   { label: 'Vehicles', count: counts.vehicle ?? 0, blurb: 'Bikes, cars, pickups, school buses — lengths and weights.' },
   { label: 'Everyday', count: counts.everyday ?? 0, blurb: 'Phones, TVs, balls, beds, tools — things you can hold.' },
@@ -47,7 +49,7 @@ const categories = [
   <!-- Hero -->
   <section class="hero">
     <div class="container">
-      <h1>Compare anything — height, weight, volume</h1>
+      <h1>Compare anything — height, weight, volume, area</h1>
       <p class="lede">
         Search {LIBRARY_BY_ID ? Object.keys(LIBRARY_BY_ID).length : 50}+ measured objects, compare
         them at their <strong>true scale</strong>, and see where every number comes from.
@@ -111,12 +113,16 @@ const categories = [
           <p>One shared scale factor and ground line. Objects that measure different dimensions are flagged, never mixed silently.</p>
         </div>
         <div>
-          <h3>Weights</h3>
-          <p>Bars exactly proportional to real mass — no truncated axes, no log scales.</p>
+          <h3>Weights, counts & speeds</h3>
+          <p>Bars exactly proportional to the value — weight, population, speed, lifespan. No truncated axes, no log scales.</p>
         </div>
         <div>
           <h3>Volumes</h3>
           <p>Spheres scale by the cube root of volume, with the rule printed on the canvas — because 3-D honesty needs a caption.</p>
+        </div>
+        <div>
+          <h3>Areas</h3>
+          <p>Squares scale by the square root of area — so a country twice the size really looks twice as wide.</p>
         </div>
       </div>
       <p>

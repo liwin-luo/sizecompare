@@ -6,8 +6,8 @@
 export const SITE = {
   name: 'SizeCompare',
   origin: 'https://sizecompare.org',
-  tagline: 'Compare anything — height, weight, volume',
+  tagline: 'Compare anything — height, weight, volume, area',
   description:
-    'Compare the real sizes, weights, and volumes of animals, objects, planets, and more — at true scale. Search 50+ measured objects, explore curated comparisons, or add your own. Free, no sign-up.',
+    'Compare sizes, weights, volumes, areas, populations and speeds at true scale — animals, planets, countries, everyday things. 290+ sourced objects. Free.',
   ga4Id: '',
 } as const;
